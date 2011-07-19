@@ -12,8 +12,10 @@
 #$ -cwd                             
 
 #$ -o $JOB_NAME.o$JOB_ID            
-#$ -q development                   
+#$ -q development             
 #$ -pe 16way 80
-#$ -l h_rt=02:00:00                 
+#$ -l h_rt=0:20:00                 
+#$ -M cjmaclellan@mdanderson.org
+#$ -m be 
 set -x                              
 dakota dakota_hopspack.in 

@@ -58,7 +58,7 @@ def deltapModeling(**kwargs):
               kwargs['cv']['mu_s_healthy'] ) 
   # from AE paper
   #http://scitation.aip.org/journals/doc/MPHYA6-ft/vol_36/iss_4/1351_1.html#F3
-  getpot.SetIniValue( "optical/guass_radius","0.0025" ) 
+  getpot.SetIniValue( "optical/guass_radius","0.0035" ) 
   # 1-300
   getpot.SetIniValue( "optical/mu_a_tumor",
               kwargs['cv']['mu_a_tumor'] ) 
@@ -71,7 +71,7 @@ def deltapModeling(**kwargs):
   getpot.SetIniValue( "optical/anfact",
               kwargs['cv']['anfact'] ) 
   #agar length
-  getpot.SetIniValue( "optical/agar_length","0.023" ) 
+  getpot.SetIniValue( "optical/agar_length","0.0206" ) 
   getpot.SetIniValue("optical/refractive_index","1.0")
   #
   #  given the original orientation as two points along the centerline z = x2 -x1
@@ -84,7 +84,7 @@ def deltapModeling(**kwargs):
                     [0.,0.,1.]]
   Translation =     [0.,0.,0.]
   # original coordinate system laser input
-  laserTip         =  [0.,.0,.035] 
+  laserTip         =  [0.,-.000625,.035] 
   laserOrientation =  [0.,0.,-1.0 ] 
   
   import vtk
@@ -98,10 +98,10 @@ def deltapModeling(**kwargs):
   AffineTransform = vtk.vtkTransform()
   # should be in meters
   AffineTransform.Translate([ kwargs['cv']['x_translate'],
-                              0.00775,-0.0001])
-  AffineTransform.RotateZ( 0.0 )
+                              0.0375,0.0033])
+  AffineTransform.RotateZ( 0.0 ) 
   AffineTransform.RotateY(-90.0 )
-  AffineTransform.RotateX(  0.0 )
+  AffineTransform.RotateX(  2.0 )
   AffineTransform.Scale([1.,1.,1.])
   # get homogenius 4x4 matrix  of the form
   #               A | b
@@ -131,9 +131,9 @@ def deltapModeling(**kwargs):
   # initialize FEM Mesh
   femMesh = femLibrary.PylibMeshMesh()
   # must setup Ini File first
-  femMesh.SetupUnStructuredGrid( "/data/fuentes/mdacc/nano/phantomMesh.e",0,RotationMatrix, Translation  ) 
+  femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/nano/phantomMeshFullTess.e",0,RotationMatrix, Translation  ) 
   MeshOutputFile = "fem_data.%04d.e" % kwargs['fileID'] 
-  #femMes.SetupStructuredGrid( (10,10,4) ,[0.0,1.0],[0.0,1.0],[0.0,1.0]) 
+  #femMes.SetupStructuredGrid( (10,10,4) ,[0.0,1.0],[0.0,2.0],[0.0,1.0]) 
   
   # add the data structures for the Background System Solve
   # set deltat, number of time steps, power profile, and add system
@@ -142,7 +142,7 @@ def deltapModeling(**kwargs):
   deltat = acquisitionTime / nsubstep
   ntime  = 60 
   eqnSystems =  femLibrary.PylibMeshEquationSystems(femMesh,getpot)
-  getpot.SetIniPower(nsubstep,  [ [1,5,41,ntime],[1.0,0.0,1.0,0.0] ])
+  getpot.SetIniPower(nsubstep,  [ [1,6,30,ntime],[1.0,0.0,4.5,0.0] ])
   eqnSystems.AddPennesDeltaPSystem("StateSystem",deltat,ntime) 
 
   # hold imaging
@@ -161,7 +161,7 @@ def deltapModeling(**kwargs):
   # read imaging data geometry that will be used to project FEM data onto
   #vtkReader = vtk.vtkXMLImageDataReader() 
   vtkReader = vtk.vtkDataSetReader() 
-  vtkReader.SetFileName('/data/cjmaclellan/mdacc/nano/nrtmapsVTK/S695/S695.0000.vtk' ) 
+  vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/nano/spio/spioVTK/67_11/tmap_67_11.0000.vtk')
   vtkReader.Update()
   templateImage = vtkReader.GetOutput()
   dimensions = templateImage.GetDimensions()
@@ -176,7 +176,7 @@ def deltapModeling(**kwargs):
   #for timeID in range(1,10):
      # project imaging onto fem mesh
      vtkImageReader = vtk.vtkDataSetReader() 
-     vtkImageReader.SetFileName('/data/cjmaclellan/mdacc/nano/nrtmapsVTK/S695/S695.%04d.vtk' % timeID ) 
+     vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/nano/spio/spioVTK/67_11/tmap_67_11.%04d.vtk' % timeID ) 
      vtkImageReader.Update() 
      image_cells = vtkImageReader.GetOutput().GetPointData() 
      data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 
@@ -237,7 +237,7 @@ def deltapModeling(**kwargs):
           print "writing ", timeID
           vtkTemperatureWriter = vtk.vtkDataSetWriter()
           vtkTemperatureWriter.SetFileTypeToBinary()
-          vtkTemperatureWriter.SetFileName("modeltemperaturefull.%04d.vtk" % timeID )
+          vtkTemperatureWriter.SetFileName("/work/01741/cmaclell/data/mdacc/nano/invspio_67_11.%04d.vtk" % timeID )
           vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
           vtkTemperatureWriter.Update()
   retval = dict([])
