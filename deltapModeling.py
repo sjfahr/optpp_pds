@@ -58,7 +58,12 @@ def deltapModeling(**kwargs):
               kwargs['cv']['mu_s_healthy'] ) 
   # from AE paper
   #http://scitation.aip.org/journals/doc/MPHYA6-ft/vol_36/iss_4/1351_1.html#F3
-  getpot.SetIniValue( "optical/guass_radius","0.0035" ) 
+
+  #For SPIOs
+  #getpot.SetIniValue( "optical/guass_radius","0.0035" ) 
+  #For NR/NS
+  getpot.SetIniValue( "optical/guass_radius","0.0025" )
+
   # 1-300
   getpot.SetIniValue( "optical/mu_a_tumor",
               kwargs['cv']['mu_a_tumor'] ) 
@@ -71,7 +76,12 @@ def deltapModeling(**kwargs):
   getpot.SetIniValue( "optical/anfact",
               kwargs['cv']['anfact'] ) 
   #agar length
-  getpot.SetIniValue( "optical/agar_length","0.0206" ) 
+
+  #for SPIOs
+  #getpot.SetIniValue( "optical/agar_length","0.0206" ) 
+  #for NR/NS
+  getpot.SetIniValue( "optical/agar_length","0.023" )
+
   getpot.SetIniValue("optical/refractive_index","1.0")
   #
   #  given the original orientation as two points along the centerline z = x2 -x1
@@ -84,7 +94,17 @@ def deltapModeling(**kwargs):
                     [0.,0.,1.]]
   Translation =     [0.,0.,0.]
   # original coordinate system laser input
-  laserTip         =  [0.,-.000625,.035] 
+  # For SPIOs 67_11
+  #laserTip         =  [0.,-.000625,.035] 
+  # For SPIOs 67_10
+  #laserTip         =  [0.,-.0001562,.035]
+  # For SPIOs 335_11
+  #laserTip         =  [0.,-.0014062,.035]
+  # For NR		
+  laserTip         =  [0.,.0002,.035]
+  # For NS
+  #laserTip         =  [0.,.001,.035]
+
   laserOrientation =  [0.,0.,-1.0 ] 
   
   import vtk
@@ -97,19 +117,53 @@ def deltapModeling(**kwargs):
   # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
   AffineTransform = vtk.vtkTransform()
   # should be in meters
+  # For 67_11
+  #AffineTransform.Translate([ kwargs['cv']['x_translate'],
+  #                            0.0375,0.0033])
+  #AffineTransform.RotateZ( 0.0 ) 
+  #AffineTransform.RotateY(-90.0 )
+  #AffineTransform.RotateX(  2.0 )
+
+  # For 67_10
+  #AffineTransform.Translate([ kwargs['cv']['x_translate'],
+  #                            0.03025,0.0033])
+  #AffineTransform.RotateZ( 0.0 )
+  #AffineTransform.RotateY(-90.0 )
+  #AffineTransform.RotateX(  1.0 )
+  #AffineTransform.Scale([1.,1.,1.])
+
+  # For 335_11
+  #AffineTransform.Translate([ kwargs['cv']['x_translate'],
+  #                            0.0333,0.0033])
+  #AffineTransform.RotateZ( 0.0 )
+  #AffineTransform.RotateY(-90.0 )
+  #AffineTransform.RotateX(  3.0 )
+  #AffineTransform.Scale([1.,1.,1.])
+
+  # For NR
   AffineTransform.Translate([ kwargs['cv']['x_translate'],
-                              0.0375,0.0033])
-  AffineTransform.RotateZ( 0.0 ) 
+                              0.00570,-0.0001])
+  AffineTransform.RotateZ( 0.0 )
   AffineTransform.RotateY(-90.0 )
   AffineTransform.RotateX(  2.0 )
   AffineTransform.Scale([1.,1.,1.])
+
+  # For NS
+  #AffineTransform.Translate([ kwargs['cv']['x_translate'],
+  #                            0.00675,-0.0001])
+  #AffineTransform.RotateZ( 0.0 )
+  #AffineTransform.RotateY(-90.0 )
+  #AffineTransform.RotateX(  0.0 )
+  #AffineTransform.Scale([1.,1.,1.])
+
+
   # get homogenius 4x4 matrix  of the form
   #               A | b
   #    matrix =   -----
   #               0 | 1
   #   
   matrix = AffineTransform.GetConcatenatedTransform(0).GetMatrix()
-  #print matrix 
+#print matrix 
   RotationMatrix = [[matrix.GetElement(0,0),matrix.GetElement(0,1),matrix.GetElement(0,2)],
                     [matrix.GetElement(1,0),matrix.GetElement(1,1),matrix.GetElement(1,2)],
                     [matrix.GetElement(2,0),matrix.GetElement(2,1),matrix.GetElement(2,2)]]
@@ -131,18 +185,28 @@ def deltapModeling(**kwargs):
   # initialize FEM Mesh
   femMesh = femLibrary.PylibMeshMesh()
   # must setup Ini File first
-  femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/nano/phantomMeshFullTess.e",0,RotationMatrix, Translation  ) 
+  #For SPIOs
+  #femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFullTess.e",0,RotationMatrix, Translation  ) 
+  #For NS/NR
+  femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFull.e",0,RotationMatrix, Translation  )
+
   MeshOutputFile = "fem_data.%04d.e" % kwargs['fileID'] 
   #femMes.SetupStructuredGrid( (10,10,4) ,[0.0,1.0],[0.0,2.0],[0.0,1.0]) 
   
-  # add the data structures for the Background System Solve
+  # add the data structures for the background system solve
   # set deltat, number of time steps, power profile, and add system
   nsubstep = 1
-  acquisitionTime = 5.00
+  #for SPIOs
+  #acquisitionTime = 4.9305
+  #for NS/NR
+  acquisitionTime = 5.053
   deltat = acquisitionTime / nsubstep
   ntime  = 60 
   eqnSystems =  femLibrary.PylibMeshEquationSystems(femMesh,getpot)
-  getpot.SetIniPower(nsubstep,  [ [1,6,30,ntime],[1.0,0.0,4.5,0.0] ])
+  #For SPIOs
+  #getpot.SetIniPower(nsubstep,  [ [1,6,30,ntime],[1.0,0.0,4.5,0.0] ])
+  #For NS/NR
+  getpot.SetIniPower(nsubstep,  [ [1,6,42,ntime],[1.0,0.0,1.0,0.0] ])
   eqnSystems.AddPennesDeltaPSystem("StateSystem",deltat,ntime) 
 
   # hold imaging
@@ -161,7 +225,17 @@ def deltapModeling(**kwargs):
   # read imaging data geometry that will be used to project FEM data onto
   #vtkReader = vtk.vtkXMLImageDataReader() 
   vtkReader = vtk.vtkDataSetReader() 
-  vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/nano/spio/spioVTK/67_11/tmap_67_11.0000.vtk')
+  #For 67_11
+  #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_11/tmap_67_11.0000.vtk')
+  #For 67_10
+  #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_10/tmap_67_10.0000.vtk')
+  #For 335_11 
+  #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/335_11/tmap_335_11.0000.vtk')
+  #For NR
+  vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.0000.vtk')
+  #For NS
+  #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.0000.vtk') 
+
   vtkReader.Update()
   templateImage = vtkReader.GetOutput()
   dimensions = templateImage.GetDimensions()
@@ -176,7 +250,17 @@ def deltapModeling(**kwargs):
   #for timeID in range(1,10):
      # project imaging onto fem mesh
      vtkImageReader = vtk.vtkDataSetReader() 
-     vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/nano/spio/spioVTK/67_11/tmap_67_11.%04d.vtk' % timeID ) 
+  #For 67_11
+  #   vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_11/tmap_67_11.%04d.vtk' % timeID ) 
+  #For 67_10
+  #   vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_10/tmap_67_10.%04d.vtk' % timeID )
+  #For 335_11
+  #   vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/335_11/tmap_335_11.%04d.vtk' % timeID )
+  #ForNR
+     vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk' % timeID )
+  #ForNS
+  #   vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.%04d.vtk' % timeID )
+
      vtkImageReader.Update() 
      image_cells = vtkImageReader.GetOutput().GetPointData() 
      data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 
@@ -231,13 +315,14 @@ def deltapModeling(**kwargs):
          diffsq =  diff**2
          ObjectiveFunction = ObjectiveFunction + diffsq.sum()
 
+
        # write output
        writeControl = False
        if ( petscRank == 0 and writeControl ):
           print "writing ", timeID
           vtkTemperatureWriter = vtk.vtkDataSetWriter()
           vtkTemperatureWriter.SetFileTypeToBinary()
-          vtkTemperatureWriter.SetFileName("/work/01741/cmaclell/data/mdacc/nano/invspio_67_11.%04d.vtk" % timeID )
+          vtkTemperatureWriter.SetFileName("/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/invspio_67_11.%04d.vtk" % timeID )
           vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
           vtkTemperatureWriter.Update()
   retval = dict([])

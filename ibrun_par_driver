@@ -2,8 +2,8 @@
 # simple wrapper 
 #  redirect from /dev/null to save system file system
 num=$(echo $1 | awk -F. '{print $NF}')
-CONCURRENCY=10
-# number of processors per application job
+CONCURRENCY=25
+#number of processors per application job
 APPLIC_PROCS=8
 
 # node offset
