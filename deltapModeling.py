@@ -188,7 +188,8 @@ def deltapModeling(**kwargs):
   #For SPIOs
   #femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFullTess.e",0,RotationMatrix, Translation  ) 
   #For NS/NR
-  femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFull.e",0,RotationMatrix, Translation  )
+  #femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFull.e",0,RotationMatrix, Translation  )
+  femMesh.SetupUnStructuredGrid( "phantomMesh.e",0,RotationMatrix, Translation  )
 
   MeshOutputFile = "fem_data.%04d.e" % kwargs['fileID'] 
   #femMes.SetupStructuredGrid( (10,10,4) ,[0.0,1.0],[0.0,2.0],[0.0,1.0]) 
@@ -211,6 +212,7 @@ def deltapModeling(**kwargs):
 
   # hold imaging
   eqnSystems.AddExplicitSystem( "MRTI" ,1,ntime ) 
+  eqnSystems.AddExplicitSystem( "ImageMask" ,1,1) 
   
   # initialize libMesh data structures
   eqnSystems.init( ) 
@@ -223,19 +225,21 @@ def deltapModeling(**kwargs):
   exodusII_IO.WriteTimeStep(MeshOutputFile,eqnSystems, 1, 0.0 )  
   
   # read imaging data geometry that will be used to project FEM data onto
-  #vtkReader = vtk.vtkXMLImageDataReader() 
-  vtkReader = vtk.vtkDataSetReader() 
   #For 67_11
   #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_11/tmap_67_11.0000.vtk')
   #For 67_10
   #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_10/tmap_67_10.0000.vtk')
   #For 335_11 
   #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/335_11/tmap_335_11.0000.vtk')
-  #For NR
-  vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.0000.vtk')
   #For NS
   #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.0000.vtk') 
+  #For NR
+  imageFileNameTemplate = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk'
+  imageFileNameTemplate = "/data/fuentes/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
 
+  #vtkReader = vtk.vtkXMLImageDataReader() 
+  vtkReader = vtk.vtkDataSetReader() 
+  vtkReader.SetFileName( imageFileNameTemplate % 0 )
   vtkReader.Update()
   templateImage = vtkReader.GetOutput()
   dimensions = templateImage.GetDimensions()
@@ -250,17 +254,7 @@ def deltapModeling(**kwargs):
   #for timeID in range(1,10):
      # project imaging onto fem mesh
      vtkImageReader = vtk.vtkDataSetReader() 
-  #For 67_11
-  #   vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_11/tmap_67_11.%04d.vtk' % timeID ) 
-  #For 67_10
-  #   vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_10/tmap_67_10.%04d.vtk' % timeID )
-  #For 335_11
-  #   vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/335_11/tmap_335_11.%04d.vtk' % timeID )
-  #ForNR
-     vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk' % timeID )
-  #ForNS
-  #   vtkImageReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.%04d.vtk' % timeID )
-
+     vtkImageReader.SetFileName( imageFileNameTemplate % timeID )
      vtkImageReader.Update() 
      image_cells = vtkImageReader.GetOutput().GetPointData() 
      data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 
@@ -268,14 +262,17 @@ def deltapModeling(**kwargs):
      femImaging.ProjectImagingToFEMMesh("MRTI",0.0,v1,eqnSystems)  
      eqnSystems.StoreSystemTimeStep("MRTI",timeID ) 
   
-     # extract voi for QOI
-     vtkVOIExtract = vtk.vtkExtractVOI() 
-     vtkVOIExtract.SetInput( vtkImageReader.GetOutput() ) 
-     VOI = [10,100,100,150,0,0]
-     vtkVOIExtract.SetVOI( VOI ) 
-     vtkVOIExtract.Update()
-     mrti_point_data= vtkVOIExtract.GetOutput().GetPointData() 
-     mrti_array = vtkNumPy.vtk_to_numpy(mrti_point_data.GetArray('scalars')) 
+     # create image mask 
+     #  The = operator for numpy arrays just copies by reference
+     #   .copy() provides a deep copy (ie physical memory copy)
+     image_mask = data_array.copy().reshape(dimensions,order='F')
+     # Set all image pixels to large value
+     largeValue = 1.e6
+     image_mask[:,:] = largeValue 
+     # RMS error will be computed within this ROI/VOI
+     image_mask[10:100,100:150] = 1.0
+     v2 = PETSc.Vec().createWithArray(image_mask, comm=PETSc.COMM_SELF)
+     femImaging.ProjectImagingToFEMMesh("ImageMask",largeValue,v2,eqnSystems)  
      #print mrti_array
      #print type(mrti_array)
 
@@ -284,7 +281,17 @@ def deltapModeling(**kwargs):
      eqnSystems.SystemSolve( "StateSystem" ) 
      #eqnSystems.StoreTransientSystemTimeStep("StateSystem",timeID ) 
   
-     if ( timeID%nsubstep == 0 ):
+     # accumulate objective function
+     # 
+     # qoi  = ( (FEM - MRTI) / ImageMask)^2
+     # 
+     qoi = eqnSystems.WeightedL2Norm( "StateSystem","MRTI","ImageMask" ) 
+     ObjectiveFunction = ObjectiveFunction + qoi 
+    
+     # control write output
+     writeControl = False
+     if ( timeID%nsubstep == 0 and writeControl ):
+       # write exodus file
        exodusII_IO.WriteTimeStep(MeshOutputFile,eqnSystems, timeID+1, timeID*deltat )  
        # Interpolate FEM onto imaging data structures
        if (vtk != None):
@@ -293,36 +300,26 @@ def deltapModeling(**kwargs):
          vtkExodusIIReader.SetPointResultArrayStatus("u0",1)
          vtkExodusIIReader.SetTimeStep(timeID-1) 
          vtkExodusIIReader.Update()
-   
          # reflect
          vtkReflect = vtk.vtkReflectionFilter()
          vtkReflect.SetPlaneToYMax()
          vtkReflect.SetInput( vtkExodusIIReader.GetOutput() )
          vtkReflect.Update()
-
          # reuse ShiftScale Geometry
          vtkResample = vtk.vtkCompositeDataProbeFilter()
-         vtkResample.SetInput( vtkVOIExtract.GetOutput() )
+         vtkResample.SetInput( vtkImageReader.GetOutput() )
          vtkResample.SetSource( vtkReflect.GetOutput() ) 
          vtkResample.Update()
          fem_point_data= vtkResample.GetOutput().GetPointData() 
          fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('u0')) 
          #print fem_array 
          #print type(fem_array )
-
-         # accumulate objective function
-         diff =  mrti_array-fem_array
-         diffsq =  diff**2
-         ObjectiveFunction = ObjectiveFunction + diffsq.sum()
-
-
-       # write output
-       writeControl = False
-       if ( petscRank == 0 and writeControl ):
+       # only rank 0 should write
+       if ( petscRank == 0 ):
           print "writing ", timeID
           vtkTemperatureWriter = vtk.vtkDataSetWriter()
           vtkTemperatureWriter.SetFileTypeToBinary()
-          vtkTemperatureWriter.SetFileName("/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/invspio_67_11.%04d.vtk" % timeID )
+          vtkTemperatureWriter.SetFileName("invspio_67_11.%04d.vtk" % timeID )
           vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
           vtkTemperatureWriter.Update()
   retval = dict([])
