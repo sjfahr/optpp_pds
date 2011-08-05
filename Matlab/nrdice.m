@@ -23,7 +23,9 @@ function [dices]=nrdice(epath, scannum ,mpath, isoc)
     acqd=fileinfo.Private_0019_105a; %import pixel spacing and timestep
 
 %import model data (same size as experimental data)
-mtmap=readVTK2(mpath,numel(etmap(1,1,:))); 
+%mtmap=readVTK2(mpath,numel(etmap(1,1,:))); 
+load(mpath);
+mtmap=Model;
 
 pixspx=pixsp(1);
 xaxis=(1:nrow)*pixspx/10;
@@ -36,7 +38,6 @@ taxis=(0:(numel(mtmap(1,1,:))-1))*timestep;
 if numel(etmap(1,1,:)) > numel(mtmap(1,1,:))
     etmap=etmap(:,:,1:numel(mtmap(1,1,:)));
 else
-    return
 end
 
 

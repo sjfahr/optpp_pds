@@ -34,8 +34,9 @@ function [diff, rms]=nrrms(epath, scannum ,mpath)
     
 
 %import model data (same size as experimental data)
-mtmap=readVTK2(mpath,numel(etmap(1,1,:)));
-
+%mtmap=readVTK2(mpath,numel(etmap(1,1,:)));
+load(mpath);
+mtmap=Model;
     
 pixspx=pixsp(1,1)/10;
 xaxis=(1:nrow)*pixspx;
@@ -48,7 +49,6 @@ taxis=(0:(numel(mtmap(1,1,:))-1))*timestep;
 if numel(etmap(1,1,:)) > numel(mtmap(1,1,:))
     etmap=etmap(:,:,1:numel(mtmap(1,1,:)));
 else
-    return
 end
 
 %find the difference between experiment and model

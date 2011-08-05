@@ -15,7 +15,7 @@ function [movz,movt,mtemp,etemp]=nrprofiles(epath, scannum ,mpath)
 %directions
 
 % written by Chris MacLellan 4/11
-[dat2, etmap, fileinfo]=imageread4(epath,scannum);
+[~, etmap, fileinfo]=imageread4(epath,scannum);
 
     nrow = double(fileinfo.Rows);
     ncol = double(fileinfo.Columns);
@@ -30,8 +30,9 @@ function [movz,movt,mtemp,etemp]=nrprofiles(epath, scannum ,mpath)
     
 
 %import model data (same size as experimental data)
-mtmap=readVTK2(mpath,numel(etmap(1,1,:)));
-
+%mtmap=readVTK2(mpath,numel(etmap(1,1,:)));
+load(mpath);
+mtmap=Model;
 
     
 % for qq=1:numel(mtmap(1,1,:))-2;
@@ -50,7 +51,6 @@ mtmap=readVTK2(mpath,numel(etmap(1,1,:)));
 if numel(etmap(1,1,:)) > numel(mtmap(1,1,:))
     etmap=etmap(:,:,1:numel(mtmap(1,1,:)));
 else
-    return
 end
 
 imagesc(max(mtmap,[],3))
