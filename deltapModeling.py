@@ -24,6 +24,7 @@ def deltapModeling(**kwargs):
   PetscOptions.append("-ksp_rtol")
   PetscOptions.append("1.0e-15")
   #PetscOptions.append("-help")
+  #PetscOptions.append("-idb")
   petsc4py.init(PetscOptions)
   #
   # break processors into separate communicators
@@ -235,8 +236,8 @@ def deltapModeling(**kwargs):
   #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.0000.vtk') 
   #For NR
   imageFileNameTemplate = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk'
-  imageFileNameTemplate = "/data/fuentes/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
   imageFileNameTemplate = "/share/work/fuentes/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
+  imageFileNameTemplate = "/data/fuentes/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
 
   #vtkReader = vtk.vtkXMLImageDataReader() 
   vtkReader = vtk.vtkDataSetReader() 
@@ -286,7 +287,9 @@ def deltapModeling(**kwargs):
      # 
      # qoi  = ( (FEM - MRTI) / ImageMask)^2
      # 
-     qoi = eqnSystems.WeightedL2Norm( "StateSystem","MRTI","ImageMask" ) 
+     qoi = eqnSystems.WeightedL2Norm( "StateSystem","u0",
+                                      "MRTI","MRTI0",
+                                      "ImageMask","ImageMask0" ) 
      ObjectiveFunction = ObjectiveFunction + qoi 
     
      # control write output
