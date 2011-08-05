@@ -155,9 +155,12 @@ interface,
 	fork					#1,#4,#5,#7,#8,#11,#16,#19
           asynchronous			#0,#p0
           evaluation_concurrency 2	#3,#8,#18,#19
+          work_directory 
+          named = 'hopspack'
 	  file_save file_tag
-	  analysis_driver = './mpich2_par_driver'
+	  #analysis_driver = './mpich2_par_driver'
 	  #analysis_driver = './ibrun_par_driver'
+	  analysis_driver = '/share/work/fuentes/deltap_phantom_oct10/shamu_par_driver'
 	  parameters_file = 'hopspack.in'
 	  results_file = 'hopspack.out'
 
