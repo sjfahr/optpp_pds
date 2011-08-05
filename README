@@ -1,18 +1,19 @@
 to run inverse problem type 
 
 
-cd /data/cjmaclellan/mdacc/nano 
-svn up
-/opt/apps/DAKOTA/5.1/bin/dakota dakota_hopspack.in > hopspack.log & 
+dakota dakota_hopspack.in > hopspack.log & 
+tail -f hopspack.log
 
 for each function evaluation
-should see files of the form begin to appear
+should see files of the form 
 
 hopspack.in.*
 hopspack.out.*
 hopspack.*.log
 fem_data.*.e
 
+
+begin to appear in the hopspack work directory
 
 adjust "initial_point", "upper_bounds", and "lower_bounds" on parameter uncertainty 
 in dakota_hopspack.in file as needed...
