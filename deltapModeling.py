@@ -209,11 +209,15 @@ def deltapModeling(**kwargs):
   #getpot.SetIniPower(nsubstep,  [ [1,6,30,ntime],[1.0,0.0,4.5,0.0] ])
   #For NS/NR
   getpot.SetIniPower(nsubstep,  [ [1,6,42,ntime],[1.0,0.0,1.0,0.0] ])
-  eqnSystems.AddPennesDeltaPSystem("StateSystem",deltat,ntime) 
+  deltapSystem = eqnSystems.AddPennesDeltaPSystem("StateSystem",deltat) 
+  deltapSystem.AddStorageVectors(ntime)
 
   # hold imaging
-  eqnSystems.AddExplicitSystem( "MRTI" ,1,ntime ) 
-  eqnSystems.AddExplicitSystem( "ImageMask" ,1,1) 
+  mrtiSystem = eqnSystems.AddExplicitSystem( "MRTI" ) 
+  mrtiSystem.AddFirstLagrangeVariable( "u0*" ) 
+  mrtiSystem.AddStorageVectors(ntime)
+  maskSystem = eqnSystems.AddExplicitSystem( "ImageMask" ) 
+  maskSystem.AddFirstLagrangeVariable( "mask" ) 
   
   # initialize libMesh data structures
   eqnSystems.init( ) 
@@ -262,7 +266,7 @@ def deltapModeling(**kwargs):
      data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 
      v1 = PETSc.Vec().createWithArray(data_array, comm=PETSc.COMM_SELF)
      femImaging.ProjectImagingToFEMMesh("MRTI",0.0,v1,eqnSystems)  
-     eqnSystems.StoreSystemTimeStep("MRTI",timeID ) 
+     mrtiSystem.StoreSystemTimeStep(timeID ) 
   
      # create image mask 
      #  The = operator for numpy arrays just copies by reference
@@ -279,17 +283,17 @@ def deltapModeling(**kwargs):
      #print type(mrti_array)
 
      print "time step = " ,timeID
-     eqnSystems.UpdateTransientSystemTimeStep("StateSystem",timeID ) 
-     eqnSystems.SystemSolve( "StateSystem" ) 
+     eqnSystems.UpdatePetscFEMSystemTimeStep("StateSystem",timeID ) 
+     deltapSystem.SystemSolve()
      #eqnSystems.StoreTransientSystemTimeStep("StateSystem",timeID ) 
   
      # accumulate objective function
      # 
      # qoi  = ( (FEM - MRTI) / ImageMask)^2
      # 
-     qoi = eqnSystems.WeightedL2Norm( "StateSystem","u0",
-                                      "MRTI","MRTI0",
-                                      "ImageMask","ImageMask0" ) 
+     qoi = femLibrary.WeightedL2Norm( deltapSystem,"u0",
+                                      mrtiSystem,"u0*",
+                                      maskSystem,"mask" ) 
      ObjectiveFunction = ObjectiveFunction + qoi 
     
      # control write output
