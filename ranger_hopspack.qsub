@@ -18,4 +18,5 @@
 #$ -M cjmaclellan@mdanderson.org
 #$ -m be 
 set -x                              
+echo $PE_HOSTFILE |xargs cat
 dakota dakota_hopspack.in 
