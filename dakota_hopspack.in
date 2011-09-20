@@ -38,8 +38,8 @@ method,
 #		initial_delta = .5		#4,#9,#10,#11,#12,#13
 #		contraction_factor = 0.25	#p14,#p15,#p16,#p19,#p20,#p21
 #		threshold_delta = 1.e-4		#p17,#p18,#p19,#p20
-#		synchronization blocking	#1,#6,#8,#11,#12,#13,#14
-		synchronization nonblocking	#1,#6,#8,#11,#12,#13,#14
+		synchronization blocking	#1,#6,#8,#11,#12,#13,#14
+#		synchronization nonblocking	#1,#6,#8,#11,#12,#13,#14
 #		linear_equality_constraint_matrix = 2. 1. 1.	#p18,#p21
 #		linear_equality_targets = 4.0			#3,#5,#8,#9
 #		linear_inequality_constraint_matrix = 1. 1. 1.	#1,#2,#3,#10
@@ -62,9 +62,9 @@ variables,
 #For 335_11
          #initial_point 2.0 .1 .63  80 .25 .63 0.9 0.008
 #ForNS
-#         initial_point 2.0 .1 .63  96 .795 .63 0.9 -0.0052
+         initial_point 2.0 .1 .63  96 .795 .63 0.9 -0.0052
 #ForNR
-         initial_point 2.0 .1 .63  149 .695 .63 0.9 -0.002
+#         initial_point 2.0 .1 .63  149 .695 .63 0.9 -0.002
 
 #	  scales		5.0   1.5   2.0		#1,#3,#5,#8,#10,#11,#12
 #  descriptors	'x1'  'x2'  'x3'
@@ -78,22 +78,22 @@ variables,
         #  lower_bounds      =  1.  0.08  .55   1.  0.24999 .55 .85 0.0075
         #  upper_bounds      =  5. 0.12   .65   100. 0.25001  .65 .99 0.0085
 #For NR
-          lower_bounds      =  1.  0.08  .6299999   60.  0.69499 .6299999 .8999 -0.002001
-          upper_bounds      =  5. 0.12   .6300001   250. 0.69501 .6300001 .9001 -0.001999
+        # lower_bounds      =  1.  0.08  .6299999   60.  0.69499 .6299999 .8999 -0.002001
+        # upper_bounds      =  5. 0.12   .6300001   250. 0.69501 .6300001 .9001 -0.001999
 #For NS
-        #  lower_bounds      =  1. 0.08  .6299999  60.  0.79499 .6299999 .8999 -0.0054
-        #  upper_bounds      =  5. 0.12  .6300001  160. 0.79501 .6300001 .9001 -0.0050
+          lower_bounds      = 1.999  0.0999  .62999  60.  0.79499 .62999 .8999 -0.0054
+          upper_bounds      = 2.001  0.1001  .63001  160. 0.79501 .63001 .9001 -0.0050
 	  descriptors       = 'mu_a_healthy' 'od_healthy' 'k_0_healthy' 'mu_a_tumor' 'od_tumor' 'k_0_tumor' 'anfact' 'x_translate'
 
 interface,
 	fork					#1,#4,#5,#7,#8,#11,#16,#19
           asynchronous			#0,#p0
-          evaluation_concurrency 2	#3,#8,#18,#19
+          evaluation_concurrency 25	#3,#8,#18,#19
           work_directory 
           named = 'hopspack'
 	  file_save file_tag
-	  analysis_driver = '/data/fuentes/mdacc/deltap_phantom_oct10/mpich2_par_driver'
-	  #analysis_driver = './ibrun_par_driver'
+	  #analysis_driver = '/data/fuentes/mdacc/deltap_phantom_oct10/mpich2_par_driver'
+	  analysis_driver = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/ibrun_par_driver'
 	  #analysis_driver = '/share/work/fuentes/deltap_phantom_oct10/shamu_par_driver'
 	  parameters_file = 'hopspack.in'
 	  results_file = 'hopspack.out'

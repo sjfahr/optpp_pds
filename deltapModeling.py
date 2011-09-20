@@ -102,9 +102,9 @@ def deltapModeling(**kwargs):
   # For SPIOs 335_11
   #laserTip         =  [0.,-.0014062,.035]
   # For NR		
-  laserTip         =  [0.,.0002,.035]
+  #laserTip         =  [0.,.0002,.035]
   # For NS
-  #laserTip         =  [0.,.001,.035]
+  laserTip         =  [0.,.001,.035]
 
   laserOrientation =  [0.,0.,-1.0 ] 
   
@@ -142,20 +142,20 @@ def deltapModeling(**kwargs):
   #AffineTransform.Scale([1.,1.,1.])
 
   # For NR
-  AffineTransform.Translate([ kwargs['cv']['x_translate'],
-                              0.00570,-0.0001])
-  AffineTransform.RotateZ( 0.0 )
-  AffineTransform.RotateY(-90.0 )
-  AffineTransform.RotateX(  2.0 )
-  AffineTransform.Scale([1.,1.,1.])
-
-  # For NS
   #AffineTransform.Translate([ kwargs['cv']['x_translate'],
-  #                            0.00675,-0.0001])
+  #                            0.00570,-0.0001])
   #AffineTransform.RotateZ( 0.0 )
   #AffineTransform.RotateY(-90.0 )
-  #AffineTransform.RotateX(  0.0 )
+  #AffineTransform.RotateX(  2.0 )
   #AffineTransform.Scale([1.,1.,1.])
+
+  # For NS
+  AffineTransform.Translate([ kwargs['cv']['x_translate'],
+                              0.00675,-0.0001])
+  AffineTransform.RotateZ( 0.0 )
+  AffineTransform.RotateY(-90.0 )
+  AffineTransform.RotateX(  0.0 )
+  AffineTransform.Scale([1.,1.,1.])
 
 
   # get homogenius 4x4 matrix  of the form
@@ -189,8 +189,8 @@ def deltapModeling(**kwargs):
   #For SPIOs
   #femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFullTess.e",0,RotationMatrix, Translation  ) 
   #For NS/NR
-  #femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFull.e",0,RotationMatrix, Translation  )
-  femMesh.SetupUnStructuredGrid( "phantomMesh.e",0,RotationMatrix, Translation  )
+  femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFull.e",0,RotationMatrix, Translation  )
+  #femMesh.SetupUnStructuredGrid( "phantomMesh.e",0,RotationMatrix, Translation  )
 
   MeshOutputFile = "fem_data.%04d.e" % kwargs['fileID'] 
   #femMes.SetupStructuredGrid( (10,10,4) ,[0.0,1.0],[0.0,2.0],[0.0,1.0]) 
@@ -239,9 +239,9 @@ def deltapModeling(**kwargs):
   #For NS
   #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.0000.vtk') 
   #For NR
-  imageFileNameTemplate = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk'
-  imageFileNameTemplate = "/share/work/fuentes/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
-  imageFileNameTemplate = "/data/fuentes/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
+  imageFileNameTemplate = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.%04d.vtk'
+  #imageFileNameTemplate = "/share/work/fuentes/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
+  #imageFileNameTemplate = "/data/fuentes/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
 
   #vtkReader = vtk.vtkXMLImageDataReader() 
   vtkReader = vtk.vtkDataSetReader() 
@@ -276,7 +276,7 @@ def deltapModeling(**kwargs):
      largeValue = 1.e6
      image_mask[:,:] = largeValue 
      # RMS error will be computed within this ROI/VOI
-     image_mask[10:100,100:150] = 1.0
+     image_mask[46:106,98:158] = 1.0
      v2 = PETSc.Vec().createWithArray(image_mask, comm=PETSc.COMM_SELF)
      femImaging.ProjectImagingToFEMMesh("ImageMask",largeValue,v2,eqnSystems)  
      #print mrti_array
