@@ -275,8 +275,9 @@ def deltapModeling(**kwargs):
      # Set all image pixels to large value
      largeValue = 1.e6
      image_mask[:,:] = largeValue 
-     # RMS error will be computed within this ROI/VOI
-     image_mask[46:106,98:158] = 1.0
+     # RMS error will be computed within this ROI/VOI imagemask[xcoords/column,ycoords/row]
+     image_mask[98:158,46:106] = 1.0
+     #image_mask[46:106,98:158] = 1.0
      v2 = PETSc.Vec().createWithArray(image_mask, comm=PETSc.COMM_SELF)
      femImaging.ProjectImagingToFEMMesh("ImageMask",largeValue,v2,eqnSystems)  
      #print mrti_array
