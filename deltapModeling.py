@@ -47,13 +47,10 @@ def deltapModeling(**kwargs):
   # set ambient temperature 
   getpot.SetIniValue( "initial_condition/u_init","0.0" ) 
   # from Duck
-  getpot.SetIniValue( "thermal_conductivity/k_0_healthy",
-                           kwargs['cv']['k_0_healthy'] ) 
-  getpot.SetIniValue( "thermal_conductivity/k_0_tumor",
-                           kwargs['cv']['k_0_tumor'] ) 
+  getpot.SetIniValue( "thermal_conductivity/k_0_healthy",kwargs['cv']['k_0_healthy'] ) 
+  getpot.SetIniValue( "thermal_conductivity/k_0_tumor",kwargs['cv']['k_0_healthy'] ) 
   # water properties at http://www.d-a-instruments.com/light_absorption.html
-  getpot.SetIniValue( "optical/mu_a_healthy",
-              kwargs['cv']['mu_a_healthy'] ) 
+  getpot.SetIniValue( "optical/mu_a_healthy", kwargs['cv']['mu_a_healthy'] ) 
   # FIXME large mu_s (> 30) in agar causing negative fluence to satisfy BC 
   getpot.SetIniValue( "optical/mu_s_healthy",
               kwargs['cv']['mu_s_healthy'] ) 
@@ -63,7 +60,7 @@ def deltapModeling(**kwargs):
   #For SPIOs
   #getpot.SetIniValue( "optical/guass_radius","0.0035" ) 
   #For NR/NS
-  getpot.SetIniValue( "optical/guass_radius","0.0025" )
+  getpot.SetIniValue( "optical/guass_radius",".0025" )
 
   # 1-300
   getpot.SetIniValue( "optical/mu_a_tumor",
@@ -74,8 +71,7 @@ def deltapModeling(**kwargs):
   #getpot.SetIniValue( "optical/mu_a_tumor","71.0" ) 
   #getpot.SetIniValue( "optical/mu_s_tumor","89.0" ) 
   # .9  - .99
-  getpot.SetIniValue( "optical/anfact",
-              kwargs['cv']['anfact'] ) 
+  getpot.SetIniValue( "optical/anfact",kwargs['cv']['anfact'] ) 
   #agar length
 
   #for SPIOs
@@ -276,8 +272,8 @@ def deltapModeling(**kwargs):
      largeValue = 1.e6
      image_mask[:,:] = largeValue 
      # RMS error will be computed within this ROI/VOI imagemask[xcoords/column,ycoords/row]
+     #image_mask[93:153,52:112] = 1.0
      image_mask[98:158,46:106] = 1.0
-     #image_mask[46:106,98:158] = 1.0
      v2 = PETSc.Vec().createWithArray(image_mask, comm=PETSc.COMM_SELF)
      femImaging.ProjectImagingToFEMMesh("ImageMask",largeValue,v2,eqnSystems)  
      #print mrti_array
@@ -295,7 +291,7 @@ def deltapModeling(**kwargs):
      qoi = femLibrary.WeightedL2Norm( deltapSystem,"u0",
                                       mrtiSystem,"u0*",
                                       maskSystem,"mask" ) 
-     ObjectiveFunction = ObjectiveFunction + qoi 
+     ObjectiveFunction =( ObjectiveFunction + qoi) 
     
      # control write output
      writeControl = False
@@ -331,8 +327,10 @@ def deltapModeling(**kwargs):
           vtkTemperatureWriter.SetFileName("invspio_67_11.%04d.vtk" % timeID )
           vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
           vtkTemperatureWriter.Update()
+  print 'Objective Fn'
+  print ObjectiveFunction
   retval = dict([])
-  retval['fns'] = [ObjectiveFunction]
+  retval['fns'] = [ObjectiveFunction *10000000.]
   retval['rank'] = petscRank 
   return(retval)
 # end def deltapModeling(**kwargs):
@@ -391,11 +389,12 @@ elif ('DAKOTA_FNS' in paramsdict):
 # set up the data structures the rosenbrock analysis code expects
 # for this simple example, put all the variables into a single hardwired array
 continuous_vars = { 
-                    'k_0_healthy' :paramsdict['k_0_healthy' ],
-                    'k_0_tumor'   :paramsdict['k_0_tumor'   ],
-                    'mu_a_healthy':paramsdict['mu_a_healthy'],
+                    'k_0_healthy' :'.63' ,
+                    'k_0_tumor'   :'.63' ,
+                    'mu_a_healthy':'2',
                     'mu_a_tumor'  :paramsdict['mu_a_tumor'  ] 
                   }
+
 try:
    continuous_vars['w_0_healthy'] = paramsdict['w_0_healthy' ]  
    continuous_vars['w_0_tumor'  ] = paramsdict['w_0_tumor'   ] 
@@ -404,13 +403,18 @@ except KeyError:
    continuous_vars['w_0_tumor'  ] = "0.0"
 
 try:
+   continuous_vars['anfact'] = paramsdict['anfact'   ] 
+except KeyError:
+   continuous_vars['anfact'] = "0.9"
+
+try:
    continuous_vars['mu_s_healthy'] = paramsdict['mu_s_healthy']
    continuous_vars['mu_s_tumor'  ] = paramsdict['mu_s_tumor'  ]
 except KeyError:
-   anfact       = float(paramsdict['anfact'   ] )
+   anfact       = continuous_vars['anfact'] 
    od_healthy   = float(paramsdict['od_healthy'])
-   od_tumor     = float(paramsdict['od_tumor'  ])
-   mu_a_healthy = float(paramsdict['mu_a_healthy'])
+   od_tumor     = float('.695')
+   mu_a_healthy = float('2')
    mu_a_tumor   = float(paramsdict['mu_a_tumor'  ])
    #Mutr=ln(10)*OD/.01  #  .01 --> in meters  
    #mu_s = (mutr-mua)/(1-g)
@@ -420,12 +424,7 @@ except KeyError:
    continuous_vars['mu_s_tumor'  ] = "%f" % ((mu_tr_tumor  -mu_a_tumor  )/(1.0-anfact))
 
 try:
-   continuous_vars['anfact'] = paramsdict['anfact'   ] 
-except KeyError:
-   continuous_vars['anfact'] = "0.9"
-
-try:
-   continuous_vars['x_translate'] = float( paramsdict['x_translate'] )
+   continuous_vars['x_translate'] = float( '-.0052' )
 except KeyError:
    continuous_vars['x_translate'] = -0.0055
 
