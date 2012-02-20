@@ -411,9 +411,9 @@ try:
    continuous_vars['mu_s_healthy'] = paramsdict['mu_s_healthy']
    continuous_vars['mu_s_tumor'  ] = paramsdict['mu_s_tumor'  ]
 except KeyError:
-   anfact       = continuous_vars['anfact'] 
-   od_healthy   = float(paramsdict['od_healthy'])
-   od_tumor     = float('.695')
+   anfact       = float(continuous_vars['anfact'] )
+   od_healthy   = float('.105')
+   od_tumor     = float('.707')
    mu_a_healthy = float('2')
    mu_a_tumor   = float(paramsdict['mu_a_tumor'  ])
    #Mutr=ln(10)*OD/.01  #  .01 --> in meters  

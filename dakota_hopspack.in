@@ -65,7 +65,7 @@ method,
         exploratory_moves basic_pattern
 
 variables,
-	continuous_design = 3
+	continuous_design = 1
 # For 67_11
          # initial_point	2.0 .1 .63  95 .5 .63 0.9 0.003
 #For 67_10
@@ -73,7 +73,7 @@ variables,
 #For 335_11
          #initial_point 2.0 .1 .63  80 .25 .63 0.9 0.008
 #ForNS
-         initial_point 210.26 95.2 648.3 
+         initial_point 97.74
 #ForNR
 #         initial_point 2.0 .1 .63  149 .795 .63 0.9 -0.002
 
@@ -92,9 +92,9 @@ variables,
         #  lower_bounds      =  1.  0.08  .6299999   60.  0.79499 .6299999 .8999 -0.002001
         #  upper_bounds      =  5. 0.12   .6300001   250. 0.79501 .6300001 .9001 -0.001999
 #For NS
-          lower_bounds      =  115.1  50  150
-          upper_bounds      =  345.4  200 2300
-	  descriptors       =  'mu_s_healthy' 'mu_a_tumor' 'mu_s_tumor'
+          lower_bounds      =  57.  
+          upper_bounds      =  163. 
+	  descriptors       =  'mu_a_tumor' 
 
 interface,
 	fork					#1,#4,#5,#7,#8,#11,#16,#19
