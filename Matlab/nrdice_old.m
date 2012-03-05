@@ -34,13 +34,6 @@ yaxis=(1:ncol)*pixspy/10;
 timestep=acqd/numtimepts/1e6;
 taxis=(0:(numel(mtmap(1,1,:))-1))*timestep;
 
-%import temp uncertainty from rms script, when you're less lazy incirporate
-%noise analysis into this script for efficiency purposes....
-
-[~, ~,~,~,sigt]=nrrms(epath, scannum ,mpath);
-close all
-figure(1)
-
 %if experimental data is longer, truncate it to match the model 
 if numel(etmap(1,1,:)) > numel(mtmap(1,1,:))
     etmap=etmap(:,:,1:numel(mtmap(1,1,:)));
@@ -99,49 +92,44 @@ end
 % imagesc(otmapb(:,:,kk),[5 5])
 
 end
-figure(1)
 dices{nn}=dice;
-plot(taxis,dices{nn},'bo','MarkerSize',8) %plot dice as a function of time
+plot(taxis,dices{nn}) %plot dice as a function of time
 hold all
-
-figure
-imagesc(mtmap(:,:,round(time)),[0,15]);
-colormap(hot)
-axis off
-axis image
-colorbar
-hold on
-[ccm,hhm] = contour(mtmap(:,:,round(time)),[isoc(nn) isoc(nn)]);
-[cce,hhe] = contour(etmap(:,:,round(time)),[isoc(nn) isoc(nn)]);
-[cce,hhplus] = contour(etmap(:,:,round(time))+2*sigt(:,:,round(time)),[isoc(nn) isoc(nn)]);
-[cce,hhminus] = contour(etmap(:,:,round(time))-2*sigt(:,:,round(time)),[isoc(nn) isoc(nn)]);
-
-set(hhm,'color', 'g', 'LineWidth', 2);
-set(hhe,'color', 'b', 'LineWidth', 2);
-set(hhplus,'color', 'b', 'LineWidth', 1, 'LineStyle', '-');
-set(hhminus,'color', 'b', 'LineWidth', 1, 'LineStyle', '-');
-
-title([num2str(isoc(nn)) ' Degree Isocontour Lines at ' num2str(round((time-1)*5)) ' Seconds'] );
-legend([hhe,hhm],'Experiment','Model', 'Model \pm \sigma' ); %plot Dice
-
-
 end
-figure(1)
 axis tight
 ylim([0,1])
 title(['Dice Coefficient of ' num2str(isoc) ' Degree Isotherms'])
 xlabel('Time (s)')
 ylabel('Dice Coefficient')
-%legend(num2str(isoc'))
 
 figure
-imagesc(sigt(:,:,20))
+
 
 
 %  time=input('Timepoint of interest in seconds? '); %ask for specific timepoint
 %  time=time/timestep;
  
+ imagesc(mtmap(:,:,round(time)));
+ %imagesc(mtmapb(:,:,round(time)));
  
+ colormap(hot)
+ axis off
+ axis image
+ colorbar
+ hold on
+
+ [ccm,hhm] = contour(mtmap(:,:,round(time)),[isoc(1) isoc(1)]);
+ [cce,hhe] = contour(etmap(:,:,round(time)),[isoc(1) isoc(1)]);
+ 
+ %marea2=marea(round(time))*pixspx*pixspy
+ %earea2=earea(round(time))*pixspx*pixspy
+ 
+
+ set(hhm,'color', 'g', 'LineWidth', 3);
+ set(hhe,'color', 'b', 'LineWidth', 3);
+
+ title([num2str(isoc) ' Degree Isocontour Lines at ' num2str(round((time-1)*5)) ' Seconds'] );
+ legend([hhe,hhm],'Experiment','Model' ); %plot Dice
  
 hold off
 

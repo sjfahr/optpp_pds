@@ -101,7 +101,7 @@ end
 end
 figure(1)
 dices{nn}=dice;
-plot(taxis,dices{nn},'bo','MarkerSize',8) %plot dice as a function of time
+plot(taxis,dices{nn}) %plot dice as a function of time
 hold all
 
 figure
@@ -116,13 +116,13 @@ hold on
 [cce,hhplus] = contour(etmap(:,:,round(time))+2*sigt(:,:,round(time)),[isoc(nn) isoc(nn)]);
 [cce,hhminus] = contour(etmap(:,:,round(time))-2*sigt(:,:,round(time)),[isoc(nn) isoc(nn)]);
 
-set(hhm,'color', 'g', 'LineWidth', 2);
-set(hhe,'color', 'b', 'LineWidth', 2);
-set(hhplus,'color', 'b', 'LineWidth', 1, 'LineStyle', '-');
-set(hhminus,'color', 'b', 'LineWidth', 1, 'LineStyle', '-');
+set(hhm,'color', 'g', 'LineWidth', 3);
+set(hhe,'color', 'b', 'LineWidth', 3);
+set(hhplus,'color', 'b', 'LineWidth', 2, 'LineStyle', '---');
+set(hhminus,'color', 'b', 'LineWidth', 2, 'LineStyle', '--');
 
 title([num2str(isoc(nn)) ' Degree Isocontour Lines at ' num2str(round((time-1)*5)) ' Seconds'] );
-legend([hhe,hhm],'Experiment','Model', 'Model \pm \sigma' ); %plot Dice
+legend([hhe,hhm],'Experiment','Model' ); %plot Dice
 
 
 end
@@ -132,7 +132,7 @@ ylim([0,1])
 title(['Dice Coefficient of ' num2str(isoc) ' Degree Isotherms'])
 xlabel('Time (s)')
 ylabel('Dice Coefficient')
-%legend(num2str(isoc'))
+legend(num2str(isoc'))
 
 figure
 imagesc(sigt(:,:,20))

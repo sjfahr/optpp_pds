@@ -1,0 +1,4 @@
+dose=zeros(1,10);
+temp=ones(1,10);
+for ii=0:10
+    dose(ii+1)=dose(ii)

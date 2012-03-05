@@ -153,6 +153,4 @@ ylabel('Temperature Increase ^o C')
 legend('Model', 'Experiment')
 hold off
 
-plot(etemp-mtemp)
-
 %whos

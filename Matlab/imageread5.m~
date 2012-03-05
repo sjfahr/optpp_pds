@@ -101,14 +101,14 @@ filename = s2(3).name;              % Selects third file in the directory, the f
         % This section creates an image mask.  The mask eliminates the noise 
         % from the area surrounding the image, making it easier to see.  This
         % mask is used in section 5 to clean up the image.
-         scale_fac = 0.30;
-         msk = mean(rawimage(:,:,1:2),3);
-         mask_level = scale_fac*max(max(abs(msk)));
-         msk = (abs(msk)>mask_level);
-         
-         for tt = 1:(numoffile/2)
-         dat2(:,:,tt) = dat(:,:,tt);
-         end
+%          scale_fac = 0.30;
+%          msk = mean(rawimage(:,:,1:2),3);
+%          mask_level = scale_fac*max(max(abs(msk)));
+%          msk = (abs(msk)>mask_level);
+%          
+%          for tt = 1:(numoffile/2)
+%          dat2(:,:,tt) = dat(:,:,tt);
+%          end
 
         % End of Section 3
 
@@ -134,7 +134,7 @@ filename = s2(3).name;              % Selects third file in the directory, the f
         for jj = 1:(numoffile/2)
             %timage(:,:,jj) = wiener2(tmap(:,:,jj).*msk,[3,3]);
             %tempmap(:,:,jj) = wiener2(tmap(:,:,jj).*msk,[5,5]);
-            tempmap(:,:,jj) = tmap(:,:,jj).*msk;
+            tempmap(:,:,jj) = tmap(:,:,jj);
         end
         
 %         a = 1;

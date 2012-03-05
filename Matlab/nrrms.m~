@@ -111,7 +111,7 @@ te=te*10^-3;%s
 
 %calculate uncertainty map
 sigtinv=(2*3.14*alpha*gamma*b*te*abs(dat2))/(sqrt(2)*sigmaa);
-sigt=(sigtinv).^-1;
+sigt=sigtinv.^-1;
 
 %sigtinv=sigtinv.^2;
 if scannum==12;
@@ -129,7 +129,7 @@ elseif scannum==22;
    %etmap=etmap(46:106,98:158,:);
 end
 
-noise=squeeze(mean(mean(mean(sigtinv(:,:,:),2),1))).^-1
+noise=squeeze(mean(mean(mean(sigtinv(:,:,:),2),1))).^-1;
 
 figure;
 imagesc(etmap(:,:,30));
