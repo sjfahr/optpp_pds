@@ -1,0 +1,4 @@
+#!/bin/bash
+# simple wrapper 
+echo $1 $2 
+echo 0.0 > $2

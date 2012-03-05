@@ -26,19 +26,49 @@
 # p0=2, p1=2, p2=2, p3=2, p4=2, p5=2, p6=2, p7=2, p8=2, p9=2, p10=2, p11=2, p12=2, p13=2, p14=2, p15=2, p16=2, p17=2, p18=2, p19=2, p20=2, p21=2
 
 strategy,
-        ##method independent controls
-        graphics
-        tabular_graphics_data
-        #tabular_graphics_file
-        #output_precision
-        #iterator servers
-        #iterator_self_scheduling
-        #iterator_static_scheduling
-        ##define strategy
-        single_method
+	single_method
+	  method_pointer = 'PARAM'
+	  graphics,tabular_graphics_data
 
+###########################
+#  begin parameter study  #
+###########################
 method,
-        ##method independent controls
+	id_method = 'PARAM'
+	model_pointer = 'PARAM_M'
+	multidim_parameter_study		
+	  output verbose
+	  partitions = 2
+
+model,
+	id_model = 'PARAM_M'
+	nested
+	  variables_pointer  = 'PARAM_V'
+	  sub_method_pointer = 'OPT'
+	  responses_pointer  = 'PARAM_R'
+#	  primary_variable_mapping   = 'angle' 'diameter' 'distance'
+#	  secondary_variable_mapping = 'angle' 'diameter' 'distance'
+          primary_response_mapping   = 1. 
+#         secondary_response_mapping = 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+
+variables,
+	id_variables = 'PARAM_V'
+	discrete_state_set_int= 1
+	  num_set_values       3
+	  set_values          0 30 60
+	  descriptors    'nzero' 
+
+responses,
+	id_responses = 'PARAM_R'
+	num_objective_functions = 1             
+	no_gradients				
+	no_hessians
+##########################
+# begin opt specification#
+##########################
+method,
+	id_method = 'OPT'
+	model_pointer = 'OPT_M'
         output verbose
         #max_iterations
         #max_function_evaluations
@@ -64,7 +94,19 @@ method,
         synchronization blocking
         exploratory_moves basic_pattern
 
+model,
+	id_model = 'OPT_M'
+	single
+	  variables_pointer = 'OPT_V'
+	  interface_pointer = 'OPT_I'
+	  responses_pointer = 'OPT_R'
+
 variables,
+	id_variables = 'OPT_V'
+	discrete_state_set_int= 1
+	  num_set_values       3
+	  set_values         0 30 60 
+	  descriptors    'nzero' 
 	continuous_design = 1
 # For 67_11
          # initial_point	2.0 .1 .63  95 .5 .63 0.9 0.003
@@ -97,19 +139,21 @@ variables,
 	  descriptors       =  'mu_a_tumor' 
 
 interface,
+	id_interface = 'OPT_I'
 	fork					#1,#4,#5,#7,#8,#11,#16,#19
           asynchronous			#0,#p0
           #evaluation_concurrency 5	#3,#8,#18,#19
           work_directory 
           named = 'hopspack'
 	  file_save file_tag
-	  #analysis_driver = '/data/fuentes/mdacc/deltap_phantom_oct10/mpich2_par_driver'
-	  analysis_driver = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/ibrun_par_driver'
+	  analysis_driver = '/data/fuentes/mdacc/deltap_phantom_oct10/test_dakota_driver'
+	  #analysis_driver = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/ibrun_par_driver'
 	  #analysis_driver = '/share/work/fuentes/deltap_phantom_oct10/shamu_par_driver'
 	  parameters_file = 'hopspack.in'
 	  results_file = 'hopspack.out'
 
 responses,
+	id_responses = 'OPT_R'
 	num_objective_functions = 1
 #	num_nonlinear_equality_constraints = 1		  #1,#3,#4,#5,#6
 #		nonlinear_equality_targets = -.2	  #1,#3,#4,#5,#6

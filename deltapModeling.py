@@ -185,7 +185,9 @@ def deltapModeling(**kwargs):
   #For SPIOs
   #femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFullTess.e",0,RotationMatrix, Translation  ) 
   #For NS/NR
-  femMesh.SetupUnStructuredGrid( "/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/phantomMeshFull.e",0,RotationMatrix, Translation  )
+  meshFile = "../phantomMeshFull.e"
+  meshFile = "../phantomMesh.e"
+  femMesh.SetupUnStructuredGrid( meshFile ,0,RotationMatrix, Translation  )
   #femMesh.SetupUnStructuredGrid( "phantomMesh.e",0,RotationMatrix, Translation  )
 
   MeshOutputFile = "fem_data.%04d.e" % kwargs['fileID'] 
@@ -221,10 +223,6 @@ def deltapModeling(**kwargs):
   # print info
   eqnSystems.PrintSelf() 
   
-  # write IC
-  exodusII_IO = femLibrary.PylibMeshExodusII_IO(femMesh)
-  exodusII_IO.WriteTimeStep(MeshOutputFile,eqnSystems, 1, 0.0 )  
-  
   # read imaging data geometry that will be used to project FEM data onto
   #For 67_11
   #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/spio/spioVTK/67_11/tmap_67_11.0000.vtk')
@@ -235,24 +233,43 @@ def deltapModeling(**kwargs):
   #For NS
   #vtkReader.SetFileName('/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.0000.vtk') 
   #For NR
-  imageFileNameTemplate = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.%04d.vtk'
+  #imageFileNameTemplate = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.%04d.vtk'
   #imageFileNameTemplate = "/share/work/fuentes/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
-  #imageFileNameTemplate = "/data/fuentes/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
+  imageFileNameTemplate = "/data/fuentes/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
 
+  # get initial imaging data
+  nzero = kwargs['cv']['nzero']
   #vtkReader = vtk.vtkXMLImageDataReader() 
   vtkReader = vtk.vtkDataSetReader() 
-  vtkReader.SetFileName( imageFileNameTemplate % 0 )
+  vtkReader.SetFileName( imageFileNameTemplate % nzero )
   vtkReader.Update()
   templateImage = vtkReader.GetOutput()
   dimensions = templateImage.GetDimensions()
   spacing = templateImage.GetSpacing()
   origin  = templateImage.GetOrigin()
   print spacing, origin, dimensions
+  # setup imaging
   femImaging = femLibrary.PytttkImaging(getpot, dimensions ,origin,spacing) 
+  # project onto fem 
+  imageCells = vtkReader.GetOutput().GetPointData() 
+  dataArray = vtkNumPy.vtk_to_numpy(imageCells.GetArray('scalars')) 
+  v1 = PETSc.Vec().createWithArray(dataArray, comm=PETSc.COMM_SELF)
+  femImaging.ProjectImagingToFEMMesh("MRTI",0.0,v1,eqnSystems)  
+  mrtiSystem.StoreSystemTimeStep(nzero ) 
+  # check if we want to project imaging onto FEM as the IC
+  if (nzero != 0):
+     mrtidata = mrtiSystem.GetSolutionVector() 
+     # write soln to disk for processing
+     eqnSystems.SetPetscFEMSystemSolnSubVector( "StateSystem",mrtidata,0)
+     eqnSystems.UpdatePetscFEMSystemTimeStep("StateSystem",nzero) 
+
+  # write IC
+  exodusII_IO = femLibrary.PylibMeshExodusII_IO(femMesh)
+  exodusII_IO.WriteTimeStep(MeshOutputFile,eqnSystems, 1, 0.0 )  
   
-  ObjectiveFunction = 0.0
   # loop over time steps and solve
-  for timeID in range(1,ntime*nsubstep):
+  ObjectiveFunction = 0.0
+  for timeID in range(nzero+1,ntime*nsubstep):
   #for timeID in range(1,10):
      # project imaging onto fem mesh
      vtkImageReader = vtk.vtkDataSetReader() 
@@ -392,7 +409,8 @@ continuous_vars = {
                     'k_0_healthy' :'.63' ,
                     'k_0_tumor'   :'.63' ,
                     'mu_a_healthy':'2',
-                    'mu_a_tumor'  :paramsdict['mu_a_tumor'  ] 
+                    'mu_a_tumor'  :paramsdict['mu_a_tumor'  ],
+                    'nzero'       :int(paramsdict['nzero'  ])
                   }
 
 try:
