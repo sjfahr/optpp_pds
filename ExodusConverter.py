@@ -14,7 +14,7 @@ deltat = acquisitionTime / nsubstep
 #FEMMeshFileName="/work/00131/fuentes/data/mdacc/uq_canine_feb07/meshTemplateQuarter2.e"
 #FEMMeshFileName="/data/fuentes/mdacc/uq_canine_feb07/meshTemplateQuarter1.e"
 #FEMMeshFileName="/data/cjmaclellan/mdacc/nano/phantomMeshFullTess.e"
-FEMMeshFileName="/data/cjmaclellan/mdacc/nano/phantomMeshFull.e"
+FEMMeshFileName="/data/cjmaclellan/mdacc/deltap_phantom_oct10/phantomMeshFull.e"
 SolnOutputTemplate = "soln.%04d.out"
 #print FEMMeshFileName
 
@@ -56,7 +56,7 @@ def ProjectImagingMesh(fem_mesh_file):
   #vtkReader = vtk.vtkXMLImageDataReader()
   vtkReader = vtk.vtkDataSetReader()
   #vtkReader.SetFileName('/data/cjmaclellan/mdacc/nano/spio/spioVTK/67_11/tmap_67_11.0000.vtk' )
-  vtkReader.SetFileName('/data/cjmaclellan/mdacc/nano/nrtmapsVTK/S695/S695.0000.vtk' )
+  vtkReader.SetFileName('/data/cjmaclellan/mdacc/deltap_phantom_oct10/VTKtmaps/S695/S695.0000.vtk' )
   #vtkReader.SetFileName('/data/cjmaclellan/mdacc/nano/nrtmapsVTK/R695/R695.0000.vtk' ) 
   vtkReader.Update()
   templateImage = vtkReader.GetOutput()
@@ -92,14 +92,17 @@ def ProjectImagingMesh(fem_mesh_file):
   vtkExodusIIReader = vtk.vtkExodusIIReader()
   vtkExodusIIReader.SetFileName( fem_mesh_file )
   vtkExodusIIReader.SetPointResultArrayStatus("u0",1)
-  vtkExodusIIReader.SetPointResultArrayStatus("MRTI0",1)
+  vtkExodusIIReader.SetPointResultArrayStatus("u0*",1)
+  vtkExodusIIReader.SetPointResultArrayStatus("u1",1)
 
   matsize = int(dimensions[1])#get matrix size
   #preallocate size of arrays
-  u1_array = scipy.zeros((matsize,matsize))
-  u2_array = scipy.zeros((matsize,matsize,ntime*nsubstep))
-  MRTI1_array = scipy.zeros((matsize,matsize))
-  MRTI2_array = scipy.zeros((matsize,matsize,ntime*nsubstep))
+  u0_array_1 = scipy.zeros((matsize,matsize))
+  u0_array_2 = scipy.zeros((matsize,matsize,ntime*nsubstep))
+  u1_array_1 = scipy.zeros((matsize,matsize))
+  u1_array_2 = scipy.zeros((matsize,matsize,ntime*nsubstep))
+  u0star_array_1 = scipy.zeros((matsize,matsize))
+  u0star_array_2 = scipy.zeros((matsize,matsize,ntime*nsubstep))
 
   #for timeID in range(1,2):
   for timeID in range(1,ntime*nsubstep):
@@ -151,16 +154,20 @@ def ProjectImagingMesh(fem_mesh_file):
     vtkResample.Update()
     fem_point_data= vtkResample.GetOutput().GetPointData()
     u0_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('u0'))
-    MRTI0_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('MRTI0'))
+    u0star_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('u0*'))
+    u1_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('u1'))
+ 
     
     #go from 1x256^2 array to 256X256 array for each timestep
     for nn in range(0,matsize):
-     u1_array[nn,:]=u0_array[nn*matsize:(nn+1)*matsize]
-     MRTI1_array[nn,:]=MRTI0_array[nn*matsize:(nn+1)*matsize]
+     u0_array_1[nn,:]=u0_array[nn*matsize:(nn+1)*matsize]
+     u0star_array_1[nn,:]=u0star_array[nn*matsize:(nn+1)*matsize]
+     u1_array_1[nn,:]=u1_array[nn*matsize:(nn+1)*matsize]
    
     #apply proper rotations/reflections and combine 2D arrays into 3D array 
-    u2_array[:,:,timeID]=numpy.fliplr(numpy.rot90(u1_array,k=3))
-    MRTI2_array[:,:,timeID]=numpy.fliplr(numpy.rot90(MRTI1_array,k=3))
+    u0_array_2[:,:,timeID-1]=numpy.fliplr(numpy.rot90(u0_array_1,k=3))
+    u0star_array_2[:,:,timeID-1]=numpy.fliplr(numpy.rot90(u0star_array_1,k=3))
+    u1_array_2[:,:,timeID-1]=numpy.fliplr(numpy.rot90(u1_array_1,k=3))
     
     # write numpy to disk in matlab
     #scipyio.savemat("MS795.%04d.mat" % (timeID), {'u0':u1_array,'MRTI0':MRTI0_array })
@@ -173,9 +180,9 @@ def ProjectImagingMesh(fem_mesh_file):
     vtkStatsWriter.SetInput(vtkResample.GetOutput())
     vtkStatsWriter.Update()
 
-  scipyio.savemat("S695.mat",{'Model':u2_array,'MRTI':MRTI2_array})
+  scipyio.savemat("S695.mat",{'ModelFluence':u1_array_2,'MRTI':u0star_array_2,'ModelTemp':u0_array_2})
   
 #ProjectImagingMesh('/data/cjmaclellan/mdacc/nano/spio/spioVTK/335_11/fem_data_335_11.e')
 #ProjectImagingMesh('/data/cjmaclellan/mdacc/nano/nrtmapsVTK/R695/fem_data_NR.e')
-ProjectImagingMesh('/data/cjmaclellan/mdacc/nano/nrtmapsVTK/S695/fem_data_NS_3.e')
+ProjectImagingMesh('/data/cjmaclellan/mdacc/deltap_phantom_oct10/fem_data.0001.e')
 #ProjectImagingMesh(FEMMeshFileName)
