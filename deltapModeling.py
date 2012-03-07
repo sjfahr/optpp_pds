@@ -235,7 +235,8 @@ def deltapModeling(**kwargs):
   #For NR
   #imageFileNameTemplate = '/work/01741/cmaclell/data/mdacc/deltap_phantom_oct10/nrtmapsVTK/S695/S695.%04d.vtk'
   #imageFileNameTemplate = "/share/work/fuentes/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
-  imageFileNameTemplate = "/data/fuentes/mdacc/deltap_phantom_oct10/nrtmapsVTK/R695/R695.%04d.vtk"
+  imageFileNameTemplate = "../nrtmapsVTK/R695/R695.%04d.vtk"
+
 
   # get initial imaging data
   nzero = kwargs['cv']['nzero']
