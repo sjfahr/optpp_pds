@@ -40,3 +40,10 @@ Invoking
 	./dakmatlab --help
 
 causes dakmatlab to print a message about its use.
+
+
+initialize matlab engine server
+	./dakmatlab -s
+
+setup and preprocess any workspace variables with setupworkspace.m
+	./dakmatlab setup workspace

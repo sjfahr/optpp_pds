@@ -2,12 +2,12 @@
 # For other platforms, you may need to adjust the "E =", "B =",
 # "L =", and "W =" lines below.
 
-E = /usr/local/matlab/7.6
+E = /opt/MATLAB/R2011a
 I = $E/extern/include
 B = $E/bin/glnxa64
 L = -L$B -leng -lmx
 W = -Wl,-rpath,$B -Wl,-rpath-link,$B
-CFLAGS = -O
+CFLAGS = -O0 -g
 CC = cc
 
 dakmatlab: dakmatlab.o

@@ -13,7 +13,7 @@ method,
 	  max_iterations = 50,
 	  convergence_tolerance = 1e-12
 #	  convergence_tolerance = 1e-4
-#	  output debug
+	  output verbose
 
 variables,
 	continuous_design = 2
@@ -27,6 +27,7 @@ interface,
 	  analysis_driver = './dakmatlab',
 	  parameters_file = 'r.in'
 	  results_file = 'r.out'
+	  file_tag file_save
 	  deactivate active_set_vector
 
 responses,

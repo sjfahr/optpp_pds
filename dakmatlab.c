@@ -221,6 +221,14 @@ process(Engine *ep, char *parname, char *resname)
 	real *x;
 
 	rc = 1;
+        if (!strcmp(parname,"setup") && 
+            !strcmp(resname,"workspace"))
+           { 
+             printf("pre-processing with setupworkspace.m\n");
+             fflush(stdout);
+             engEvalString(ep, "setupworkspace");
+	     return 0;
+           }
 	if (!(fi.f = fopen(parname,"r"))) {
 		BadOpen("parameters_file", parname);
 		goto done1;
@@ -358,7 +366,8 @@ server(char **argv, char *pname[2], int p[2])
 		return mkfifo_fail(pname[1]);
 		}
 	s = *argv;
-	ep = engOpen(s ? s : "");
+        //if(s){ printf("%s\n",s); fflush(stdout);}
+	ep = engOpen(s ? s : "matlab -logfile engine.log");
 	if (!ep) {
 		Squawk("could not start MATLAB\n");
 		return 1;
