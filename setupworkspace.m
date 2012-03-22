@@ -1,3 +1,5 @@
-disp('hello')
-mrdata = rand(10)
-who
+clear all
+FunctionEvaluation = 'y=f(x,mrdata);'
+GradientEvaluation = 'yp=fp(x);'
+HessianEvaluation  = 'ypp=fpp(x);'
+mrdata = rand(10);

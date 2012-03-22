@@ -275,7 +275,8 @@ process(Engine *ep, char *parname, char *resname)
 	mxDestroyArray(X);
 
 	if (asvkind[0]) {
-		engEvalString(ep, "y = f(x);");
+		engEvalString(ep, "eval(FunctionEvaluation);");
+		//engEvalString(ep, "y = f(x);");
 		X = engGetVariable(ep,"y");
 		if (!X) {
 			Squawk("MATLAB didn't return y = f(x)\n");
@@ -288,7 +289,8 @@ process(Engine *ep, char *parname, char *resname)
 		mxDestroyArray(X);
 		}
 	if (asvkind[1]) {
-		engEvalString(ep, "yp = fp(x);");
+		engEvalString(ep, "eval(GradientEvaluation);");
+		//engEvalString(ep, "yp = fp(x);");
 		X = engGetVariable(ep,"yp");
 		if (!X) {
 			Squawk("MATLAB didn't return yp = fp(x)\n");
@@ -301,7 +303,8 @@ process(Engine *ep, char *parname, char *resname)
 		mxDestroyArray(X);
 		}
 	if (asvkind[2]) {
-		engEvalString(ep, "ypp = fpp(x);");
+		engEvalString(ep, "eval(HessianEvaluation);");
+		//engEvalString(ep, "ypp = fpp(x);");
 		X = engGetVariable(ep,"ypp");
 		if (!X) {
 			Squawk("MATLAB didn't return ypp = fpp(x)\n");
