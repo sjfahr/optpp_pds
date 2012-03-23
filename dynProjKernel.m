@@ -1,9 +1,17 @@
-function [ rmsError ] = dynProjKernel( Amplitude,Shape,Scale,Delay,MRData)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function  difference = dynProjKernel( x, data, npixel)
+% input model parameters x create simulated forward projection
+% data to compare to the exact data
+%  return the vector of the differences between the predicted and measured values
+
+%reshape the model parameters into intuitive matrices
+ModelParameters = reshape(x,npixel, npixel,4);
+Amplitude = ModelParameters(:,:,1);
+Shape     = ModelParameters(:,:,2);
+Scale     = ModelParameters(:,:,3);
+Delay     = ModelParameters(:,:,4);
 
 
-N = size(MRData,2);
+N = size(data,2);
 x = 1:N;
 sDim1 = size(Amplitude,1);
 sDim2 = size(Amplitude,2);
@@ -22,10 +30,12 @@ theta = 0;
 for proj = 1:N,
     theta = theta + 111.246; % increment based on golden ratio
     im = squeeze(B(:,:,proj));
-    R(:,proj) = radon(im,theta); % calculate synthetic acquired sinogram
+    Predicted(:,proj) = radon(im,theta); % calculate synthetic acquired sinogram
 end
 
-rmsError = sqrt(sum(sum((MRData - R).*conj(MRData - R))));
+difference = data(:) - Predicted(:);
+ 
+disp(sprintf('rms error %f ',sum(difference.^2)));
 
 end
 

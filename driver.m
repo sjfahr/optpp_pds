@@ -1,11 +1,21 @@
 close all
 clear all
 
-options = optimset('jacobian','off');
-MRData=rand(10);
-LowerBound   = [-1 -1];
-UpperBound   = [10 10];
-InitialGuess = [0,1];
+%generate simulated data and initial guess
+ModelReconSim
+
+LowerBound = zeros(size(InitialGuess)); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
+UpperBound = zeros(size(InitialGuess)); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
+
+LowerBound(:,:,1) = 0; % amplitide: 0-10
+LowerBound(:,:,2) = 2 ; % shape : 2-7
+LowerBound(:,:,3) = 1 ; % scale : 1-3
+LowerBound(:,:,4) = 0; % delay: 0-40
+UpperBound(:,:,1) = 10; % amplitide: 0-10
+UpperBound(:,:,2) = 7 ; % shape : 2-7
+UpperBound(:,:,3) = 3 ; % scale : 1-3
+UpperBound(:,:,4) = 40; % delay: 0-20
+
 %If FUN is parameterized, you can use anonymous functions to capture the
 %problem-dependent parameters. Suppose you want to solve the non-linear
 %least squares problem given in the function myfun, which is
@@ -24,7 +34,8 @@ InitialGuess = [0,1];
 %
 %        c = -1; % define parameter first
 %        x = lsqnonlin(@(x) myfun(x,c),[1;1])
-[x,resnorm,residual,exitflag,output,lambda] = lsqnonlin(@(x) ForwardProject(x,MRData),InitialGuess,LowerBound,UpperBound,options)
+options = optimset('jacobian','off','MaxFunEvals',100000000);
+[x,resnorm,residual,exitflag,output,lambda] = lsqnonlin( @(x) dynProjKernel(x,MRData,npixel),InitialGuess(:),LowerBound(:),UpperBound(:),options);
 
 switch exitflag
  case 1
@@ -46,5 +57,3 @@ switch exitflag
  otherwise
    disp('unknown ')
 end
-x
-%MRData(1)
