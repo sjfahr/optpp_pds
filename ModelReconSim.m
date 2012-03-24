@@ -11,7 +11,8 @@ time = 1:N;
 % setup theoretical phantom
 npixel = 8 ; 
 
-ExactData  = zeros(npixel,npixel,4); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
+ExactData         = zeros(npixel,npixel,4); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
+ExactData(:,:,3)  = ones(npixel,npixel); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
 ExactData(2:npixel-1,2:npixel-1,1) =    10*rand(npixel-2); % amplitide: 0-10
 ExactData(2:npixel-1,2:npixel-1,2) = 2 + 5*rand(npixel-2); % shape : 2-7
 ExactData(2:npixel-1,2:npixel-1,3) = 1 + 2*rand(npixel-2); % scale : 1-3
