@@ -34,7 +34,9 @@ end
 
 difference = data(:) - Predicted(:);
  
-disp(sprintf('rms error %f ',sum(difference.^2)));
+global iterFun 
+iterFun = iterFun + 1; 
+disp(sprintf('param space %d fun eval %d rms error %f ',size(x,1),iterFun,sum(difference.^2)));
 
 end
 

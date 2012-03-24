@@ -40,6 +40,8 @@ UpperBound(:,:,4) = 40; % delay: 0-20
 %        c = -1; % define parameter first
 %        x = lsqnonlin(@(x) myfun(x,c),[1;1])
 options = optimset('jacobian','off','MaxIter',10000000000,'MaxFunEvals',10000000000);
+global iterFun 
+iterFun = 0; 
 [x,resnorm,residual,exitflag,output,lambda] = lsqnonlin( @(x) dynProjKernel(x,MRData,npixel,roi),InitialGuess(:),LowerBound(:),UpperBound(:),options);
 
 switch exitflag

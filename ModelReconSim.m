@@ -25,7 +25,7 @@ theta = 0;
 B  = zeros(npixel,npixel); 
 for proj = 1:N,
     theta = theta + 111.246; % increment based on golden ratio
-    B(:,:) = ExactData(:,:,1)*gampdf(time(proj)-ExactData(:,:,4),ExactData(:,:,2),ExactData(:,:,3)); % bring them into time series
+    B(:,:) = ExactData(:,:,1).*gampdf(time(proj)-ExactData(:,:,4),ExactData(:,:,2),ExactData(:,:,3)); % bring them into time series
     %B(5:6,6:7,:) = 20*B(5:6,6:7,:); % represent tumor
     MRData(:,proj) = radon(B,theta); % calculate synthetic acquired sinogram
 end
