@@ -1,36 +1,35 @@
-function  difference = dynProjKernel( x, data, npixel)
-% input model parameters x create simulated forward projection
-% data to compare to the exact data
+function  difference = dynProjKernel( x, data, npixel,roi)
+% input model parameters x create simulated forward 
+% projection data to compare to the exact data
+%
+%     npixel x npixel is the dimension of the full image
+%        roi is the subset of image parameters where 
+%        we will acquire the data
+%
 %  return the vector of the differences between the predicted and measured values
 
 %reshape the model parameters into intuitive matrices
-ModelParameters = reshape(x,npixel, npixel,4);
+ModelParameters = reshape(x,roi(1,2)-roi(1,1)+1, roi(2,2)-roi(2,1)+1,4);
 Amplitude = ModelParameters(:,:,1);
 Shape     = ModelParameters(:,:,2);
 Scale     = ModelParameters(:,:,3);
 Delay     = ModelParameters(:,:,4);
 
 
+%TODO need to update with acquistion time
 N = size(data,2);
-x = 1:N;
-sDim1 = size(Amplitude,1);
-sDim2 = size(Amplitude,2);
-Am = repmat(Amplitude,[1 1 N]);
-Sh = repmat(Shape,[1 1 N]);
-Sc = repmat(Scale,[1 1 N]);
-De = repmat(Delay,[1 1 N]);
-xx = repmat(x',[1 sDim1 sDim2]); xx = permute(xx,[2 3 1]);
+time = 1:N;
 
-
-B = Am.*gampdf(xx-De,Sh,Sc); % bring them into time series %% SEE IF MATRIX?????
-nans = isnan(B);
-B(nans) = 0;
+%initialize image
+B = zeros(npixel);
 
 theta = 0;
 for proj = 1:N,
     theta = theta + 111.246; % increment based on golden ratio
-    im = squeeze(B(:,:,proj));
-    Predicted(:,proj) = radon(im,theta); % calculate synthetic acquired sinogram
+    B(roi(1,1):roi(1,2),roi(2,1):roi(2,2)) = Amplitude.*gampdf(time(proj)-Delay,Shape,Scale); 
+    nans = isnan(B);
+    B(nans) = 0;
+    Predicted(:,proj) = radon(B,theta); % calculate synthetic acquired sinogram
 end
 
 difference = data(:) - Predicted(:);

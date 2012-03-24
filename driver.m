@@ -1,8 +1,13 @@
 close all
 clear all
 
-%generate simulated data and initial guess
-ModelReconSim
+%load data
+load simulatedData.mat
+
+npixel = 8
+roi = [2,7;
+       2,7;]
+InitialGuess = GenerateInitialGuess (MRData,npixel,roi);
 
 LowerBound = zeros(size(InitialGuess)); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
 UpperBound = zeros(size(InitialGuess)); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
@@ -34,8 +39,8 @@ UpperBound(:,:,4) = 40; % delay: 0-20
 %
 %        c = -1; % define parameter first
 %        x = lsqnonlin(@(x) myfun(x,c),[1;1])
-options = optimset('jacobian','off','MaxFunEvals',100000000);
-[x,resnorm,residual,exitflag,output,lambda] = lsqnonlin( @(x) dynProjKernel(x,MRData,npixel),InitialGuess(:),LowerBound(:),UpperBound(:),options);
+options = optimset('jacobian','off','MaxIter',10000000000,'MaxFunEvals',10000000000);
+[x,resnorm,residual,exitflag,output,lambda] = lsqnonlin( @(x) dynProjKernel(x,MRData,npixel,roi),InitialGuess(:),LowerBound(:),UpperBound(:),options);
 
 switch exitflag
  case 1
@@ -57,3 +62,23 @@ switch exitflag
  otherwise
    disp('unknown ')
 end
+
+%% Generate data based on guess
+%
+%theta = 0;
+%for proj = 1:N,
+%    theta = theta + 111.246;
+%    im = squeeze(Bp(:,:,proj));
+%    Rp(:,proj) = radon(im,theta);
+%end
+%figure;imshow(Rp,[])
+
+%%% Compare errors in the sinogram
+%error = sqrt(sum(sum((Rp - R).*conj(Rp - R))))
+%rmsError = dynProjKernel(Ap(:,:,1),Ap(:,:,2),Ap(:,:,3),Ap(:,:,4),R)
+%
+%figure;imshow(abs([Rp ; R]),[]);
+
+%% modify guess to more closely match "true" sinogram
+
+
