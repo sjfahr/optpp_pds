@@ -1,3 +1,17 @@
+* MATLAB only version *
+
+
+The simulated data was generated with the ModelReconSim.m file
+
+run 
+
+  driver.m
+
+from matlab command file. This will load the data and start the lsq solver
+
+
+
+----------------------------------------------------------------------
 The makefile compiles and links dakmatlab, an analysis_driver for
 DAKOTA that uses MATLAB to evaluate a function expressed in f.m,
 possibly using gradients computed by fp.m and Hessians computed by
