@@ -4,22 +4,26 @@ clear all
 %load data
 load simulatedData.mat
 
-npixel = 8
-roi = [2,7;
-       2,7;]
+ExactData = ExactDataPyruvate;
+MRData       = MRDataPyruvate;
+ExactData = ExactDataLactate;
+MRData       = MRDataLactate;
+npixel = 16
+roi = [2,15;
+       2,15;]
 InitialGuess = GenerateInitialGuess (MRData,npixel,roi);
 
 LowerBound = zeros(size(InitialGuess)); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
 UpperBound = zeros(size(InitialGuess)); % pixel loc, pixel loc, params: amplitude, shape, scale, delay
 
-LowerBound(:,:,1) = 0; % amplitide: 0-10
-LowerBound(:,:,2) = 2 ; % shape : 2-7
-LowerBound(:,:,3) = 1 ; % scale : 1-3
-LowerBound(:,:,4) = 0; % delay: 0-40
-UpperBound(:,:,1) = 200; % amplitide: 0-10
-UpperBound(:,:,2) = 7 ; % shape : 2-7
-UpperBound(:,:,3) = 3 ; % scale : 1-3
-UpperBound(:,:,4) = 40; % delay: 0-20
+LowerBound(:,:,1) = 0 ; % amplitide: 0-10
+LowerBound(:,:,2) = 1 ; % shape : 2-7
+LowerBound(:,:,3) = 6 ; % scale : 1-3
+LowerBound(:,:,4) = 10; % delay: 0-40
+UpperBound(:,:,1) = 10; % amplitide: 0-10
+UpperBound(:,:,2) = 2 ; % shape : 2-7
+UpperBound(:,:,3) = 19; % scale : 1-3
+UpperBound(:,:,4) = 15; % delay: 0-20
 
 %If FUN is parameterized, you can use anonymous functions to capture the
 %problem-dependent parameters. Suppose you want to solve the non-linear
@@ -43,11 +47,11 @@ options = optimset('jacobian','off','MaxIter',10000000000,'MaxFunEvals',10000000
 global iterFun 
 iterFun = 0; 
 tic;
-%testExact = ExactData(2:7,2:7,:);
-%deltaExact = testExact + rand(6,6,4);
-%dynProjKernel(testExact,MRData,npixel,roi);
-%[x,resnorm,residual,exitflag,output,lambda] = lsqnonlin( @(x) dynProjKernel(x,MRData,npixel,roi),deltaExact(:),LowerBound(:),UpperBound(:),options);
-[x,resnorm,residual,exitflag,output,lambda] = lsqnonlin( @(x) dynProjKernel(x,MRData,npixel,roi),InitialGuess(:),LowerBound(:),UpperBound(:),options);
+testExact = ExactData(2:(npixel-1),2:(npixel-1),:);
+deltaExact = testExact + rand(npixel-2,npixel-2,4);
+dynProjKernel(testExact,MRData,npixel,roi);
+[x,resnorm,residual,exitflag,output,lambda] = lsqnonlin( @(x) dynProjKernel(x,MRData,npixel,roi),deltaExact(:),LowerBound(:),UpperBound(:),options);
+%[x,resnorm,residual,exitflag,output,lambda] = lsqnonlin( @(x) dynProjKernel(x,MRData,npixel,roi),InitialGuess(:),LowerBound(:),UpperBound(:),options);
 runtime = toc;
 
 switch exitflag
