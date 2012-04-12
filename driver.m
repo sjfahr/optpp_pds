@@ -4,10 +4,10 @@ clear all
 %load data
 load simulatedData.mat
 
-ExactData = ExactDataPyruvate;
-MRData       = MRDataPyruvate;
 ExactData = ExactDataLactate;
 MRData       = MRDataLactate;
+ExactData = ExactDataPyruvate;
+MRData       = MRDataPyruvate;
 npixel = 16
 roi = [2,15;
        2,15;]
