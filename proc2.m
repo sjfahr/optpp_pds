@@ -37,6 +37,13 @@ fg5=figure(5);set(gcf,'Name','Projections');colormap(hot)
 Projs=zeros(projsiz,tt(end)-tt(1)+1);
 NoLoc=zeros(1,length(tt));
 
+LoResheader.SliceThickness = .5;
+LoResheader.PixelSpacing = [1.;1.] ;
+HiResheader.SliceThickness = .5;
+HiResheader.PixelSpacing = [.125;.125] ;
+projheader.SliceThickness = .5;
+projheader.PixelSpacing = [1.;3.] ;
+
 fps=3;
 for tc=1:length(tt)
     t=tt(tc);
@@ -48,9 +55,11 @@ for tc=1:length(tt)
         HiResFitD=fftshift(ifft2(fftshift(tmpk)))*HiResSiz*HiResSiz/mat1/mat2;
         figure(fg1)
         imagesc([-1 1],[-1 1],abs(LoResFitD),[0 0.7])
+        writeVTK(LoResFitD,'loresfit',tc, 'image',LoResheader);
         maxlo=max([maxlo max(max(abs(LoResFitD)))]);
         figure(fg2)
         imagesc([-1 1],[-1 1],abs(HiResFitD),[0 0.8])
+        writeVTK(HiResFitD,'hiresfit',tc, 'image',HiResheader);
         maxhi=max([maxhi max(max(abs(HiResFitD)))]);
         title(sprintf('T = %d',t))    
         LoResTru(dmask2d)=ExactData(ampmsk).*gampdf(t+ti/fps-ExactData(delmsk),ExactData(s1pmsk),ExactData(s2pmsk));
@@ -59,8 +68,10 @@ for tc=1:length(tt)
         HiResTru=fftshift(ifft2(fftshift(tmpk)))*HiResSiz*HiResSiz/mat1/mat2;
         figure(fg3)
         imagesc([-1 1],[-1 1],abs(LoResTru),[0 0.7])
+        writeVTK(LoResTru,'lorestru',tc, 'image',LoResheader);
         figure(fg4)
         imagesc([-1 1],[-1 1],abs(HiResTru),[0 0.8])
+        writeVTK(HiResTru,'hirestru',tc, 'image',HiResheader);
         title(sprintf('T = %d',t))
         if ti==0
             prangle=t*111.23*pi/180;
@@ -68,6 +79,7 @@ for tc=1:length(tt)
             Projs(:,tc)=radon(abs(HiResTru),t*111.23);
             figure(fg5);
             imagesc(Projs)
+            writeVTK(Projs,'projection',tc,'projection',projheader);
             NoLoc1(tc)=sum(sum(abs(HiResTru)));
             NoLoc2(tc)=sum(Projs(:,tc));
             NoLoc3(tc)=sum(sum(LoResTru))*HiResSiz*HiResSiz/mat1/mat2;
