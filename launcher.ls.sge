@@ -17,7 +17,7 @@
 #$ -pe 24way 24
 #$ -q largemem
 #$ -o Parametric.o$JOB_ID
-#$ -l h_rt=18:00:00
+#$ -l h_rt=24:00:00
 #$ -V
 #$ -cwd
 #   <------ You MUST Specify a Project String ----->
