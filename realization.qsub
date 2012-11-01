@@ -15,7 +15,7 @@
 #$ -q normal                      	
 # total # of procs = nprocs / 16 * nway
 #$ -pe 8way 512              	
-#$ -l h_rt=10:35:00               
+#$ -l h_rt=24:00:00               
 set -x
 echo $PE_HOSTFILE |xargs cat
 cd $WORKDIR; dakota pce_run_gPC.in
