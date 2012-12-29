@@ -21,3 +21,15 @@ python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biot
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini       --pre_run=ranger_setup_driver --mu_s_healthy 
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini       --pre_run=ranger_setup_driver --k_0_healthy 
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini       --pre_run=ranger_setup_driver --w_0_healthy  --mu_a_healthy --mu_s_healthy --k_0_healthy
+
+
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_1
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_2
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_3
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_4
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_5
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_6
+
+
+imeta qu -C setup like %w_0_healthy%
