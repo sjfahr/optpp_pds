@@ -3,12 +3,18 @@ import vtk
 
 datadirectory ="/workarea/fuentes/github/UQGenPolyChaos/biotex_090318_751642_treat_0"
 directoryList = os.listdir(datadirectory )
-fileList      = filter(lambda x: x.split(".").pop(0) == "fem_stats" ,directoryList) 
+fileList      = filter(lambda x: x.split(".").pop() == "e" ,directoryList) 
 
 for stats_file in fileList:       
   vtkExodusIIReader = vtk.vtkExodusIIReader()
   vtkExodusIIReader.SetFileName("%s/%s" % (datadirectory,stats_file))
-  vtkExodusIIReader.SetPointResultArrayStatus("Varu0Mean",1)
+  vtkExodusIIReader.Update()
+  numberofresultarrays = vtkExodusIIReader.GetNumberOfPointResultArrays()
+  print stats_file, numberofresultarrays
+  for resultarrayindex in range(numberofresultarrays):
+	resultarrayname = vtkExodusIIReader.GetPointResultArrayName(resultarrayindex)
+	vtkExodusIIReader.SetPointResultArrayStatus( "%s" % (resultarrayname),1)
+	#print resultarrayname
   vtkExodusIIReader.ExodusModelMetadataOn ()
   vtkExodusIIReader.Update()
   exodusObject = vtkExodusIIReader.GetOutput()
