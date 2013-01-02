@@ -18,12 +18,13 @@
 #$ -N Parametric 
 #$ -j y #combine stderr and stdout
 # total # of jobs  = nprocs / 16 * nway
-#$ -pe 4way 480 
+#$ -pe 2way 1040 
 #$ -q normal
 #$ -o Parametric.o$JOB_ID
-#$ -l h_rt=00:55:00
+#$ -l h_rt=02:55:00
 #$ -V
 #$ -cwd
+#$ -hold_jid 2976130
 #   <------ You MUST Specify a Project String ----->
 #$ -A UTMDACC-DIP
 #  combine stdout stderr              
