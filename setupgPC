@@ -1,16 +1,7 @@
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini            --pre_run=ranger_setup_driver --w_0_healthy --k_0_healthy --mu_a_healthy --mu_s_healthy
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog2.ini            --pre_run=ranger_setup_driver --w_0_healthy --k_0_healthy --mu_a_healthy --mu_s_healthy
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog3.ini            --pre_run=ranger_setup_driver --w_0_healthy --k_0_healthy --mu_a_healthy --mu_s_healthy
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog4.ini            --pre_run=ranger_setup_driver --w_0_healthy --k_0_healthy --mu_a_healthy --mu_s_healthy
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex01Dec2011.ini --pre_run=ranger_setup_driver --w_0_healthy --k_0_healthy --mu_a_healthy --mu_s_healthy
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy --k_0_healthy --mu_a_healthy --mu_s_healthy
-
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1Nonlin.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --w_1_coag --mu_a_coag
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog2Nonlin.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --w_1_coag --mu_a_coag
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog3Nonlin.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --w_1_coag --mu_a_coag
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog4Nonlin.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --w_1_coag --mu_a_coag
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotexNonlin01Dec2011.ini --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --w_1_coag --mu_a_coag
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotexNonlin18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --w_1_coag --mu_a_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog2.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog3.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog4.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
 
 
 
