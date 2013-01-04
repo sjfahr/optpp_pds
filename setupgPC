@@ -14,13 +14,14 @@ python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biot
 
 
 
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini       --pre_run=ranger_setup_driver --w_0_healthy 
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotexNonlin18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy  --w_1_coag 
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini       --pre_run=ranger_setup_driver --mu_a_healthy 
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotexNonlin18Mar2009.ini --pre_run=ranger_setup_driver --mu_a_healthy --mu_a_coag
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini       --pre_run=ranger_setup_driver --mu_s_healthy 
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini       --pre_run=ranger_setup_driver --k_0_healthy 
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini       --pre_run=ranger_setup_driver --w_0_healthy  --mu_a_healthy --mu_s_healthy --k_0_healthy
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy  --w_1_coag 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --mu_a_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --mu_a_healthy --mu_a_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --mu_s_healthy --mu_s_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --k_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy  --mu_a_healthy --mu_s_healthy 
 
 
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_0
@@ -30,6 +31,7 @@ python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_d
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_4
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_5
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_6
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_7
 
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex01Dec2011.ini  --pre_run=ranger_setup_driver --w_0_healthy 
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex10Jan2011.ini  --pre_run=ranger_setup_driver --w_0_healthy 
@@ -45,3 +47,6 @@ python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_d
 
 
 imeta qu -C setup like %w_0_healthy%
+imeta qu -C options/mu_a_healthy '=' True
+imeta qu -C options/w_0_healthy '=' True
+imeta qu -C options/mu_a_coag '=' True
