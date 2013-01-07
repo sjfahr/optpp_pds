@@ -1,7 +1,9 @@
 import os
 import vtk
+import sys
 
-datadirectory ="/workarea/fuentes/github/UQGenPolyChaos/biotex_090318_751642_treat_0"
+#datadirectory ="/workarea/fuentes/github/UQGenPolyChaos/biotex_090318_751642_treat_0"
+datadirectory = sys.argv[1]
 directoryList = os.listdir(datadirectory )
 fileList      = filter(lambda x: x.split(".").pop() == "e" ,directoryList) 
 
