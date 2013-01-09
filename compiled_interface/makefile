@@ -2,7 +2,7 @@
 # For other platforms, you may need to adjust the "E =", "B =",
 # "L =", and "W =" lines below.
 
-E = /opt/MATLAB/R2011a
+E = /opt/MATLAB/R2012a
 I = $E/extern/include
 B = $E/bin/glnxa64
 L = -L$B -leng -lmx
