@@ -1,9 +1,27 @@
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --w_0_healthy  --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --w_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --w_0_healthy  --w_1_coag 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --mu_a_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --mu_a_healthy --mu_a_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --mu_s_healthy --mu_s_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --k_0_healthy 
+
+
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_1
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_2
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_3
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_4
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_5
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_6
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_7
+
+
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog2.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog3.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog4.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
 
-python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_0
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog2_0
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog3_0
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog4_0
