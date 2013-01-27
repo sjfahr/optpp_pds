@@ -36,12 +36,12 @@ step (6) post process convert exodus to vtk/matlab
 (3) two ways
     (i)  python gPCWFS.py --run_queue=dog1_0 --execution=qsub   (single qsub per execution)
     (ii) qsub -v WORKDIR=dog1_0 realization.qsub   (single qsub per execution)
-(4-5) qsub -v WORKDIR=dog1_0 launcher.ranger.sge ( post processing and assembly combined in one script)
+(4-5) qsub -hold_jid 3029995 -v WORKDIR=dog1_0 launcher.ranger.sge ( post processing and assembly combined in one script)
 (6) python convertExodusToMatlab.py --data_set=dog1 --exodus_file=/Full/path/to/your/exodus/file.e
 
 ---------------------  ASSEMBLE ON LONESTAR ------------------------------
 
-(4-5) qsub -v WORKDIR=dog1_0 launcher.ls.sge ( post processing and assembly combined in one script)
+(4-5) qsub -hold_jid 3029995 -v WORKDIR=dog1_0 launcher.ls.sge ( post processing and assembly combined in one script)
 
 --------------------  Fahrenholtz directions updates ------------------------------
 

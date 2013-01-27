@@ -24,7 +24,6 @@
 #$ -l h_rt=03:55:00
 #$ -V
 #$ -cwd
-#$ -hold_jid 3027557
 #   <------ You MUST Specify a Project String ----->
 #$ -A UTMDACC-DIP
 #  combine stdout stderr              
