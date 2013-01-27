@@ -74,9 +74,12 @@ python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_d
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_4
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_5
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_6
-for workdir in phantom_nov07_[789] phantom_nov07_1[012]; do python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=$workdir ; done
+for workdir in phantom_nov07_[789] phantom_nov07_1[0123]; do python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=$workdir ; done
 
 imeta qu -C setup like %w_0_healthy%
 imeta qu -C options/mu_a_healthy '=' True
 imeta qu -C options/w_0_healthy '=' True
 imeta qu -C options/mu_a_coag '=' True
+
+for workdir in phantom_nov07_[789] phantom_nov07_1[0123]; do echo python convertexodus.py $PWD/$workdir ; done
+for workdir in dog1_[1234567]; do echo python convertexodus.py $PWD/$workdir ; done
