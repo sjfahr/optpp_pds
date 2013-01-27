@@ -12,9 +12,10 @@ python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_d
 for workdir in dog1_[1234567]; do python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=$workdir ; done
 
 
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog2.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog3.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
-python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog4.ini            --pre_run=ranger_setup_driver --w_0_healthy --mu_a_healthy --mu_s_healthy
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog2.ini --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog3.ini --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog4.ini --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
 
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog2_0
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog3_0
@@ -66,6 +67,8 @@ python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phan
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --k_0_healthy 
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --mu_a_healthy --mu_s_healthy 
 python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --k_0_healthy  --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --anfact_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
 
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_0
 python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_1
