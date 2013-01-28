@@ -3,3 +3,5 @@
 mda*
 *.mat
 Processed*
+Parametric.o*
+realization.o*
