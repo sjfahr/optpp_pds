@@ -1,7 +1,6 @@
+Example usage:
 
-Example usage
-
-$ dakota dakota_optpp_pds.in 
+$ dakota dakota_optpp_pds.in
 Running MPI executable in serial mode.
 DAKOTA version 5.2 released 11/30/2011.
 Subversion revision 873 built Jan  8 2013 23:05:25.
@@ -23,54 +22,15 @@ hessianType = none
 Begin Function Evaluation    1
 ------------------------------
 Parameters for function evaluation 1:
-                      0.0000000000e+00 x1
-                      0.0000000000e+00 x2
+                      0.0000000000e+00 robin_coeff
+                      0.0000000000e+00 probe_init
+                      0.0000000000e+00 anfact_healthy
+                      0.0000000000e+00 mu_a_healthy
+                      0.0000000000e+00 mu_s_healthy
+                      0.0000000000e+00 k_0_healthy
+                      0.0000000000e+00 w_0_healthy
 
-blocking fork: /home/fuentes/SUDO/DAKOTA/5.2/Dakota/examples/tutorial/rosenbrock optpp_pds/optpp_pds.in.1 optpp_pds/optpp_pds.out.1
-
-Active response data for function evaluation 1:
-Active set vector = { 1 }
-                      1.0000000000e+00 obj_fn
-
-
-  .
-  .
-  .
-  .
-  .
-
-------------------------------
-Begin Function Evaluation  803
-------------------------------
-Parameters for function evaluation 803:
-                      9.1803013832e-01 x1
-                      8.5450101344e-01 x2
-
-blocking fork: /home/fuentes/SUDO/DAKOTA/5.2/Dakota/examples/tutorial/rosenbrock optpp_pds/optpp_pds.in.803 optpp_pds/optpp_pds.out.803
-
-Active response data for function evaluation 803:
-Active set vector = { 1 }
-                      2.0458833114e-02 obj_fn
+blocking fork: python /workarea/fuentes/github/optpp_pds/brainsearch.py --param_file  optpp_pds/optpp_pds.in.1 optpp_pds/optpp_pds.out.1
 
 
 
->>>>> optpp_pds: post-run phase.
-********************************************************
-             OPT++ TERMINATION CRITERION                
-	  FAILURE - optpp_pdsterminated         
-pdsdone: Function tolerance test passed
-********************************************************
-<<<<< Function evaluation summary: 803 total (686 new, 117 duplicate)
-         obj_fn: 803 val (686 n, 117 d), 0 grad (0 n, 0 d), 0 Hess (0 n, 0 d)
-<<<<< Best parameters          =
-                      9.1435614677e-01 x1
-                      8.3425420672e-01 x2
-<<<<< Best objective function  =
-                      7.6563388698e-03
-<<<<< Best data captured at function evaluation 780
-
-
-<<<<< Iterator optpp_pds completed.
-<<<<< Single Method Strategy completed.
-DAKOTA execution time in seconds:
-  Total CPU        =        0.2
