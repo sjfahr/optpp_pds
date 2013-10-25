@@ -1,0 +1,3 @@
+[MATERIAL PROPERTIES]
+# Name,      Type index, Density, Specific Heat, Conductivity, Perfusion, Absorption, Scattering, Anisotropy
+PigLiver     0           1045     3640           0.518         0          50          8000        0.97
