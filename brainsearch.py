@@ -33,7 +33,7 @@ meshes/cooledConformMesh.inp
 0.25
 
 [FINAL TIME]
-780
+290
 
 [PCG TOLERANCE]
 1e-6
@@ -48,7 +48,7 @@ meshes/cooledConformMesh.inp
 %s
 
 [SCREENSHOT INTERVAL]
-60
+290
 """
 
 caseFileTemplate = \
@@ -70,7 +70,7 @@ caseFileTemplate = \
 0 0 1
 
 [LASER MAXIMUM POWER]
-4
+15
 
 [BODY TEMPERATURE]
 20
@@ -138,28 +138,26 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
   print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
   ObjectiveFunction = 0.0
-  # lop over time points
-  for timeID in [2]:
-
+  # loop over time points of interest
+  for (SEMtimeID,MRTItimeID) in [(1,58)]:
     # read SEM data
     vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
-    vtufileName = "%s/%d.vtu" % (SEMDataDirectory,timeID)
+    vtufileName = "%s/%d.vtu" % (SEMDataDirectory,SEMtimeID)
     vtkSEMReader.SetFileName( vtufileName )
     vtkSEMReader.SetPointArrayStatus("Temperature",1)
     vtkSEMReader.Update()
 
     # register the SEM data to MRTI
     AffineTransform = vtk.vtkTransform()
-    AffineTransform.Translate([ .001, 0.0375,0.0033])
+    AffineTransform.Translate([ 140., 88.,0.0])
     # FIXME  notice that order of operations is IMPORTANT
     # FIXME   translation followed by rotation will give different results
     # FIXME   than rotation followed by translation
     # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
     AffineTransform.RotateZ( 0.0 ) 
-    AffineTransform.RotateY(-90.0 )
-    AffineTransform.RotateX(  2.0 )
-    AffineTransform.Scale([1.,1.,1.])
-
+    AffineTransform.RotateY( 5.0 )
+    AffineTransform.RotateX(-90.0 )
+    AffineTransform.Scale([1.e3,1.e3,1.e3])
     SEMRegister = vtk.vtkTransformFilter()
     SEMRegister.SetInput(vtkSEMReader.GetOutput())
     SEMRegister.SetTransform(AffineTransform)
@@ -167,7 +165,7 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
 
     # load image 
     vtkImageReader = vtk.vtkDataSetReader() 
-    vtkImageReader.SetFileName('%s/temperature.%04d.vtk' % (MRTIDirectory, timeID) )
+    vtkImageReader.SetFileName('%s/temperature.%04d.vtk' % (MRTIDirectory, MRTItimeID) )
     vtkImageReader.Update() 
     ## image_cells = vtkImageReader.GetOutput().GetPointData() 
     ## data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 

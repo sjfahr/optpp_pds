@@ -19,9 +19,9 @@ model,
 
 variables,
 	continuous_design = 7			
-	  initial_point    0.0     21.0     0.9    5.e2   1.4e3  0.5   6.0	
-	  lower_bounds     0.0     20.0    0.7    5.e1   5.e3   0.4   3.0	
-	  upper_bounds     1.e4    40.0    1.0    6.e2   5.04   0.7   9.0	
+	  initial_point    0.0     21.0    0.9    5.e1   8.e3   0.5   6.0	
+	  lower_bounds     0.0     20.0    0.7    5.e1   1.e3   0.4   3.0	
+	  upper_bounds     1.e4    40.0    1.0    6.e2   5.e4   0.7   9.0	
 	  descriptors      'robin_coeff' 'probe_init' 'anfact_healthy'  'mu_a_healthy'	'mu_s_healthy' 'k_0_healthy' 'w_0_healthy'
 
 interface,
