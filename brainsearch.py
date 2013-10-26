@@ -1,27 +1,135 @@
 # Read DAKOTA parameters file (aprepro or standard format) and call a
-# Read DAKOTA parameters file (aprepro or standard format) and call a
 # Python module for fem analysis.
-
-# DAKOTA will execute this script as
-#   gPCWFS.py params.in results.out
-# so sys.argv[1] will be the parameters file and
-#    sys.argv[2] will be the results file to return to DAKOTA
+# DAKOTA will execute this script 
 
 # necessary python modules
 import sys
 import re
 import os
-import pickle
-import ConfigParser
 
-SolnOutputTemplate = "variable.%s.%04d"
-MeshOutputTemplate = "fem_data.%04d.e" 
+brainNekDIR     = '/workarea/fuentes/braincode/tym1' 
+workDirectory   = 'optpp_pds'
+outputDirectory = 'outputs/dakota'
 
-brainNekDIR = '/workarea/fuentes/braincode/tym1' 
 
-setuprcFile = 'pigLiversetuprc'
+setuprcTemplate = \
+"""
+[THREAD MODEL]
+OpenCL
 
-workDirectory = 'optpp_pds'
+[CASE FILE]
+%s/case.%04d.setup
+
+[MESH FILE]
+meshes/cooledConformMesh.inp
+
+[MRI FILE]
+./mridata.setup
+
+[POLYNOMIAL ORDER]
+3
+
+[DT]
+0.25
+
+[FINAL TIME]
+780
+
+[PCG TOLERANCE]
+1e-6
+
+[GPU PLATFORM]
+0
+
+[GPU DEVICE]
+1
+
+[SCREENSHOT OUTPUT]
+%s
+
+[SCREENSHOT INTERVAL]
+60
+"""
+
+caseFileTemplate = \
+"""
+# case setup file
+# all physical quantities should be in MKS units and degrees Celsius
+
+# Data is for porcine liver (Roggan and Muller 1994)
+
+[FUNCTION FILE]
+./pigLiverCaseFunctions.occa
+
+[HAS EXACT SOLUTION]
+0
+
+# first row is center of probe, second row specifies direction
+[PROBE POSITION]
+0 0 0
+0 0 1
+
+[LASER MAXIMUM POWER]
+4
+
+[BODY TEMPERATURE]
+20
+
+[BLOOD TEMPERATURE]
+20
+
+[COOLANT TEMPERATURE]
+20
+
+[BLOOD SPECIFIC HEAT]
+3840
+
+[DAMAGE FREQUENCY FACTOR]
+1e70
+
+[DAMAGE ACTIVATION ENERGY]
+4e5
+
+[GAS CONSTANT]
+8.314
+
+[PROBE HEAT TRANSFER COEFFICIENT]
+0
+
+[MESH BLOCKS - COMPUTATIONAL DOMAIN]
+brain
+
+[MESH BLOCKS - LASER TIP]
+laserTip
+
+[MESH BLOCKS - DIRICHLET (BODY TEMPERATURE)]
+
+[MESH BLOCKS - DIRICHLET (COOLANT TEMPERATURE)]
+
+[MESH SIDE SETS - DIRICHLET (BODY TEMPERATURE)]
+regionBoundary
+
+[MESH SIDE SETS - DIRICHLET (COOLANT TEMPERATURE)]
+
+[MESH SIDE SETS - NEUMANN]
+probeSurface
+
+[MESH SIDE SETS - ROBIN]
+
+[BRAIN TYPES - DIRICHLET (BODY TEMPERATURE)]
+
+[BRAIN MATERIAL DATA FILE]
+./material_data.setup
+
+[BRAIN MATERIAL PROPERTIES FILE]
+%s/material_types.%04d.setup
+
+# Currently has material properties of water
+[PROBE MATERIAL PROPERTIES]
+# Name,   Density, Specific Heat, Conductivity, Absorption, Scattering, Anisotropy
+catheter  1.0      4180           0.5985        500         14000       0.88
+laserTip  1.0      4180           0.5985        500         14000       0.88
+"""
 
 ##################################################################
 def ComputeObjective(SEMDataDirectory,MRTIDirectory):
@@ -30,13 +138,32 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
   print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
   ObjectiveFunction = 0.0
+  # lop over time points
   for timeID in [2]:
+
     # read SEM data
     vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
     vtufileName = "%s/%d.vtu" % (SEMDataDirectory,timeID)
     vtkSEMReader.SetFileName( vtufileName )
     vtkSEMReader.SetPointArrayStatus("Temperature",1)
     vtkSEMReader.Update()
+
+    # register the SEM data to MRTI
+    AffineTransform = vtk.vtkTransform()
+    AffineTransform.Translate([ .001, 0.0375,0.0033])
+    # FIXME  notice that order of operations is IMPORTANT
+    # FIXME   translation followed by rotation will give different results
+    # FIXME   than rotation followed by translation
+    # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
+    AffineTransform.RotateZ( 0.0 ) 
+    AffineTransform.RotateY(-90.0 )
+    AffineTransform.RotateX(  2.0 )
+    AffineTransform.Scale([1.,1.,1.])
+
+    SEMRegister = vtk.vtkTransformFilter()
+    SEMRegister.SetInput(vtkSEMReader.GetOutput())
+    SEMRegister.SetTransform(AffineTransform)
+    SEMRegister.Update
 
     # load image 
     vtkImageReader = vtk.vtkDataSetReader() 
@@ -48,7 +175,7 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
     # extract voi for QOI
     vtkVOIExtract = vtk.vtkExtractVOI() 
     vtkVOIExtract.SetInput( vtkImageReader.GetOutput() ) 
-    VOI = [10,100,100,150,0,0]
+    VOI = [110,170,70,120,0,0]
     vtkVOIExtract.SetVOI( VOI ) 
     vtkVOIExtract.Update()
     mrti_point_data= vtkVOIExtract.GetOutput().GetPointData() 
@@ -56,10 +183,10 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
     #print mrti_array
     #print type(mrti_array)
 
-    # reuse ShiftScale Geometry
+    # project SEM onto MRTI for comparison
     vtkResample = vtk.vtkCompositeDataProbeFilter()
-    vtkResample.SetInput( vtkImageReader.GetOutput() )
-    vtkResample.SetSource( vtkVOIExtract.GetOutput() ) 
+    vtkResample.SetSource( SEMRegister.GetOutput() )
+    vtkResample.SetInput( vtkVOIExtract.GetOutput() ) 
     vtkResample.Update()
 
     fem_point_data= vtkResample.GetOutput().GetPointData() 
@@ -72,30 +199,41 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
     diffsq =  diff**2
     ObjectiveFunction = ObjectiveFunction + diffsq.sum()
   return ObjectiveFunction 
-  
+# end def ComputeObjective:
 ##################################################################
 def brainNekWrapper(**kwargs):
   """
   call brainNek code 
   """
+  # setuprc file
+  outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
+  print 'writing', outputSetupRCFile 
+  fileHandle = file(outputSetupRCFile ,'w')
+  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'], outputDirectory  ) )
+  fileHandle.flush(); fileHandle.close()
+
+  # case file
+  outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
+  print 'writing', outputCaseFile 
+  fileHandle = file(outputCaseFile ,'w')
+  fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID']) )
+  fileHandle.flush(); fileHandle.close()
+
+  # materials
   outputMaterialFile = '%s/material_types.%04d.setup' % (workDirectory,kwargs['fileID'])
   print 'writing', outputMaterialFile 
-  # open makefile
   fileHandle = file(outputMaterialFile   ,'w')
   fileHandle.write('[MATERIAL PROPERTIES]\n'  )
   fileHandle.write('# Name,      Type index, Density, Specific Heat, Conductivity, Perfusion, Absorption, Scattering, Anisotropy\n'  )
-
-  print kwargs
-  
   variableDictionary = kwargs['cv']
   fileHandle.write('Brain     0           1045     3640           %s        %s     %s      %s      %s \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], variableDictionary['mu_s_healthy' ], variableDictionary['mu_a_healthy' ], variableDictionary['anfact'       ])
  )
-  fileHandle.flush()
-  fileHandle.close()
+  fileHandle.flush(); fileHandle.close()
 
   # build command to run brainNek
-  brainNekCommand = "%s/main ./%s -heattransfercoefficient %s -coolanttemperature  %s > %s/run.%04d.log" % (brainNekDIR , setuprcFile,variableDictionary['robin_coeff'  ], variableDictionary['probe_init'   ], workDirectory ,kwargs['fileID'])
+  brainNekCommand = "%s/main %s -heattransfercoefficient %s -coolanttemperature  %s > %s/run.%04d.log 2>&1 " % (brainNekDIR , outputSetupRCFile ,variableDictionary['robin_coeff'  ], variableDictionary['probe_init'   ], workDirectory ,kwargs['fileID'])
 
+  # system call to run brain code
   print brainNekCommand 
   os.system(brainNekCommand )
 # end def brainNekWrapper:
@@ -300,12 +438,11 @@ parser.add_option( "--run_fem","--param_file",
 (options, args) = parser.parse_args()
 
 
-ComputeObjective("outputs/10-23-13-pigLiver-1","mrti")
-
 if (options.param_file != None):
+  # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  # FIXME link mesh directory
+  # FIXME link needed directories
   linkDirectoryList = ['occa','libocca','meshes']
   for targetDirectory in linkDirectoryList:
     linkcommand = 'ln -sf %s/%s %s' % (brainNekDIR,targetDirectory ,targetDirectory  )
@@ -315,7 +452,13 @@ if (options.param_file != None):
   # execute the rosenbrock analysis as a separate Python module
   print "Running BrainNek..."
   fem_results = brainNekWrapper(**fem_params)
-  print "BrainNek complete."
+
+  # write objective function back to Dakota
+  objfunction = ComputeObjective(outputDirectory ,"mrti")
+  print "current objective function: ",objfunction 
+  fileHandle = file(sys.argv[3],'w')
+  fileHandle.write('%f\n' % objfunction )
+  fileHandle.flush(); fileHandle.close();
 
 else:
   parser.print_help()
