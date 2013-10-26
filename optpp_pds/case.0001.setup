@@ -1,3 +1,4 @@
+
 # case setup file
 # all physical quantities should be in MKS units and degrees Celsius
 
@@ -15,7 +16,7 @@
 0 0 1
 
 [LASER MAXIMUM POWER]
-4
+15
 
 [BODY TEMPERATURE]
 20
