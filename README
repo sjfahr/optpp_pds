@@ -1,3 +1,7 @@
+parallel direct search in Dakota
+http://dakota.sandia.gov/docs/dakota/5.2/html-ref/MethodCommands.html#MethodOPTPP
+
+
 Example usage:
 
 $ dakota dakota_optpp_pds.in
