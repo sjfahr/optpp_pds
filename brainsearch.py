@@ -26,21 +26,52 @@ workDirectory = 'optpp_pds'
 ##################################################################
 def ComputeObjective(SEMDataDirectory,MRTIDirectory):
   import vtk
+  import vtk.util.numpy_support as vtkNumPy 
   print "using vtk version", vtk.vtkVersion.GetVTKVersion()
-  vtkReader = vtk.vtkXMLUnstructuredGridReader()
-  vtufileName = "%s/%d.vtu" % (SEMDataDirectory,1)
-  vtkReader.SetFileName( vtufileName )
-  vtkReader.Update()
 
-  # reuse ShiftScale Geometry
-  vtkResample = vtk.vtkCompositeDataProbeFilter()
-  vtkResample.SetInput( vtkImageReader.GetOutput() )
-  vtkResample.SetSource( vtkReflect.GetOutput() ) 
-  vtkResample.Update()
-  fem_point_data= vtkResample.GetOutput().GetPointData() 
-  fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('u0')) 
-  #print fem_array 
-  #print type(fem_array )
+  ObjectiveFunction = 0.0
+  for timeID in [2]:
+    # read SEM data
+    vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
+    vtufileName = "%s/%d.vtu" % (SEMDataDirectory,timeID)
+    vtkSEMReader.SetFileName( vtufileName )
+    vtkSEMReader.SetPointArrayStatus("Temperature",1)
+    vtkSEMReader.Update()
+
+    # load image 
+    vtkImageReader = vtk.vtkDataSetReader() 
+    vtkImageReader.SetFileName('%s/temperature.%04d.vtk' % (MRTIDirectory, timeID) )
+    vtkImageReader.Update() 
+    ## image_cells = vtkImageReader.GetOutput().GetPointData() 
+    ## data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 
+    
+    # extract voi for QOI
+    vtkVOIExtract = vtk.vtkExtractVOI() 
+    vtkVOIExtract.SetInput( vtkImageReader.GetOutput() ) 
+    VOI = [10,100,100,150,0,0]
+    vtkVOIExtract.SetVOI( VOI ) 
+    vtkVOIExtract.Update()
+    mrti_point_data= vtkVOIExtract.GetOutput().GetPointData() 
+    mrti_array = vtkNumPy.vtk_to_numpy(mrti_point_data.GetArray('image_data')) 
+    #print mrti_array
+    #print type(mrti_array)
+
+    # reuse ShiftScale Geometry
+    vtkResample = vtk.vtkCompositeDataProbeFilter()
+    vtkResample.SetInput( vtkImageReader.GetOutput() )
+    vtkResample.SetSource( vtkVOIExtract.GetOutput() ) 
+    vtkResample.Update()
+
+    fem_point_data= vtkResample.GetOutput().GetPointData() 
+    fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('Temperature')) 
+    #print fem_array 
+    #print type(fem_array )
+
+    # accumulate objective function
+    diff =  mrti_array-fem_array
+    diffsq =  diff**2
+    ObjectiveFunction = ObjectiveFunction + diffsq.sum()
+  return ObjectiveFunction 
   
 ##################################################################
 def brainNekWrapper(**kwargs):
@@ -269,7 +300,7 @@ parser.add_option( "--run_fem","--param_file",
 (options, args) = parser.parse_args()
 
 
-ComputeObjective("outputs/10-23-13-pigLiver-1","inprogress")
+ComputeObjective("outputs/10-23-13-pigLiver-1","mrti")
 
 if (options.param_file != None):
   fem_params = ParseInput(options.param_file)
