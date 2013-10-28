@@ -149,19 +149,30 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
 
     # register the SEM data to MRTI
     AffineTransform = vtk.vtkTransform()
-    AffineTransform.Translate([ 140., 88.,0.0])
+    AffineTransform.Translate([ 142., 97.,1.0])
     # FIXME  notice that order of operations is IMPORTANT
     # FIXME   translation followed by rotation will give different results
     # FIXME   than rotation followed by translation
     # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
     AffineTransform.RotateZ( 0.0 ) 
-    AffineTransform.RotateY( 5.0 )
+    AffineTransform.RotateY( 9.0 )
     AffineTransform.RotateX(-90.0 )
     AffineTransform.Scale([1.e3,1.e3,1.e3])
     SEMRegister = vtk.vtkTransformFilter()
     SEMRegister.SetInput(vtkSEMReader.GetOutput())
     SEMRegister.SetTransform(AffineTransform)
-    SEMRegister.Update
+    SEMRegister.Update()
+
+    # write output
+    DebugObjective = True
+    if ( DebugObjective ):
+       vtkSEMWriter = vtk.vtkDataSetWriter()
+       vtkSEMWriter.SetFileTypeToBinary()
+       semfileName = "%s/semtransform%04d.vtk" % (SEMDataDirectory,SEMtimeID)
+       print "writing ", semfileName 
+       vtkSEMWriter.SetFileName( semfileName )
+       vtkSEMWriter.SetInput(SEMRegister.GetOutput())
+       vtkSEMWriter.Update()
 
     # load image 
     vtkImageReader = vtk.vtkDataSetReader() 
@@ -186,6 +197,16 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
     vtkResample.SetSource( SEMRegister.GetOutput() )
     vtkResample.SetInput( vtkVOIExtract.GetOutput() ) 
     vtkResample.Update()
+
+    # write output
+    if ( DebugObjective ):
+       vtkTemperatureWriter = vtk.vtkDataSetWriter()
+       vtkTemperatureWriter.SetFileTypeToBinary()
+       roifileName = "%s/roi%04d.vtk" % (SEMDataDirectory,SEMtimeID)
+       print "writing ", roifileName 
+       vtkTemperatureWriter.SetFileName( roifileName )
+       vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
+       vtkTemperatureWriter.Update()
 
     fem_point_data= vtkResample.GetOutput().GetPointData() 
     fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('Temperature')) 

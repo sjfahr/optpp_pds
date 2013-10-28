@@ -4,6 +4,7 @@ strategy,
 	  graphics,tabular_graphics_data
 
 method,
+	#optpp_fd_newton                   
 	optpp_pds                   
         output verbose
 	  max_iterations = 1000			
@@ -35,4 +36,5 @@ interface,
 responses,
 	objective_functions = 1             
 	no_gradients				
+	#numerical_gradients				
 	no_hessians
