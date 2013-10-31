@@ -6,10 +6,11 @@
 import sys
 import re
 import os
+import scipy.io as scipyio
 
 brainNekDIR     = '/workarea/fuentes/braincode/tym1' 
 workDirectory   = 'optpp_pds'
-outputDirectory = 'outputs/dakota'
+outputDirectory = '/dev/shm/outputs/dakota'
 
 
 setuprcTemplate = \
@@ -147,16 +148,21 @@ def ComputeObjective(SEMDataDirectory,MRTIDirectory):
     vtkSEMReader.SetPointArrayStatus("Temperature",1)
     vtkSEMReader.Update()
 
+    # get registration parameters
+    variableDictionary = kwargs['cv']
+
     # register the SEM data to MRTI
     AffineTransform = vtk.vtkTransform()
-    AffineTransform.Translate([ 142., 97.,1.0])
+    AffineTransform.Translate([ 
+      variableDictionary['x_displace'],variableDictionary['y_displace'],variableDictionary['z_displace']
+                              ])
     # FIXME  notice that order of operations is IMPORTANT
     # FIXME   translation followed by rotation will give different results
     # FIXME   than rotation followed by translation
     # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
-    AffineTransform.RotateZ( 0.0 ) 
-    AffineTransform.RotateY( 9.0 )
-    AffineTransform.RotateX(-90.0 )
+    AffineTransform.RotateZ(variableDictionary['z_rotate'  ] ) 
+    AffineTransform.RotateY(variableDictionary['y_rotate'  ] )
+    AffineTransform.RotateX(variableDictionary['x_rotate'  ] )
     AffineTransform.Scale([1.e3,1.e3,1.e3])
     SEMRegister = vtk.vtkTransformFilter()
     SEMRegister.SetInput(vtkSEMReader.GetOutput())
@@ -245,7 +251,7 @@ def brainNekWrapper(**kwargs):
   fileHandle.write('[MATERIAL PROPERTIES]\n'  )
   fileHandle.write('# Name,      Type index, Density, Specific Heat, Conductivity, Perfusion, Absorption, Scattering, Anisotropy\n'  )
   variableDictionary = kwargs['cv']
-  fileHandle.write('Brain     0           1045     3640           %s        %s     %s      %s      %s \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], variableDictionary['mu_s_healthy' ], variableDictionary['mu_a_healthy' ], variableDictionary['anfact'       ])
+  fileHandle.write('Brain     0           1045     3640           %s        %s     %s      %s      %s \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], variableDictionary['mu_s_healthy' ], variableDictionary['mu_a_healthy' ], variableDictionary['anfact_healthy'       ])
  )
   fileHandle.flush(); fileHandle.close()
 
@@ -317,80 +323,12 @@ def ParseInput(param_file):
   # for this simple example, put all the variables into a single hardwired array
   continuous_vars = {} 
 
-  try:
-    continuous_vars['k_0_healthy' ] = paramsdict['k_0_healthy' ]
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['k_1'         ] = paramsdict['k_1'         ]
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['k_0_tumor'   ] = paramsdict['k_0_tumor'   ]
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['mu_a_healthy'] = paramsdict['mu_a_healthy']
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['mu_a_coag'  ]  = paramsdict['mu_a_coag'  ]
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['mu_a_tumor'  ] = paramsdict['mu_a_tumor'  ]
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['mu_s_healthy'] = paramsdict['mu_s_healthy']
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['mu_s_coag'  ] = paramsdict['mu_s_coag'  ]
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['mu_s_tumor'  ] = paramsdict['mu_s_tumor'  ]
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['w_0_healthy'] = paramsdict['w_0_healthy' ]  
-  except KeyError:
-    pass
-
-  try:
-    continuous_vars['w_1_coag'  ] = paramsdict['w_1_coag'   ] 
-  except KeyError:
-    pass
-  
-  try:
-    continuous_vars['w_0_tumor'  ] = paramsdict['w_0_tumor'   ] 
-  except KeyError:
-    pass
-  
-  try:
-    continuous_vars['anfact'] = paramsdict['anfact_healthy'   ] 
-  except KeyError:
-    pass
-  
-  try:
-    continuous_vars['probe_init'] = paramsdict['probe_init'   ] 
-  except KeyError:
-    pass
-  
-  try:
-    continuous_vars['robin_coeff'] = paramsdict['robin_coeff'   ] 
-  except KeyError:
-    pass
+  DescriptorList = ['robin_coeff','probe_init','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
+  for paramname in DescriptorList:
+    try:
+      continuous_vars[paramname  ] = paramsdict[paramname ]
+    except KeyError:
+      pass
   
   try:
     active_set_vector = [ int(paramsdict['ASV_%d:response_fn_%d' % (i,i) ]) for i in range(1,num_fns+1)  ] 
@@ -461,6 +399,9 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
+  matlabInputFileName = '%s.mat' % (options.param_file)
+  scipyio.savemat( matlabInputFileName , fem_params['cv'] )
+  
   # FIXME link needed directories
   linkDirectoryList = ['occa','libocca','meshes']
   for targetDirectory in linkDirectoryList:
@@ -473,7 +414,8 @@ if (options.param_file != None):
   fem_results = brainNekWrapper(**fem_params)
 
   # write objective function back to Dakota
-  objfunction = ComputeObjective(outputDirectory ,"mrti")
+  # FIXME hack
+  #objfunction = ComputeObjective(**fem_params,outputDirectory ,"mrti")
   print "current objective function: ",objfunction 
   fileHandle = file(sys.argv[3],'w')
   fileHandle.write('%f\n' % objfunction )

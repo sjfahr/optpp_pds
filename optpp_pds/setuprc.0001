@@ -30,7 +30,7 @@ meshes/cooledConformMesh.inp
 1
 
 [SCREENSHOT OUTPUT]
-outputs/dakota
+/dev/shm/outputs/dakota
 
 [SCREENSHOT INTERVAL]
 290
