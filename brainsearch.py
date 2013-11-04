@@ -12,6 +12,21 @@ brainNekDIR     = '/workarea/fuentes/braincode/tym1'
 workDirectory   = 'optpp_pds'
 outputDirectory = '/dev/shm/outputs/dakota'
 
+# database and run directory have the same structure
+databaseDIR     = 'database/'
+# $ ls database workdir/
+# database:
+# Patient0002/  Patient0003/  Patient0004/  Patient0005/  Patient0006/  Patient0007/  Patient0008/
+# 
+# workdir/:
+# Patient0002/  Patient0003/  Patient0004/  Patient0005/  Patient0006/  Patient0007/  Patient0008/
+# $ ls database/Patient0002/ workdir/Patient0002
+# database/Patient0002/:
+# 000/  001/  010/  017/  020/  021/  022/
+# 
+# workdir/Patient0002:
+# 000/  001/  010/  017/  020/  021/  022/
+
 
 setuprcTemplate = \
 """
@@ -133,7 +148,7 @@ laserTip  1.0      4180           0.5985        500         14000       0.88
 """
 
 ##################################################################
-def ComputeObjective(SEMDataDirectory,MRTIDirectory):
+def ComputeObjective(**kwargs,SEMDataDirectory,MRTIDirectory):
   import vtk
   import vtk.util.numpy_support as vtkNumPy 
   print "using vtk version", vtk.vtkVersion.GetVTKVersion()
@@ -413,9 +428,14 @@ if (options.param_file != None):
   print "Running BrainNek..."
   fem_results = brainNekWrapper(**fem_params)
 
+  
+  # database and run directory have the same structure
+  locatemrti = sys.argv[3].split('/')
+  mrtidatadir = '%s/%s/%s/vtk/referenceBased/' % (databaseDIR,locatemrti[2],locatemrti[3])
+  print 'mrti', mrtidatadir 
+
   # write objective function back to Dakota
-  # FIXME hack
-  #objfunction = ComputeObjective(**fem_params,outputDirectory ,"mrti")
+  objfunction = ComputeObjective(**fem_params,outputDirectory ,"mrti")
   print "current objective function: ",objfunction 
   fileHandle = file(sys.argv[3],'w')
   fileHandle.write('%f\n' % objfunction )

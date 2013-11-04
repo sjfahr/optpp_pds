@@ -28,7 +28,7 @@ variables,
 interface,
 	fork					#1,#4,#5,#7,#8,#11,#16,#19
 	  file_save file_tag
-	  analysis_driver = 'python /workarea/fuentes/github/optpp_pds/brainsearch.py --param_file '
+	  analysis_driver = 'python ./brainsearch.py --param_file '
 	  parameters_file = 'optpp_pds/optpp_pds.in'
 	  results_file    = 'optpp_pds/optpp_pds.out'
 
