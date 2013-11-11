@@ -21,9 +21,9 @@ model,
 
 variables,
         continuous_design = 13
-          initial_point    0.0     21.0    0.9    5.e1   8.e3   0.5   6.0  0.142000 0.097000 0.001000 -90.000000 9.000000 0.000000 
-          lower_bounds     0.0     20.0    0.7    5.e1   1.e3   0.4   3.0  0.141000 0.096000 0.000000 -95.000000 4.000000 -5.000000 
-          upper_bounds     1.e4    40.0    1.0    6.e2   5.e4   0.7   9.0  0.143000 0.098000 0.002000 -85.000000 14.000000 5.000000 
+          initial_point    0.0     21.0    0.9    5.e1   8.e3   0.5   6.0  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 
+          lower_bounds     0.0     20.0    0.7    5.e1   1.e3   0.4   3.0  -0.001000 -0.001000 -0.001000 -5.000000 -5.000000 -5.000000 
+          upper_bounds     1.e4    40.0    1.0    6.e2   5.e4   0.7   9.0  0.001000 0.001000 0.001000 5.000000 5.000000 5.000000 
           descriptors      'robin_coeff' 'probe_init' 'anfact_healthy'  'mu_a_healthy'  'mu_s_healthy' 'k_0_healthy' 'w_0_healthy' 'x_displace' 'y_displace' 'z_displace' 'x_rotate' 'y_rotate' 'z_rotate'
 
 interface,

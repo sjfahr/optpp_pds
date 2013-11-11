@@ -148,10 +148,13 @@ laserTip  1.0      4180           0.5985        500         14000       0.88
 """
 
 ##################################################################
-def ComputeObjective(**kwargs,SEMDataDirectory,MRTIDirectory):
+def ComputeObjective(**kwargs):
   import vtk
   import vtk.util.numpy_support as vtkNumPy 
   print "using vtk version", vtk.vtkVersion.GetVTKVersion()
+
+  # FIXME  should this be different ?  
+  SEMDataDirectory = outputDirectory 
 
   ObjectiveFunction = 0.0
   # loop over time points of interest
@@ -169,15 +172,17 @@ def ComputeObjective(**kwargs,SEMDataDirectory,MRTIDirectory):
     # register the SEM data to MRTI
     AffineTransform = vtk.vtkTransform()
     AffineTransform.Translate([ 
-      variableDictionary['x_displace'],variableDictionary['y_displace'],variableDictionary['z_displace']
+      float(variableDictionary['x_displace']),
+      float(variableDictionary['y_displace']),
+      float(variableDictionary['z_displace'])
                               ])
     # FIXME  notice that order of operations is IMPORTANT
     # FIXME   translation followed by rotation will give different results
     # FIXME   than rotation followed by translation
     # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
-    AffineTransform.RotateZ(variableDictionary['z_rotate'  ] ) 
-    AffineTransform.RotateY(variableDictionary['y_rotate'  ] )
-    AffineTransform.RotateX(variableDictionary['x_rotate'  ] )
+    AffineTransform.RotateZ( float(variableDictionary['z_rotate'  ] ) ) 
+    AffineTransform.RotateY( float(variableDictionary['y_rotate'  ] ) )
+    AffineTransform.RotateX( float(variableDictionary['x_rotate'  ] ) )
     AffineTransform.Scale([1.e3,1.e3,1.e3])
     SEMRegister = vtk.vtkTransformFilter()
     SEMRegister.SetInput(vtkSEMReader.GetOutput())
@@ -196,6 +201,7 @@ def ComputeObjective(**kwargs,SEMDataDirectory,MRTIDirectory):
        vtkSEMWriter.Update()
 
     # load image 
+    MRTIDirectory = kwargs['mrti']
     vtkImageReader = vtk.vtkDataSetReader() 
     vtkImageReader.SetFileName('%s/temperature.%04d.vtk' % (MRTIDirectory, MRTItimeID) )
     vtkImageReader.Update() 
@@ -266,7 +272,7 @@ def brainNekWrapper(**kwargs):
   fileHandle.write('[MATERIAL PROPERTIES]\n'  )
   fileHandle.write('# Name,      Type index, Density, Specific Heat, Conductivity, Perfusion, Absorption, Scattering, Anisotropy\n'  )
   variableDictionary = kwargs['cv']
-  fileHandle.write('Brain     0           1045     3640           %s        %s     %s      %s      %s \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], variableDictionary['mu_s_healthy' ], variableDictionary['mu_a_healthy' ], variableDictionary['anfact_healthy'       ])
+  fileHandle.write('Brain     0           1045     3640           %s        %s     %s      %s      %s \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], variableDictionary['mu_a_healthy' ], variableDictionary['mu_s_healthy' ], variableDictionary['anfact_healthy'       ])
  )
   fileHandle.flush(); fileHandle.close()
 
@@ -278,7 +284,7 @@ def brainNekWrapper(**kwargs):
   os.system(brainNekCommand )
 # end def brainNekWrapper:
 ##################################################################
-def ParseInput(param_file):
+def ParseInput(paramfilename):
   # ----------------------------
   # Parse DAKOTA parameters file
   # ----------------------------
@@ -296,9 +302,9 @@ def ParseInput(param_file):
   standard_regex = re.compile('^\s*(' + value +')\s+(' + tag + ')$')
   
   # open DAKOTA parameters file for reading
-  paramsfile = open(param_file, 'r')
+  paramsfile = open(paramfilename, 'r')
 
-  fileID = int(param_file.split(".").pop())
+  fileID = int(paramfilename.split(".").pop())
   #fileID = int(os.getcwd().split(".").pop())
   
   # extract the parameters from the file and store in a dictionary
@@ -355,6 +361,11 @@ def ParseInput(param_file):
   fem_params['asv']        = active_set_vector
   fem_params['functions']  = num_fns
   fem_params['fileID']     = fileID 
+
+  # database and run directory have the same structure
+  locatemrti = paramfilename.split('/')
+  fem_params['mrti']       = '%s/%s/%s/vtk/referenceBased/' % (databaseDIR,locatemrti[2],locatemrti[3])
+  print 'reading data from' , fem_params['mrti'] 
 
   return fem_params
   ## ----------------------------
@@ -429,13 +440,8 @@ if (options.param_file != None):
   fem_results = brainNekWrapper(**fem_params)
 
   
-  # database and run directory have the same structure
-  locatemrti = sys.argv[3].split('/')
-  mrtidatadir = '%s/%s/%s/vtk/referenceBased/' % (databaseDIR,locatemrti[2],locatemrti[3])
-  print 'mrti', mrtidatadir 
-
   # write objective function back to Dakota
-  objfunction = ComputeObjective(**fem_params,outputDirectory ,"mrti")
+  objfunction = ComputeObjective(**fem_params)
   print "current objective function: ",objfunction 
   fileHandle = file(sys.argv[3],'w')
   fileHandle.write('%f\n' % objfunction )
