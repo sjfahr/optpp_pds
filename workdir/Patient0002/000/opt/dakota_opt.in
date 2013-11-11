@@ -33,6 +33,7 @@ interface,
           parameters_file = './workdir/Patient0002/000/opt/optpp_pds.in'
           results_file    = './workdir/Patient0002/000/opt/optpp_pds.out'
 
+# data quality 1
 
 responses,
         objective_functions = 1
