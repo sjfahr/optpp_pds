@@ -1,3 +1,5 @@
+all registration parameters are WRT workdir/meshTemplateFull1.e
+----------------------------------------------------------------------------------
 parallel direct search in Dakota
 http://dakota.sandia.gov/docs/dakota/5.2/html-ref/MethodCommands.html#MethodOPTPP
 

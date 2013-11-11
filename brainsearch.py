@@ -183,7 +183,7 @@ def ComputeObjective(**kwargs):
     AffineTransform.RotateZ( float(variableDictionary['z_rotate'  ] ) ) 
     AffineTransform.RotateY( float(variableDictionary['y_rotate'  ] ) )
     AffineTransform.RotateX( float(variableDictionary['x_rotate'  ] ) )
-    AffineTransform.Scale([1.e3,1.e3,1.e3])
+    AffineTransform.Scale([1.e0,1.e0,1.e0])
     SEMRegister = vtk.vtkTransformFilter()
     SEMRegister.SetInput(vtkSEMReader.GetOutput())
     SEMRegister.SetTransform(AffineTransform)
