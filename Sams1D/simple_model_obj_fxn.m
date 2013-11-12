@@ -1,25 +1,45 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run.
 
-function [metric] = simple_model_obj_fxn ( path22 );
-
+function [metric] = simple_model_obj_fxn ( path22, iteration );
 cd (path22);
-load('optpp_pds.in.1.mat');
+input_param = 'optpp_pds.in.mat.';
+index = num2str(iteration);
+input_filename = strcat( input_param, index);
 
-% Write every string as a number
-g=str2num(anfact_healthy);      % Optical anisotropy
-k=str2num(k_0_healthy);         % Thermal conductivity
-mu_a=str2num(mu_a_healthy);     % Optical absorption
-mu_s=str2num(mu_s_healthy);     % Optical scattering
-probe_u=str2num(probe_init);    % Initial probe temperature
-robin_co=str2num(robin_coeff);  % Value of Robin boundary coefficient
-w=str2num(w_0_healthy);         % Blood perfusion
-x_disp=str2num(x_displace);     % Horizontal displacement
-x_rot=str2num(x_rotate);        % Rotation about horizontal axis
-y_disp=str2num(y_displace);     % Vertical displacement
-y_rot=str2num(y_rotate);        % Rotation about vertical axis
-z_disp=str2num(z_displace);     % Depth displacement
-z_rot=str2num(z_rotate);        % Rotation about depth axis
+aaa=csvimport(input_filename);
+aaa=strtrim(aaa);
+aaa=regexp(aaa,'\s+','split');
+
+probe_u = aaa{2}{1};
+g = aaa{3}{1};
+mu_a = aaa{4}{1};
+mu_s = aaa{5}{1};
+k = aaa{6}{1};
+w = aaa{7}{1};
+x_disp = aaa{8}{1};
+y_disp = aaa{9}{1};
+z_disp = aaa{10}{1};
+x_rot = aaa{11}{1};
+y_rot = aaa{12}{1};
+z_rot = aaa{13}{1};
+
+clear aaa;
+
+% % Write every string as a number
+% g=str2num(anfact_healthy);      % Optical anisotropy
+% k=str2num(k_0_healthy);         % Thermal conductivity
+% mu_a=str2num(mu_a_healthy);     % Optical absorption
+% mu_s=str2num(mu_s_healthy);     % Optical scattering
+% probe_u=str2num(probe_init);    % Initial probe temperature
+% %robin_co=str2num(robin_coeff);  % Value of Robin boundary coefficient
+% w=str2num(w_0_healthy);         % Blood perfusion
+% x_disp=str2num(x_displace);     % Horizontal displacement
+% x_rot=str2num(x_rotate);        % Rotation about horizontal axis
+% y_disp=str2num(y_displace);     % Vertical displacement
+% y_rot=str2num(y_rotate);        % Rotation about vertical axis
+% z_disp=str2num(z_displace);     % Depth displacement
+% z_rot=str2num(z_rotate);        % Rotation about depth axis
 
 cd (path22);
 cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0002/000/laser_log'
@@ -56,7 +76,7 @@ scaling.y=1;
 scaling.z=1;
 
 % Build the domain
-[dom,MRTI_pix,mod_pix]=modeled_domain(FOV,matrix,scaling,mod_point);
+[dom,~,mod_pix]=modeled_domain(FOV,matrix,scaling,mod_point);
 
 % Define the source; source.n must be greater than 1 to make sense. Odd is
 % better than even
@@ -83,9 +103,9 @@ reg = reg_import ( 2, : );
 reg = cell2mat (reg);
 
 % Calculate the number of pixels that must be shifted
-pixel_reg.x = round (reg (1) / mod_pix.x);
-pixel_reg.y = round (reg (2) / mod_pix.y);
-pixel_reg.z = round (reg (3) / mod_pix.z);
+pixel_reg.x = round (x_disp / mod_pix.x);
+pixel_reg.y = round (y_disp / mod_pix.y);
+pixel_reg.z = round (z_disp / mod_pix.z);
 
 aa = imresize (w , 1/scaling.x);
 
@@ -108,6 +128,11 @@ matched_mod ( x_range(1):x_range(2), y_range(1):y_range(2) ,:,:) = upper_left_mo
 
 cd (path22);
 [metric] = dose_obj ( matched_mod, arrheniusDose.mean);
-csvwrite ('optpp_pds.out' , metric);
+
+output_param = 'optpp_pds.out.';
+index = num2str(iteration);
+output_filename = strcat( output_param, index);
+
+csvwrite ( output_filename, metric);
 
 end
