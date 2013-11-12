@@ -615,7 +615,7 @@ if (options.param_file != None):
   # FIXME link needed directories
   linkDirectoryList = ['occa','libocca','meshes']
   for targetDirectory in linkDirectoryList:
-    linkcommand = 'ln -sf %s/%s %s' % (brainNekDIR,targetDirectory ,targetDirectory  )
+    linkcommand = 'ln -sf %s/%s .' % (brainNekDIR,targetDirectory )
     print linkcommand 
     os.system(linkcommand )
 
