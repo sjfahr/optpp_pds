@@ -379,8 +379,7 @@ def ComputeObjective(**kwargs):
     # extract voi for QOI
     vtkVOIExtract = vtk.vtkExtractVOI() 
     vtkVOIExtract.SetInput( vtkImageReader.GetOutput() ) 
-    VOI = [110,170,70,120,0,0]
-    vtkVOIExtract.SetVOI( VOI ) 
+    vtkVOIExtract.SetVOI( kwargs['voi'] ) 
     vtkVOIExtract.Update()
     mrti_point_data= vtkVOIExtract.GetOutput().GetPointData() 
     mrti_array = vtkNumPy.vtk_to_numpy(mrti_point_data.GetArray('image_data')) 
@@ -548,6 +547,7 @@ def ParseInput(paramfilename):
   fem_params['ccode']        = config.get('power','ccode')
   fem_params['semwritetime'] = config.getfloat('mrti','deltat') * config.getfloat('mrti','maxheat')
   fem_params['maxheat']      = config.getfloat('mrti','maxheat')
+  fem_params['voi']          = eval(config.get('mrti','voi'))
 
   print 'mrti data from' , fem_params['mrti'] , 'setupfile', inisetupfile  
 
