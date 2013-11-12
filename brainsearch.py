@@ -7,6 +7,7 @@ import sys
 import re
 import os
 import scipy.io as scipyio
+import ConfigParser
 
 brainNekDIR     = '/workarea/fuentes/braincode/tym1' 
 workDirectory   = 'optpp_pds'
@@ -215,7 +216,7 @@ meshes/cooledConformMesh.inp
 0.25
 
 [FINAL TIME]
-640
+%f
 
 [PCG TOLERANCE]
 1e-6
@@ -230,7 +231,7 @@ meshes/cooledConformMesh.inp
 %s
 
 [SCREENSHOT INTERVAL]
-640
+%f
 """
 
 caseFileTemplate = \
@@ -324,7 +325,7 @@ def ComputeObjective(**kwargs):
 
   ObjectiveFunction = 0.0
   # loop over time points of interest
-  for (SEMtimeID,MRTItimeID) in [(1,58)]:
+  for (SEMtimeID,MRTItimeID) in [(1,kwargs['maxheat'])]:
     # read SEM data
     vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
     vtufileName = "%s/%d.vtu" % (SEMDataDirectory,SEMtimeID)
@@ -367,9 +368,10 @@ def ComputeObjective(**kwargs):
        vtkSEMWriter.Update()
 
     # load image 
-    MRTIDirectory = kwargs['mrti']
+    mrtifilename = '%s/temperature.%04d.vtk' % (kwargs['mrti'], MRTItimeID) 
+    print 'opening' , mrtifilename 
     vtkImageReader = vtk.vtkDataSetReader() 
-    vtkImageReader.SetFileName('%s/temperature.%04d.vtk' % (MRTIDirectory, MRTItimeID) )
+    vtkImageReader.SetFileName(mrtifilename )
     vtkImageReader.Update() 
     ## image_cells = vtkImageReader.GetOutput().GetPointData() 
     ## data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 
@@ -417,18 +419,18 @@ def brainNekWrapper(**kwargs):
   """
   call brainNek code 
   """
+  # occa case file
+  outputOccaCaseFile = '%s/casefunctions.%04d.occa' % (workDirectory,kwargs['fileID'])
+  print 'writing', outputOccaCaseFile 
+  with file(outputOccaCaseFile, 'w') as occaCaseFileName: occaCaseFileName.write(caseFunctionTemplate % kwargs['ccode'] )
+
   # setuprc file
   outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
   print 'writing', outputSetupRCFile 
   fileHandle = file(outputSetupRCFile ,'w')
-  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'], outputDirectory  ) )
+  semwritetime = kwargs['semwritetime']
+  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory ,semwritetime  ) )
   fileHandle.flush(); fileHandle.close()
-
-  # occa case file
-  outputOccaCaseFile = '%s/casefunctions.%04d.occa' % (workDirectory,kwargs['fileID'])
-  print 'writing', outputOccaCaseFile 
-  with file(fem_params['powerfile'] , 'r') as original: powerhistoryccode = original.read()
-  with file(outputOccaCaseFile, 'w') as occaCaseFileName: occaCaseFileName.write(caseFunctionTemplate % powerhistoryccode )
 
   # case file
   outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
@@ -540,8 +542,14 @@ def ParseInput(paramfilename):
   fem_params['mrti']       = '%s/%s/%s/vtk/referenceBased/' % (databaseDIR,locatemrti[2],locatemrti[3])
 
   # get power file name
-  fem_params['powerfile']  = "/".join(locatemrti)+"/power.c"
-  print 'mrti data from' , fem_params['mrti'] , 'powerfile', fem_params['powerfile']
+  inisetupfile  = "/".join(locatemrti)+"/setup.ini"
+  config = ConfigParser.SafeConfigParser({})
+  config.read(inisetupfile)
+  fem_params['ccode']        = config.get('power','ccode')
+  fem_params['semwritetime'] = config.getfloat('mrti','deltat') * config.getfloat('mrti','maxheat')
+  fem_params['maxheat']      = config.getfloat('mrti','maxheat')
+
+  print 'mrti data from' , fem_params['mrti'] , 'setupfile', inisetupfile  
 
   return fem_params
   ## ----------------------------
