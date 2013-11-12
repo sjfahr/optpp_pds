@@ -27,6 +27,172 @@ databaseDIR     = 'database/'
 # workdir/Patient0002:
 # 000/  001/  010/  017/  020/  021/  022/
 
+caseFunctionTemplate = \
+"""
+// Prototypes
+occaDeviceFunction datafloat laserPower(datafloat time);
+occaDeviceFunction datafloat initialTemperature(datafloat x, datafloat y, datafloat z);
+occaDeviceFunction datafloat sourceFunction(datafloat x , datafloat y , datafloat z, 
+			 datafloat x0, datafloat y0, datafloat z0, 
+			 datafloat volumeFraction, 
+			 datafloat muA_muTr      , datafloat muEff);
+occaDeviceFunction datafloat DirichletTemp(unsigned int bcTag, datafloat time,
+			datafloat x, datafloat y, datafloat z);
+occaDeviceFunction datafloat RobinCoeff(unsigned int bcTag, datafloat x, datafloat y, datafloat z,
+		     datafloat kappa, datafloat h);
+occaDeviceFunction datafloat NeumannDeriv(unsigned int bcTag, datafloat time, 
+		       datafloat x, datafloat y, datafloat z,
+		       datafloat nx, datafloat ny, datafloat nz);
+occaDeviceFunction datafloat exactSolution(datafloat x, datafloat y, datafloat z, datafloat time,
+			datafloat kappa, datafloat lambda);
+
+/*
+ * Compile-time definitions
+ *   - bodyTemperature    = ambient body temperature
+ *   - coolantTemperature = probe coolant temperature
+ *   - laserMaxPower      = reference laser power
+ */
+
+/// Laser power as a function of time
+/**
+ * @param time
+ */
+occaDeviceFunction datafloat laserPower(datafloat time) {
+%s
+}
+
+/// Initial temperature
+/**
+ * Boundary conditions will be enforced afterwards
+ * @param x
+ * @param y
+ * @param z
+ * @param bodyTemperature
+ * @return initial temperature
+ */
+occaDeviceFunction datafloat initialTemperature(datafloat x, datafloat y, datafloat z) {
+  return bodyTemperature;
+}
+
+/// Heating at a point due to a region of the laser tip
+/**
+ * @param x
+ * @param y
+ * @param z
+ * @param x0 x-coordinate of centroid of laser tip region
+ * @param y0 y-coordinate of centroid of laser tip region
+ * @param z0 z-coordinate of centroid of laser tip region
+ * @param volumeFraction volume fraction of laser tip region relative to the 
+ *          entire laser tip
+ * @param mu_a absorption coefficient of laser light in tissue
+ * @param mu_eff effective absorption (\f$\mu_\text{eff}=\sqrt{3\mu_a\mu_{tr}}\f$)
+ * @param mu_tr transport coefficient (\f$\mu_{tr}=\mu_a + \mu_s (1-g)\f$)
+ * @return contribution of source point to heating function
+ */
+occaDeviceFunction datafloat sourceFunction(datafloat x , datafloat y , datafloat z, 
+			 datafloat x0, datafloat y0, datafloat z0, 
+			 datafloat volumeFraction, 
+			 datafloat muA_muTr      , datafloat muEff) {
+  // Distance between point and source point
+  datafloat dist = (x - x0)*(x - x0) + (y - y0)*(y - y0) + (z - z0)*(z - z0);
+  dist = sqrt(dist);
+
+  // Choose minimum distance to avoid dividing by zero
+  if(dist < 1e-6)
+    return 0;
+
+  // Return contribution to forcing function
+  return 0.75*M_1_PI*muA_muTr*volumeFraction*exp(-muEff*dist)/dist;
+}
+
+
+/// Returns the temperature corresponding to a Dirichlet boundary condition
+/**
+ * @param bcTag type of boundary condition
+ *          - 1 = body temperature Dirichlet boundary condition
+ *          - 2 = coolant temperature Dirichlet boundary condition
+ * @param x
+ * @param y
+ * @param z
+ * @param time
+ * @return Dirichlet boundary condition temperature
+ */
+occaDeviceFunction datafloat DirichletTemp(unsigned int bcTag, datafloat time, 
+			datafloat x, datafloat y, datafloat z) {
+  switch(bcTag) {
+  case 1:  return bodyTemperature;
+  case 2:  return coolantTemperature;
+  default: break;
+  }
+  
+  return bodyTemperature;
+}
+
+/// Returns the coefficient corresponding to a Robin boundary condition
+/**
+ * We assume a Robin boundary condition of the form 
+ *   \f[\kappa\frac{\partial u}{\partial n}=-\alpha\left(u-u_b\right)\f]
+ * @param bcTag type of boundary condition
+ *          - 3 = Neumann boundary condition (\f$\alpha=0\f$)
+ *          - 4 = Robin condition at probe
+ * @param x
+ * @param y
+ * @param z
+ * @param kappa thermal conductivity
+ * @param h heat transfer coefficient
+ * @return \f$\alpha\f$
+ */
+occaDeviceFunction datafloat RobinCoeff(unsigned int bcTag, 
+		     datafloat x, datafloat y, datafloat z,
+		     datafloat kappa, datafloat h) {
+  switch(bcTag) {
+  case 3:
+    return 0;
+  case 4:
+    return h; // Heat transfer coefficient
+  default: return 0;
+  }
+}		  
+
+
+/// Returns the derivative corresponding to a Neumann boundary condition
+/**
+ * Note: not currently used
+ * @param bcTag type of boundary condition
+ * @param time
+ * @param x
+ * @param y
+ * @param z
+ * @param nx x-coordinate of surface normal vector
+ * @param ny y-coordinate of surface normal vector
+ * @param nz z-coordinate of surface normal vector
+ */
+occaDeviceFunction datafloat NeumannDeriv(unsigned int bcTag, datafloat time, 
+		       datafloat x, datafloat y, datafloat z,
+		       datafloat nx, datafloat ny, datafloat nz){
+  // Homogeneous Neumann
+  return 0;
+}
+
+/// Analytic solution
+/**
+ * Note: an analytic solution is not known for this case. 
+ * The numerical solution can be compared with the analytic solution, if it 
+ *   is known
+ * @param kappa tissue thermal conductivity
+ * @param lambda (tissue density)*(tissue specific heat)/dt 
+ *                 + (perfusion)*(blood specific heat)
+ * @param x
+ * @param y
+ * @param z
+ * @param time
+ * @return temperature
+ */
+occaDeviceFunction datafloat exactSolution(datafloat x, datafloat y, datafloat z, datafloat time,
+			datafloat kappa, datafloat lambda){
+  return bodyTemperature;
+}
+"""
 
 setuprcTemplate = \
 """
@@ -49,7 +215,7 @@ meshes/cooledConformMesh.inp
 0.25
 
 [FINAL TIME]
-290
+640
 
 [PCG TOLERANCE]
 1e-6
@@ -64,7 +230,7 @@ meshes/cooledConformMesh.inp
 %s
 
 [SCREENSHOT INTERVAL]
-290
+640
 """
 
 caseFileTemplate = \
@@ -75,7 +241,7 @@ caseFileTemplate = \
 # Data is for porcine liver (Roggan and Muller 1994)
 
 [FUNCTION FILE]
-./pigLiverCaseFunctions.occa
+%s/casefunctions.%04d.occa
 
 [HAS EXACT SOLUTION]
 0
@@ -258,12 +424,16 @@ def brainNekWrapper(**kwargs):
   fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'], outputDirectory  ) )
   fileHandle.flush(); fileHandle.close()
 
+  # occa case file
+  outputOccaCaseFile = '%s/casefunctions.%04d.occa' % (workDirectory,kwargs['fileID'])
+  print 'writing', outputOccaCaseFile 
+  with file(fem_params['powerfile'] , 'r') as original: powerhistoryccode = original.read()
+  with file(outputOccaCaseFile, 'w') as occaCaseFileName: occaCaseFileName.write(caseFunctionTemplate % powerhistoryccode )
+
   # case file
   outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
   print 'writing', outputCaseFile 
-  fileHandle = file(outputCaseFile ,'w')
-  fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID']) )
-  fileHandle.flush(); fileHandle.close()
+  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],workDirectory,kwargs['fileID'])  )
 
   # materials
   outputMaterialFile = '%s/material_types.%04d.setup' % (workDirectory,kwargs['fileID'])
@@ -362,10 +532,16 @@ def ParseInput(paramfilename):
   fem_params['functions']  = num_fns
   fem_params['fileID']     = fileID 
 
-  # database and run directory have the same structure
+  # parse file path
   locatemrti = paramfilename.split('/')
+  locatemrti.pop()
+
+  # database and run directory have the same structure
   fem_params['mrti']       = '%s/%s/%s/vtk/referenceBased/' % (databaseDIR,locatemrti[2],locatemrti[3])
-  print 'reading data from' , fem_params['mrti'] 
+
+  # get power file name
+  fem_params['powerfile']  = "/".join(locatemrti)+"/power.c"
+  print 'mrti data from' , fem_params['mrti'] , 'powerfile', fem_params['powerfile']
 
   return fem_params
   ## ----------------------------

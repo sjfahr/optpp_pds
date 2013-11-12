@@ -20,11 +20,19 @@ model,
         single
 
 variables,
-        continuous_design = 13
-          initial_point    0.0     21.0    0.9    5.e1   8.e3   0.5   6.0  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 
-          lower_bounds     0.0     20.0    0.7    5.e1   1.e3   0.4   3.0  -0.001000 -0.001000 -0.001000 -5.000000 -5.000000 -5.000000 
-          upper_bounds     1.e4    40.0    1.0    6.e2   5.e4   0.7   9.0  0.001000 0.001000 0.001000 5.000000 5.000000 5.000000 
-          descriptors      'robin_coeff' 'probe_init' 'anfact_healthy'  'mu_a_healthy'  'mu_s_healthy' 'k_0_healthy' 'w_0_healthy' 'x_displace' 'y_displace' 'z_displace' 'x_rotate' 'y_rotate' 'z_rotate'
+        continuous_design = 4
+          initial_point    0.0     21.0    0.9    5.e1   
+          lower_bounds     0.0     20.0    0.7    5.e1   
+          upper_bounds     1.e4    40.0    1.0    6.e2   
+          descriptors      'robin_coeff' 'probe_init' 'anfact_healthy'  'mu_a_healthy' 
+        continuous_state = 9
+          initial_state    8.e3   0.5   6.0  0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 
+          #lower_bounds     1.e3   0.4   3.0  -0.001000 -0.001000 -0.001000 -5.000000 -5.000000 -5.000000 
+          #upper_bounds     5.e4   0.7   9.0  0.001000 0.001000 0.001000 5.000000 5.000000 5.000000 
+          descriptors      'mu_s_healthy' 'k_0_healthy' 'w_0_healthy' 'x_displace' 'y_displace' 'z_displace' 'x_rotate' 'y_rotate' 'z_rotate'
+#        discrete_state_range = 1
+#          initial_state    0
+#          descriptors      'powerhistory:[[19, 28, 46, 78, 119], [0.0, 4.0, 0.0, 9.0, 0.0], 5.0]'
 
 interface,
         fork                                    #1,#4,#5,#7,#8,#11,#16,#19
@@ -33,7 +41,7 @@ interface,
           parameters_file = './workdir/Patient0007/015/opt/optpp_pds.in'
           results_file    = './workdir/Patient0007/015/opt/optpp_pds.out'
 
-# data quality -1
+# data quality   -1
 
 responses,
         objective_functions = 1

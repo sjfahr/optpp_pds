@@ -5,7 +5,7 @@
 # Data is for porcine liver (Roggan and Muller 1994)
 
 [FUNCTION FILE]
-./pigLiverCaseFunctions.occa
+optpp_pds/casefunctions.0001.occa
 
 [HAS EXACT SOLUTION]
 0
