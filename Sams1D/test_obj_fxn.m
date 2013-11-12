@@ -103,11 +103,6 @@ figure(1);imagesc(tmap_unique(:,:,1,1,2));
 %figure(2);imagesc(tmap_unique(:,:,1,1,4));
 figure(2);imagesc( Iso );
 
-%Get registration info
-reg_import = csvimport ( 'reg_laser.csv' );
-reg = reg_import ( 2, : );
-reg = cell2mat (reg);
-
 % Calculate the number of pixels that must be shifted
 pixel_reg.x = round (x_disp / mod_pix.x);
 pixel_reg.y = round (y_disp / mod_pix.y);

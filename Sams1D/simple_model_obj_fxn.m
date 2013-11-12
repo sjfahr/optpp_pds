@@ -11,18 +11,20 @@ aaa=csvimport(input_filename);
 aaa=strtrim(aaa);
 aaa=regexp(aaa,'\s+','split');
 
-probe_u = aaa{2}{1};
-g = aaa{3}{1};
-mu_a = aaa{4}{1};
-mu_s = aaa{5}{1};
-k = aaa{6}{1};
-w = aaa{7}{1};
-x_disp = aaa{8}{1};
-y_disp = aaa{9}{1};
-z_disp = aaa{10}{1};
-x_rot = aaa{11}{1};
-y_rot = aaa{12}{1};
-z_rot = aaa{13}{1};
+probe_u = str2num(aaa{2}{1});
+g = str2num(aaa{3}{1});
+mu_a = str2num(aaa{4}{1});
+mu_s = str2num(aaa{5}{1});
+k = str2num(aaa{6}{1});
+w = str2num(aaa{7}{1});
+x_disp = str2num(aaa{8}{1});
+y_disp = str2num(aaa{9}{1});
+z_disp = str2num(aaa{10}{1});
+x_rot = str2num(aaa{11}{1});
+y_rot = str2num(aaa{12}{1});
+z_rot = str2num(aaa{13}{1});
+
+robin_co=0; %dummy var
 
 clear aaa;
 
@@ -96,11 +98,6 @@ tmap_unique(:,:,:,1)=37;
 dt = 2.5;
 [w,~]=ArrDose_for_1D(tmap,dt);
 w ( w > 4 ) = 4;  %Put a cap on the dose
-
-%Get registration info
-reg_import = csvimport ( 'reg_laser.csv' );
-reg = reg_import ( 2, : );
-reg = cell2mat (reg);
 
 % Calculate the number of pixels that must be shifted
 pixel_reg.x = round (x_disp / mod_pix.x);
