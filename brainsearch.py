@@ -611,21 +611,28 @@ if (options.param_file != None):
 
   matlabInputFileName = '%s.mat' % (options.param_file)
   scipyio.savemat( matlabInputFileName , fem_params['cv'] )
-  
-  # FIXME link needed directories
-  linkDirectoryList = ['occa','libocca','meshes']
-  for targetDirectory in linkDirectoryList:
-    linkcommand = 'ln -sf %s/%s .' % (brainNekDIR,targetDirectory )
-    print linkcommand 
-    os.system(linkcommand )
 
-  # execute the rosenbrock analysis as a separate Python module
-  print "Running BrainNek..."
-  fem_results = brainNekWrapper(**fem_params)
+  MatlabDriver = True
+  if(MatlabDriver):
+    matlabcommand  = 'matlab -nodisplay -nodesktop -r super_script,quit %s ' %  matlabInputFileName 
+    print matlabcommand  
+    #os.system( matlabcommand )
+    objfunction = 0.0
+  else:
+    # FIXME link needed directories
+    linkDirectoryList = ['occa','libocca','meshes']
+    for targetDirectory in linkDirectoryList:
+      linkcommand = 'ln -sf %s/%s .' % (brainNekDIR,targetDirectory )
+      print linkcommand 
+      os.system(linkcommand )
 
-  
-  # write objective function back to Dakota
-  objfunction = ComputeObjective(**fem_params)
+    # execute the rosenbrock analysis as a separate Python module
+    print "Running BrainNek..."
+    fem_results = brainNekWrapper(**fem_params)
+    
+    # write objective function back to Dakota
+    objfunction = ComputeObjective(**fem_params)
+
   print "current objective function: ",objfunction 
   fileHandle = file(sys.argv[3],'w')
   fileHandle.write('%f\n' % objfunction )
