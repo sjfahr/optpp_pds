@@ -1,13 +1,8 @@
-* MATLAB only version *
+* build datmatlab interface *
+$ make
+cc -c -O0 -g -I/opt/MATLAB/R2012a/extern/include dakmatlab.c
+cc -o dakmatlab -Wl,-rpath,/opt/MATLAB/R2012a/bin/glnxa64 -Wl,-rpath-link,/opt/MATLAB/R2012a/bin/glnxa64 dakmatlab.o -L/opt/MATLAB/R2012a/bin/glnxa64 -leng -lmx
 
-
-The simulated data was generated with the ModelReconSim.m file
-
-run 
-
-  driver.m
-
-from matlab command file. This will load the data and start the lsq solver
 
 
 
