@@ -609,14 +609,18 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  matlabInputFileName = '%s.mat' % (options.param_file)
-  scipyio.savemat( matlabInputFileName , fem_params['cv'] )
-
   MatlabDriver = True
   if(MatlabDriver):
-    matlabcommand  = 'matlab -nodisplay -nodesktop -r super_script,quit %s ' %  matlabInputFileName 
+
+    # write out for debug
+    matlabInputFileName = '%s.mat' % (options.param_file)
+    scipyio.savemat( matlabInputFileName , fem_params['cv'] )
+
+    # setup any needed paths
+    os.system( './analytic/dakmatlab setup workspace ' )
+    matlabcommand  = './analytic/dakmatlab %s %s' %  (options.param_file,sys.argv[3])
     print matlabcommand  
-    #os.system( matlabcommand )
+    os.system( matlabcommand )
     objfunction = 0.0
   else:
     # FIXME link needed directories
@@ -633,10 +637,10 @@ if (options.param_file != None):
     # write objective function back to Dakota
     objfunction = ComputeObjective(**fem_params)
 
-  print "current objective function: ",objfunction 
-  fileHandle = file(sys.argv[3],'w')
-  fileHandle.write('%f\n' % objfunction )
-  fileHandle.flush(); fileHandle.close();
+    print "current objective function: ",objfunction 
+    fileHandle = file(sys.argv[3],'w')
+    fileHandle.write('%f\n' % objfunction )
+    fileHandle.flush(); fileHandle.close();
 
 else:
   parser.print_help()
