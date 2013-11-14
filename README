@@ -11,6 +11,8 @@ $ dakota workdir/Patient0006/007/opt/dakota_opt.in
 .
 .
 
+python ./brainsearch.py --param_file  ./workdir/Patient0006/007/opt/optpp_pds.in.117 ./workdir/Patient0006/007/opt/optpp_pds.out.117
+
 >>>>> optpp_pds: post-run phase.
 ********************************************************
              OPT++ TERMINATION CRITERION
@@ -36,4 +38,52 @@ pdsdone: Function tolerance test passed
 <<<<< Best objective function  =
                       9.2298168750e+05
 <<<<< Best data captured at function evaluation 117
+
+
+-------------------------------------------------------------------------------------------
+$ cat ./workdir/Patient0006/007/opt/optpp_pds.in.1                            $ cat ./workdir/Patient0006/007/opt/optpp_pds.in.117
+                                         13 variables                                                                  13 variables
+                      0.000000000000000e+00 robin_coeff                                             1.855975637625393e-01 robin_coeff
+                      2.100000000000000e+01 probe_init                                              2.107511212920215e+01 probe_init
+                      9.000000000000000e-01 anfact_healthy                                          9.751121292021412e-01 anfact_healthy
+                      5.000000000000000e+01 mu_a_healthy                                            5.020769465067461e+01 mu_a_healthy
+                      8.000000000000000e+03 mu_s_healthy                                            8.000000000000000e+03 mu_s_healthy
+                      5.000000000000000e-01 k_0_healthy                                             5.000000000000000e-01 k_0_healthy
+                      6.000000000000000e+00 w_0_healthy                                             6.000000000000000e+00 w_0_healthy
+                      1.113500000000000e-01 x_displace                                              1.113500000000000e-01 x_displace
+                      1.387200000000000e-01 y_displace                                              1.387200000000000e-01 y_displace
+                      0.000000000000000e+00 z_displace                                              0.000000000000000e+00 z_displace
+                      0.000000000000000e+00 x_rotate                                                0.000000000000000e+00 x_rotate
+                      9.000000000000000e+01 y_rotate                                                9.000000000000000e+01 y_rotate
+                      0.000000000000000e+00 z_rotate                                                0.000000000000000e+00 z_rotate
+                                          1 functions                                                                   1 functions
+                                          1 ASV_1:obj_fn                                                                1 ASV_1:obj_fn
+                                          4 derivative_variables                                                        4 derivative_variables
+                                          1 DVV_1:robin_coeff                                                           1 DVV_1:robin_coeff
+                                          2 DVV_2:probe_init                                                            2 DVV_2:probe_init
+                                          3 DVV_3:anfact_healthy                                                        3 DVV_3:anfact_healthy
+                                          4 DVV_4:mu_a_healthy                                                          4 DVV_4:mu_a_healthy
+                                          0 analysis_components                                                         0 analysis_components
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

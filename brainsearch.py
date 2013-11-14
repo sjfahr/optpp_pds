@@ -610,6 +610,7 @@ if (options.param_file != None):
   fem_params = ParseInput(options.param_file)
 
   MatlabDriver = True
+  MatlabDriver = False
   if(MatlabDriver):
 
     # write out for debug
