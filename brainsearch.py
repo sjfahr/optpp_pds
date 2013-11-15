@@ -11,7 +11,7 @@ import ConfigParser
 
 brainNekDIR     = '/workarea/fuentes/braincode/tym1' 
 workDirectory   = 'optpp_pds'
-outputDirectory = '/dev/shm/outputs/dakota'
+outputDirectory = '/dev/shm/outputs/dakota/%04d'
 
 # database and run directory have the same structure
 databaseDIR     = 'database/'
@@ -321,7 +321,7 @@ def ComputeObjective(**kwargs):
   print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
   # FIXME  should this be different ?  
-  SEMDataDirectory = outputDirectory 
+  SEMDataDirectory = outputDirectory % kwargs['fileID']
 
   ObjectiveFunction = 0.0
   # loop over time points of interest
@@ -428,7 +428,9 @@ def brainNekWrapper(**kwargs):
   print 'writing', outputSetupRCFile 
   fileHandle = file(outputSetupRCFile ,'w')
   semwritetime = kwargs['semwritetime']
-  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory ,semwritetime  ) )
+  # make sure write directory exists
+  os.system('mkdir -p %s' % outputDirectory % kwargs['fileID'] )
+  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory % kwargs['fileID'] ,semwritetime  ) )
   fileHandle.flush(); fileHandle.close()
 
   # case file
