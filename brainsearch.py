@@ -321,7 +321,7 @@ def ComputeObjective(**kwargs):
   print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
   # FIXME  should this be different ?  
-  SEMDataDirectory = outputDirectory % kwargs['fileID']
+  SEMDataDirectory = outputDirectory % kwargs['UID']
 
   ObjectiveFunction = 0.0
   # loop over time points of interest
@@ -429,8 +429,8 @@ def brainNekWrapper(**kwargs):
   fileHandle = file(outputSetupRCFile ,'w')
   semwritetime = kwargs['semwritetime']
   # make sure write directory exists
-  os.system('mkdir -p %s' % outputDirectory % kwargs['fileID'] )
-  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory % kwargs['fileID'] ,semwritetime  ) )
+  os.system('mkdir -p %s' % outputDirectory % kwargs['UID'] )
+  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory % kwargs['UID'] ,semwritetime  ) )
   fileHandle.flush(); fileHandle.close()
 
   # case file
@@ -534,6 +534,7 @@ def ParseInput(paramfilename):
   fem_params['asv']        = active_set_vector
   fem_params['functions']  = num_fns
   fem_params['fileID']     = fileID 
+  fem_params['UID']        = int(paramfilename.split('/').pop(3))
 
   # parse file path
   locatemrti = paramfilename.split('/')

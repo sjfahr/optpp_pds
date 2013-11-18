@@ -133,9 +133,8 @@ panel.linear <- function(x, y)
 
 # plot volume change 
 do.legend <- FALSE
-pdf(paste(paste('/var/www/fuentes/processhistory',PlotID,sep=""),'.pdf',sep=""))
-# pairs(~PtNum+age+Cerebrum+Cerebellum+Brain_Stem+CSF,data=qoisubset,
- pairs(~iter+mu_a+g+u0+h+obj,data=iterstats,
+pdf(paste(paste('/var/www/fuentes/ipresults/processhistory',PlotID,sep=""),'.pdf',sep=""))
+ pairs(~iter+mu_a+g+mu_s+k+obj,data=iterstats,
         diag.panel  = panel.hist, 
         lower.panel = panel.linear,
         upper.panel = panel.cor,

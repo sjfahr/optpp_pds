@@ -86,7 +86,7 @@ def ParseInput(paramfilename):
   return fem_params
 
 with file('%s/iterationhistory.txt' % rundirectory, 'w') as fileHandle: 
-  fileHandle.write("iter,mu_a,g,u0,h,obj\n")
+  fileHandle.write("iter,k,mu_s,mu_a,g,u0,h,obj\n")
   for idfile in  range(1,maxfile):
    infile =  '%s/optpp_pds.in.%d'  % (rundirectory,idfile) 
    outfile=  '%s/optpp_pds.out.%d' % (rundirectory,idfile)
@@ -94,5 +94,5 @@ with file('%s/iterationhistory.txt' % rundirectory, 'w') as fileHandle:
    cv =  fem_params['cv']
    with file(outfile, 'r') as objectivefnc: 
      print 
-     fileHandle.write("%05d,%s,%s,%s,%s,%s" %(idfile,cv['mu_a_healthy'],cv['anfact_healthy'],cv['probe_init'],cv['robin_coeff'],objectivefnc.read()))
+     fileHandle.write("%05d,%s,%s,%s,%s,%s,%s,%s" %(idfile,cv['k_0_healthy'],cv['mu_s_healthy'],cv['mu_a_healthy'],cv['anfact_healthy'],cv['probe_init'],cv['robin_coeff'],objectivefnc.read()))
 
