@@ -1,6 +1,6 @@
 %This parses the power further
 
-function [P,unique_P,delta_P, DF_Intervals]=power_parser(power_log);
+function [Power_intervals, times]=power_parser_write_DF(power_log);
 
 %Find where the power changes at all;
 delta_P = (diff( power_log(:,5) )~=0) + ( diff(power_log(:,6) )~=0);  %Find which elements change from columns 5 and 6; then add the changes into one column
@@ -22,10 +22,15 @@ Power_intervals = zeros ( length( unique_P ) , 1 );
 Power_intervals(1+1:end+1) = unique_P (1:end);  %add row back in because diff function eliminates the first one.
 Power_intervals(1) = 0; 
 
-DF_Intervals = cell ( 2 , 2 );  %Initiate cell array
-DF_Intervals { 1 , 1 } = 'Time'; % Time and power headers
-DF_Intervals { 1 , 2 } = 'Power';
-DF_Intervals { 2 , 1 } = find (delta_P); % Time and power data
-DF_Intervals { 2 , 2 } = Power_intervals;
+times = find( delta_P );
+
+% csv_write ('Powers_DF.csv' , Power_intervals);
+% csv_write ('Times_DF.csv' ,  find (delta_P));
+
+% DF_Intervals = cell ( 2 , 2 );  %Initiate cell array
+% DF_Intervals { 1 , 1 } = 'Time'; % Time and power headers
+% DF_Intervals { 1 , 2 } = 'Power';
+% DF_Intervals { 2 , 1 } = find (delta_P); % Time and power data
+% DF_Intervals { 2 , 2 } = Power_intervals;
 
 end
