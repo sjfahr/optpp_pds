@@ -18,7 +18,7 @@ if isempty ( find ( delta_P )) == 1;
     return
 end
 
-keep = find ( delta_P) ; % The +1 is to match the indexing (diff drops the length by 1)
+keep = find ( delta_P) ; % Collects the indices of where the power changes
 on_off = zeros ( length( find ( delta_P ) )  , 1);
 
 %This loop captures the on/off state of the power_log
@@ -36,28 +36,27 @@ P(:,2) = power_log (P(:,1),6); %Use the times from column 1, P to record the cor
 
 
 P(:,2) = P(:,2) * 15/100; %Convert % power to W power
-P ( :,3 ) = on_off;
+P ( :,3 ) = on_off; %Add a column of on/off for next calculation
 
 k_P (:,1)=P(:,1);
 k_P (:,2)=P(:,2).*P(:,3);
 
-times = k_P( : , 1 );
+times = k_P( : , 1 ); %Split in two for easy indexing.
 powers = k_P( :,2);
 
 % Add a 0 power at the beginning.
 powers = cat (1,0,powers);
-
+% Add the ending time to the time series
 times(end+1)=power_log(end,4);
 %times(1) = []; A%%% prolly will cut
 %times = round (times/2);
 
-Power_intervals (:,1) = times;
+Power_intervals (:,1) = times;  %Write the Power_intervals
 Power_intervals (:,2) = powers;
 
+%Cut repitious power/time information where there isn't a change.
 Power_intervals_diff = diff (Power_intervals);
-
 cut_indices = find ( not ( Power_intervals_diff ( :,2) ));
-
 Power_intervals ( cut_indices , : )= [];
 
 end
