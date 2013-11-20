@@ -1,6 +1,6 @@
 %This parses the power further
 
-function [Power_intervals,ii,jj]=power_parser_write_DF(power_log);
+function [Power_intervals,ii,jj]=power_parser_write_DF_array(power_log);
 
 %Find where the power changes at all;
 delta_P = (diff( power_log(:,5) )~=0) + ( diff(power_log(:,6) )~=0);  %Find which elements change from columns 5 and 6; then add the changes into one column
@@ -41,44 +41,44 @@ jj=0;
 
 k_P_diff = diff (k_P);
 k_P_diff_size = size ( k_P_diff );
-
-if k_P_diff_size (1) == 1
-    times = k_P (:,1);
-    powers = k_P(:,2);
-    
-    powers_holder = zeros ( ( length(powers) +1),1);
-    powers_holder (3) = powers (2);
-    powers_holder (2) = powers (1);
-    
-    clear powers
-    powers = powers_holder;
-    
-    times(end+1)=power_log(end,4);
-    times = round (times/2);
-    
-    Power_intervals (:,1) = times;
-    Power_intervals (:,2) = powers;
-    return
-end
-
-% cut_indices = find ( not ( k_P_diff ( :,2) )) + 1;
 % 
-% k_P ( cut_indices , : )= [];
+% if k_P_diff_size (1) == 1
+%     times = k_P (:,1);
+%     powers = k_P(:,2);
+%     
+%     powers_holder = zeros ( ( length(powers) +1),1);
+%     powers_holder (3) = powers (2);
+%     powers_holder (2) = powers (1);
+%     
+%     clear powers
+%     powers = powers_holder;
+%     
+%     times(end+1)=power_log(end,4);
+%     times = round (times/2);
+%     
+%     Power_intervals (:,1) = times;
+%     Power_intervals (:,2) = powers;
+%     return
+% end
 
+cut_indices = find ( not ( k_P_diff ( :,2) )) + 1;
 
+k_P ( cut_indices , : )= [];
 
-for ii = 1 : length( k_P_diff )
-    
-    if k_P_diff ( ii , 2 ) ~= 0
-        
-        zz_P ( (ii + jj ) , : ) = k_P ((ii + jj) , :);
-        
-    else
-        zz_P ( (ii + jj ) , : ) = k_P ((ii + jj) , :);
-        jj = jj + 1;
-        
-    end
-end
+% 
+% 
+% for ii = 1 : length( k_P_diff )
+%     
+%     if k_P_diff ( ii , 2 ) ~= 0
+%         
+%         zz_P ( (ii + jj ) , : ) = k_P ((ii + jj) , :);
+%         
+%     else
+%         zz_P ( (ii + jj ) , : ) = k_P ((ii + jj) , :);
+%         jj = jj + 1;
+%         
+%     end
+% end
 
 %     if k_P_diff ( ii , 2 ) ~= 0
 %         
@@ -90,20 +90,20 @@ end
 %         
 %     end
 % end
-
-clear ii jj
-
-times = zz_P( : , 1 );
-powers = zz_P( :,2);
-
-times(end+1)=power_log(end,4);
-times(1) = [];
-times = round (times/2);
-
-clear zz_P
-
-Power_intervals (:,1) = times;
-Power_intervals (:,2) = powers;
+% 
+% clear ii jj
+% 
+% times = zz_P( : , 1 );
+% powers = zz_P( :,2);
+% 
+% times(end+1)=power_log(end,4);
+% times(1) = [];
+% times = round (times/2);
+% 
+% clear zz_P
+% 
+% Power_intervals (:,1) = times;
+% Power_intervals (:,2) = powers;
 
 end
 % Power_intervals = zeros ( length( unique_P ) , 1 );
