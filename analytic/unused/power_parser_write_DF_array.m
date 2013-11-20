@@ -1,6 +1,6 @@
 %This parses the power further
 
-function [Power_intervals,ii,jj]=power_parser_write_DF_array(power_log);
+function [Power_intervals]=power_parser_write_DF_array(power_log);
 
 %Find where the power changes at all;
 delta_P = (diff( power_log(:,5) )~=0) + ( diff(power_log(:,6) )~=0);  %Find which elements change from columns 5 and 6; then add the changes into one column
@@ -8,6 +8,14 @@ delta_P(1+1:end+1,:) = delta_P (1:end,:);  %add row back in because diff functio
 delta_P(1,:) = delta_P (2,:);
 %At this point, delta_P lists all the times that columns 5 and 6 change
 
+% Check to see if there is anything changing
+if isempty ( find ( delta_P )) == 1;
+    
+    Power_intervals (1,1) = power_log ( end, 4 );
+    Power_intervals (1,2) = power_log ( end, 6 );
+    
+    return
+end
 
 keep = find ( delta_P) ; % The +1 is to match the indexing (diff drops the length by 1)
 on_off = zeros ( length( find ( delta_P ) )  , 1);
@@ -36,8 +44,6 @@ P ( :,3 ) = on_off;
 
 k_P (:,1)=P(:,1);
 k_P (:,2)=P(:,2).*P(:,3);
-
-jj=0;
 
 k_P_diff = diff (k_P);
 k_P_diff_size = size ( k_P_diff );
@@ -93,12 +99,15 @@ k_P ( cut_indices , : )= [];
 % 
 % clear ii jj
 % 
-% times = zz_P( : , 1 );
-% powers = zz_P( :,2);
-% 
-% times(end+1)=power_log(end,4);
-% times(1) = [];
-% times = round (times/2);
+times = k_P( : , 1 );
+powers = k_P( :,2);
+
+times(end+1)=power_log(end,4);
+times(1) = [];
+times = round (times/2);
+
+Power_intervals (:,1) = times;
+Power_intervals (:,2) = powers;
 % 
 % clear zz_P
 % 
