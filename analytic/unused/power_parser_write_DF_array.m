@@ -41,21 +41,23 @@ P ( :,3 ) = on_off;
 k_P (:,1)=P(:,1);
 k_P (:,2)=P(:,2).*P(:,3);
 
-k_P_diff = diff (k_P);
-k_P_diff_size = size ( k_P_diff );
-
-cut_indices = find ( not ( k_P_diff ( :,2) )) + 1;
-
-k_P ( cut_indices , : )= [];
-
 times = k_P( : , 1 );
 powers = k_P( :,2);
 
+% Add a 0 power at the beginning.
+powers = cat (1,0,powers);
+
 times(end+1)=power_log(end,4);
-times(1) = [];
-times = round (times/2);
+%times(1) = []; A%%% prolly will cut
+%times = round (times/2);
 
 Power_intervals (:,1) = times;
 Power_intervals (:,2) = powers;
+
+Power_intervals_diff = diff (Power_intervals);
+
+cut_indices = find ( not ( Power_intervals_diff ( :,2) ));
+
+Power_intervals ( cut_indices , : )= [];
 
 end
