@@ -2,51 +2,35 @@
 % run.
 
 function [metric] = test_obj_fxn ( path22, iteration );
-% cd (path22);
-% input_param = 'optpp_pds.in.mat.';
-% index = num2str(iteration);
-% input_filename = strcat( input_param, index);
-% 
-% aaa=csvimport(input_filename);
-% aaa=strtrim(aaa);
-% aaa=regexp(aaa,'\s+','split');
-% 
-% probe_u = str2num(aaa{2}{1});
-% g = str2num(aaa{3}{1});
-% mu_a = str2num(aaa{4}{1});
-% mu_s = str2num(aaa{5}{1});
-% k = str2num(aaa{6}{1});
-% w = str2num(aaa{7}{1});
-% x_disp = str2num(aaa{8}{1});
-% y_disp = str2num(aaa{9}{1});
-% z_disp = str2num(aaa{10}{1});
+cd (path22);
+input_param = 'optpp_pds.in.mat.';
+index = num2str(iteration);
+input_filename = strcat( input_param, index);
+
+aaa=csvimport(input_filename);
+aaa=strtrim(aaa);
+aaa=regexp(aaa,'\s+','split'); % Separate the label from the data into two columns.
+
+% Write every string as a number
+probe_u = str2num(aaa{2}{1});
+g_anisotropy = str2num(aaa{3}{1});
+mu_a = str2num(aaa{4}{1});
+mu_s = str2num(aaa{5}{1});
+k_cond = str2num(aaa{6}{1});
+w_perf = str2num(aaa{7}{1});
+x_disp = str2num(aaa{8}{1});
+y_disp = str2num(aaa{9}{1});
+z_disp = str2num(aaa{10}{1});
 % x_rot = str2num(aaa{11}{1});
 % y_rot = str2num(aaa{12}{1});
 % z_rot = str2num(aaa{13}{1});
-% 
-% robin_co=0; %dummy var
-% 
-% clear aaa;
 
-% % Write every string as a number
-% g=str2num(anfact_healthy);      % Optical anisotropy
-% k=str2num(k_0_healthy);         % Thermal conductivity
-% mu_a=str2num(mu_a_healthy);     % Optical absorption
-% mu_s=str2num(mu_s_healthy);     % Optical scattering
-% probe_u=str2num(probe_init);    % Initial probe temperature
-% %robin_co=str2num(robin_coeff);  % Value of Robin boundary coefficient
-% w=str2num(w_0_healthy);         % Blood perfusion
-% x_disp=str2num(x_displace);     % Horizontal displacement
-% x_rot=str2num(x_rotate);        % Rotation about horizontal axis
-% y_disp=str2num(y_displace);     % Vertical displacement
-% y_rot=str2num(y_rotate);        % Rotation about vertical axis
-% z_disp=str2num(z_displace);     % Depth displacement
-% z_rot=str2num(z_rotate);        % Rotation about depth axis
+robin_co=0; %dummy var
 
-%cd (path22);
-cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0002/000/laser_log'
-load 'power_log.txt';
-[P,~,delta_P] = power_parser(power_log);
+clear aaa;
+
+% Load the recorded power
+power_log = load ('time_then_power.csv');
 
 % Define the domain and scaling
 mod_point.x=171;  % x position on image
@@ -54,8 +38,11 @@ mod_point.y=171;
 mod_point.z=1;
 
 % Import the VTK header info
-%cd (path22);
-cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0002/001/laser'
+path_append = strrep ( path22, '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/', '');
+path_append = strrep ( path_append, 'opt', '');
+FOV_path = strcat( '/FUS4/data2/BioTex/BrainNonMDA/processed/' , path_append );
+FOV_path = strcat( FOV_path , 'laser' );
+cd ( FOV_path );
 FOV_import = csvimport ( 'FOV.csv' );
 fov = FOV_import ( 2, : );
 fov = cell2mat (fov);
@@ -73,9 +60,9 @@ FOV.y = matrix.y * spacing.y;
 FOV.z = matrix.z * spacing.z;
 
 % For now, x and y scaling must be equal; z = 1
-scaling.x=1;
-scaling.y=1;
-scaling.z=1;
+scaling.x = 1;
+scaling.y = 1;
+scaling.z = 1;
 
 % Build the domain
 [dom,~,mod_pix]=modeled_domain(FOV,matrix,scaling,mod_point);
@@ -87,10 +74,10 @@ source.length=0.01;  %~0.033 is when n=5 is visible
 source.laser=linspace((-source.length/2),(source.length/2),source.n);
 
 % Run the Bioheat model with the unique powers
-[tmap_unique]=Bioheat1D(P,dom,source,w,k,g,mu_a,mu_s,probe_u,robin_co);
-clear w;
+[tmap_unique]=Bioheat1D( power_log,dom,source,w_perf,k_cond,g_anisotropy,mu_a,mu_s,probe_u,robin_co);
 tmap_unique=tmap_unique+37;
 tmap_unique(:,:,:,1)=37;
+
 % Make the full temperature history with the unique tmaps
 % [tmap]=Build_tmap_history(tmap_unique,delta_P);
 
@@ -110,7 +97,10 @@ bb = aa(round(matrix.x/2),round(matrix.y/2),1,:);
 
 [~,dd] = max (bb);
 
-cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0002/001/matlab/'
+% Load the Arrhenius Dose information.
+dose_path = strcat( '/FUS4/data2/BioTex/BrainNonMDA/processed/' , path_append );
+dose_path = strcat( dose_path , 'matlab' );
+cd ( dose_path );
 load 'arrheniusDose.mat'
 MRTI_dose_size=size(arrheniusDose.mean);
 

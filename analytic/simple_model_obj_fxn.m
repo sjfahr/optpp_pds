@@ -110,6 +110,7 @@ cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0002/000/matlab/'
 load 'arrheniusDose.mat'
 MRTI_dose_size=size(arrheniusDose.mean);
 
+% Trim the objective fxn's ROI
 aa_size=size(aa);
 size_diff=[(MRTI_dose_size(1)-aa_size(1)) (MRTI_dose_size(2)-aa_size(2))];
 upper_left_mod = zeros((size(aa,1)+size_diff(1)),(size(aa,2)+size_diff(2)));

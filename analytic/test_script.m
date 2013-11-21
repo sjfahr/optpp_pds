@@ -2,6 +2,8 @@
 
 % Paths.
 tic
+
+cd '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/Patient0002/000/opt'
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
 

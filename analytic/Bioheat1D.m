@@ -16,8 +16,9 @@ function [tmap]=Bioheat1D(P,dom,source,w,k,g,mua,mus,probe_u,robin_co);
 R1=0.0015/2; % (m) R1 is the distance from the isotropic laser source point and the edge of the fiber
 R2=1; % (m) R2 is the maximum edge of the domain;
 Npowers=size(P,1)+1; %Returns how many timesteps will be calculated
-P(2:Npowers,:)=P(1:(Npowers-1),:); %Inserts the P=0 timestep
-P(1,:)=0;
+% P(2:Npowers,:)=P(1:(Npowers-1),:); %Inserts the P=0 timestep
+% P(1,1)=1;
+% P(1,2)=0;
 P(:,2)=P(:,2)/source.n;  %Scales the power to the number of source points
 
 %List of constants
@@ -54,7 +55,7 @@ for i=1:dom.pointx   %Spatial loop for i, ii, iii
             for j=1:source.n    %Loop for the separate isotropic sources
                 r(j)=sqrt(points.x(i)^2+(source.laser(j)-points.y(ii))^2+points.z(iii)^2);  %Distance for each isotropic source
                 
-                for jj=2:Npowers  %Loop for the unique power settings;.
+                for jj=1:(Npowers-1)  %Loop for the power settings while skipping the last time (because it's always 0 power);.
                     [t_sample(i,ii,iii,j,jj)]=sammodel1D(u0,ua,k,w,P(jj,2),r(j),mua,mus,R1,R2,g);
                     
                 end
