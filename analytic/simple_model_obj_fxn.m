@@ -138,14 +138,7 @@ MRTI_Iso ( roi_x_MRTI(2):end, : )  = 0;
 MRTI_Iso ( :, 1:roi_y_MRTI(1) ) = 0;
 MRTI_Iso ( :,roi_y_MRTI(2):end ) = 0;
 
-sum_Iso = model_Iso + MRTI_Iso;
 diff_Iso= model_Iso - MRTI_Iso;
-
-figure(1); imagesc(matched_mod);
-figure(2); imagesc(model_Iso);
-figure(3); imagesc(MRTI_Iso);
-figure(4); imagesc(sum_Iso);
-figure(5); imagesc(diff_Iso);
 
 metric = abs(sum(sum(diff_Iso)));
 
