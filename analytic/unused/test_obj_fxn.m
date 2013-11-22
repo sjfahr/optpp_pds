@@ -18,9 +18,9 @@ mu_a = str2num(aaa{4}{1});
 mu_s = str2num(aaa{5}{1});
 k_cond = str2num(aaa{6}{1});
 w_perf = str2num(aaa{7}{1});
-x_disp = str2num(aaa{8}{1});
-y_disp = str2num(aaa{9}{1});
-z_disp = str2num(aaa{10}{1});
+% x_disp = str2num(aaa{8}{1});
+% y_disp = str2num(aaa{9}{1});
+% z_disp = str2num(aaa{10}{1});
 % x_rot = str2num(aaa{11}{1});
 % y_rot = str2num(aaa{12}{1});
 % z_rot = str2num(aaa{13}{1});
@@ -86,10 +86,21 @@ tmap_unique(:,:,:,1)=37;
 % [w,~]=ArrDose_for_1D(tmap,dt);
 % w ( w > 4 ) = 4;  %Put a cap on the dose
 
-% Calculate the number of pixels that must be shifted
-pixel_reg.x = round (x_disp / mod_pix.x);
-pixel_reg.y = round (y_disp / mod_pix.y);
-pixel_reg.z = round (z_disp / mod_pix.z);
+% Change directory to load Arrhenius dose and MATLAB registration data.
+dose_path = strcat( '/FUS4/data2/BioTex/BrainNonMDA/processed/' , path_append );
+dose_path = strcat( dose_path , 'matlab' );
+cd ( dose_path );
+load 'arrheniusDose.mat'
+MRTI_dose_size=size(arrheniusDose.mean);
+load ( 'VOI.mat' );
+% matlab_reg (1) = matlab_reg (1) / mod_pix.x; % Scaling
+% matlab_reg (2) = matlab_reg (2) / mod_pix.y;
+% matlab_reg (3) = matlab_reg (3) / mod_pix.z;
+
+% % Calculate the number of pixels that must be shifted
+% pixel_reg.x = round (x_disp / mod_pix.x);
+% pixel_reg.y = round (y_disp / mod_pix.y);
+% pixel_reg.z = round (z_disp / mod_pix.z);
 
 aa = imresize (tmap_unique , 1/scaling.x);
 
@@ -97,68 +108,78 @@ bb = aa(round(matrix.x/2),round(matrix.y/2),1,:);
 
 [~,dd] = max (bb);
 
-% Load the Arrhenius Dose information.
-dose_path = strcat( '/FUS4/data2/BioTex/BrainNonMDA/processed/' , path_append );
-dose_path = strcat( dose_path , 'matlab' );
-cd ( dose_path );
-load 'arrheniusDose.mat'
-MRTI_dose_size=size(arrheniusDose.mean);
-
 aa_size = size ( aa(:,:,1,dd) );
 size_diff=[(MRTI_dose_size(1)-aa_size(1)) (MRTI_dose_size(2)-aa_size(2))];
 upper_left_mod = zeros((size(aa,1)+size_diff(1)),(size(aa,2)+size_diff(2)));
 upper_left_mod(1:size(aa,1),1:size(aa,2)) = aa(:,:,1,dd);
 
-pixel_reg.x
-pixel_reg.y
+% matlab_reg(1)
+% matlab_reg(2)
+VOI.x
+VOI.y
 
 %Define intervals that will be written
-% x_range = [ (pixel_reg.x - floor(aa_size(1)/2)) (pixel_reg.x + floor(aa_size(1)/2))];
-% y_range = [ (pixel_reg.y - floor(aa_size(2)/2)) (pixel_reg.y + floor(aa_size(2)/2))];
+% x_range   = [ (VOI.center_in_pix.x - floor(aa_size(1)/2)) (VOI.center_in_pix.x + floor(aa_size(1)/2))];
+% y_range   = [ (VOI.center_in_pix.y - floor(aa_size(2)/2)) (VOI.center_in_pix.y + floor(aa_size(2)/2))];
 % 
-% roi_x   = [ (pixel_reg.x - 50) (pixel_reg.x + 50) ]; %For model
-% roi_y   = [ (pixel_reg.y - 50) (pixel_reg.y + 50) ];
+% roi_x    = [ (VOI.center_in_pix.x - 50) (VOI.center_in_pix.x + 50) ]; %For model 57 deg C isotherms.
+% roi_y    = [ (VOI.center_in_pix.y - 50) (VOI.center_in_pix.y + 50) ];
 % 
-% roi_x_MRTI   = [ (pixel_reg.x - 20) (pixel_reg.x + 20) ];  %For model
-% roi_y_MRTI   = [ (pixel_reg.y - 20) (pixel_reg.y + 20) ];
+% roi_x_MRTI   = [ (VOI.center_in_pix.x - 20) (VOI.center_in_pix.x + 20) ];  %For MRTI dose.
+% roi_y_MRTI   = [ (VOI.center_in_pix.y - 20) (VOI.center_in_pix.y + 20) ];
+
+x_range   = [ (VOI.center_in_pix.y - floor(aa_size(1)/2)) (VOI.center_in_pix.y + floor(aa_size(1)/2))];
+y_range   = [ (VOI.center_in_pix.x - floor(aa_size(2)/2)) (VOI.center_in_pix.x + floor(aa_size(2)/2))];
+
+roi_x    = [ (VOI.center_in_pix.y - 60) (VOI.center_in_pix.y + 60) ]; %For model 57 deg C isotherms.
+roi_y    = [ (VOI.center_in_pix.x - 60) (VOI.center_in_pix.x + 60) ];
+
+roi_x_MRTI   = [ (VOI.center_in_pix.y - 20) (VOI.center_in_pix.y + 20) ];  %For MRTI dose.
+roi_y_MRTI   = [ (VOI.center_in_pix.x - 20) (VOI.center_in_pix.x + 20) ];
+
+x_range = round ( x_range ); % Round everything after calculating them.
+y_range = round ( y_range );
+roi_x = round ( roi_x );  
+roi_y = round ( roi_y );
+roi_x_MRTI = round ( roi_x_MRTI );
+roi_y_MRTI = round ( roi_y_MRTI );
+
+%matched_mod = zeros(arrheniusDose.mean(1),arrheniusDose.mean(2),);
+matched_mod = zeros (MRTI_dose_size(1), MRTI_dose_size(2));
+matched_mod ( x_range(1):x_range(2), y_range(1):y_range(2) ,:,:) = upper_left_mod( 1:aa_size(1) , 1:aa_size(2) );
+
+model_Iso = (matched_mod >57) ; % 57 deg C isotherm
+
+model_Iso ( 1:roi_x(1), : ) = 0;
+model_Iso ( roi_x(2):end,: )  = 0;
+model_Iso ( :, 1:roi_y(1) ) = 0;
+model_Iso ( :,roi_y(2):end) = 0;
+
+MRTI_Iso = (arrheniusDose.mean >1) ;
+
+MRTI_Iso ( 1:roi_x_MRTI(1), : ) = 0;
+MRTI_Iso ( roi_x_MRTI(2):end, : )  = 0;
+MRTI_Iso ( :, 1:roi_y_MRTI(1) ) = 0;
+MRTI_Iso ( :,roi_y_MRTI(2):end) = 0;
+
+sum_Iso = model_Iso + MRTI_Iso;
+diff_Iso= model_Iso - MRTI_Iso;
+
+figure(1); imagesc(matched_mod);
+figure(2); imagesc(model_Iso);
+figure(3); imagesc(MRTI_Iso);
+figure(4); imagesc(sum_Iso);
+figure(5); imagesc(diff_Iso);
+
+metric = abs(sum(sum(diff_Iso)));
+
+cd (path22);
+
+% output_param = 'optpp_pds.out.';
+% index = num2str(iteration);
+% output_filename = strcat( output_param, index);
 % 
-% %matched_mod = zeros(arrheniusDose.mean(1),arrheniusDose.mean(2),);
-% matched_mod = zeros (MRTI_dose_size(1), MRTI_dose_size(2));
-% matched_mod ( x_range(1):x_range(2), y_range(1):y_range(2) ,:,:) = upper_left_mod( 1:aa_size(1) , 1:aa_size(2) );
-% 
-% model_Iso = (matched_mod >57) ;
-% 
-% model_Iso ( 1:roi_x(1), : ) = 0;
-% model_Iso ( roi_x(2):end,: )  = 0;
-% model_Iso ( :, 1:roi_y(1) ) = 0;
-% model_Iso ( :,roi_y(2):end) = 0;
-% 
-% MRTI_Iso = (arrheniusDose.mean >1) ;
-% 
-% MRTI_Iso ( 1:roi_x_MRTI(1), : ) = 0;
-% MRTI_Iso ( roi_x_MRTI(2):end, : )  = 0;
-% MRTI_Iso ( :, 1:roi_y_MRTI(1) ) = 0;
-% MRTI_Iso ( :,roi_y_MRTI(2):end) = 0;
-% 
-% sum_Iso = model_Iso + MRTI_Iso;
-% diff_Iso= model_Iso - MRTI_Iso;
-% 
-% figure(3); imagesc(matched_mod);
-% figure(4); imagesc(model_Iso);
-% figure(5); imagesc(MRTI_Iso);
-% figure(6); imagesc(sum_Iso);
-% figure(7); imagesc(diff_Iso);
-% 
-% metric = abs(sum(sum(diff_Iso)));
-% 
-% cd (path22);
-% %[metric] = Iso_obj ( matched_mod, MRTI_Iso);
-% 
-% % output_param = 'optpp_pds.out.';
-% % index = num2str(iteration);
-% % output_filename = strcat( output_param, index);
-% % 
-% % csvwrite ( output_filename, metric);
+% csvwrite ( output_filename, metric);
 
 end
 
