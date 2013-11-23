@@ -4,50 +4,22 @@
 
 % 'w' is the output, (x-dim,y-dim,z-dim). 'T' is the temperature image, (x-dim,y-dim,z-dim,time). 'w.mean_time' finds the differential dose accrued
 % in one time step, 'dt'.  'Iso', (x-dim,y-dim,z-dim) finds the dead voxels.
-function [w,Iso]=ArrDose_for_arbitraryD(T);
+function [w,Iso]=ArrDose_for_1D(T,dt);
 T=double(T);
-T=squeeze(T);
-T_dim=length(size(T));
-a=size(T); 
+
 
 A=3.1*10^98;   %(1/s)  Constants and convert T from degrees Celsius to Kelvin
 E=6.28*10^5;    %(J/mol)  Reference: Fahrenholtz et al. May/June 2013 in IJH
 R=8.314;        %(J/mol/K)
-dt=5;           %(s)    Perhaps should be an input because T-maps could have different time steps
+%dt=5;           %(s)    Perhaps should be an input because T-maps could have different time steps
 T1=T+273.15;    %Convert deg C into K
 
-           %Initialize w1 and Iso for arbitrary sized arrays
+a=size(T);            %Initialize w1 and Iso
+w=zeros(a(1),a(2),a(3),a(4));
+Iso=zeros(a(1),a(2),a(3));
 
-if T_dim==3  %2D, multiple timepoints
-    w=zeros(a(1),a(2),a(3));
-    Iso=zeros(a(1),a(2));
-elseif T_dim==4  %3D, multiple timpeoints
-    w=zeros(a(1),a(2),a(3),a(4));
-    Iso=zeros(a(1),a(2),a(3));
-elseif T_dim==5  %3D, multiple timepoints, multiple sources maybe?
-    w=zeros(a(1),a(2),a(3),a(4),a(5));
-    Iso=zeros(a(1),a(2),a(3),a(4));
-elseif T_dim==2  %2D, one timepoint
-    w=zeros(a(1),a(2));
-    Iso=zeros(a(1),a(2));
-end
-    
-
-w1=A*exp(-(E/(R*T1)));  %This is the discretized Arrhenius dose, no time yet
-
-%Summation part of discretized dose
-if T_dim==2
-    w=w1;
-elseif T_dim==3
-    w=single(sum(w1,3)*dt);
-elseif T_dim==4
-    w=single(sum(w1,4)*dt);
-elseif T_dim==5
-    w=single(sum(w1,5)*dt);
-end
-    
-
-w=single(sum(w1,4)*dt); %This is the summation part of discretized dose
+w=A*exp(-(E/(R*T1)));  %This is the discretized Arrhenius dose, no time yet
+w=single(sum(w,4)*dt); %This is the summation part of discretized dose
 
 %w=squeeze(w);
 
