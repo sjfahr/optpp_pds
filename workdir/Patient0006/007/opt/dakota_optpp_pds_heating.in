@@ -5,11 +5,13 @@ strategy,
           graphics,tabular_graphics_data
 
 method,
-        output debug
-        optpp_q_newton
+        output verbose
+        #optpp_q_newton
+        optpp_pds
           max_iterations = 1000
-          max_step = 12345.
+          #max_step = 12345.
           max_function_evaluations = 2000
+          convergence_tolerance = 1.e-12
 ##           linear_inequality_lower_bounds = 0.2 0.7 5.e1 0.0
 ##           linear_inequality_upper_bounds = 1.9 1.0 6.e2 3.e-3
 ##           linear_inequality_constraint_matrix = 1.0 0.0 0.0 0.0
@@ -27,16 +29,16 @@ model,
         single
 
 variables,
-        continuous_design = 4
-          initial_point          0.7           0.95           4.987e1            8.e3    
-          lower_bounds           0.2           0.7            5.e-1              1.e3    
-          upper_bounds           1.9           1.0            6.e2               5.e4    
-          descriptors     'k_0_healthy'  'anfact_healthy'  'mu_a_healthy'  'mu_s_healthy'
-        continuous_state = 9
-          initial_state            0.0          21.0         6.0         0.111350 0.138720        0.001000    0.000000 90.000000 0.000000 
-          #lower_bounds            0.0          20.0         3.0         0.110350 0.137720        0.000000   -5.000000 85.000000 -5.000000 
-          #upper_bounds            1.e4         40.0         9.0         0.112350 0.139720        0.003000    5.000000 95.000000 5.000000 
-          descriptors      'robin_coeff'   'probe_init' 'w_0_healthy' 'x_displace' 'y_displace' 'z_displace' 'x_rotate' 'y_rotate' 'z_rotate'
+        continuous_design = 2
+          initial_point        0.5483896933     175.777634 
+          lower_bounds           0.2            8.e-1    
+          upper_bounds           1.9            5.3e3    
+          descriptors     'k_0_healthy'   'mu_eff_healthy'
+        continuous_state = 10
+          initial_state            0.0    37.0      21.0         6.0         0.111350 0.138720        0.001000    0.000000 90.000000 0.000000 
+          #lower_bounds            0.0    34.0      20.0         3.0         0.110350 0.137720        0.000000   -5.000000 85.000000 -5.000000 
+          #upper_bounds            1.e4   40.0     40.0         9.0         0.112350 0.139720        0.003000    5.000000 95.000000 5.000000 
+          descriptors      'robin_coeff' 'body_temp' 'probe_init' 'w_0_healthy' 'x_displace' 'y_displace' 'z_displace' 'x_rotate' 'y_rotate' 'z_rotate'
 #        discrete_state_range = 1
 #          initial_state    0
 #          descriptors      'powerhistory:[[36, 42, 49, 142, 160], [0.0, 3.0, 0.0, 12.0, 0.0], 5.0, 138]'
@@ -52,5 +54,6 @@ interface,
 
 responses,
         objective_functions = 1
-        numerical_gradients
+        #numerical_gradients
+        no_gradients
         no_hessians
