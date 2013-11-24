@@ -316,6 +316,10 @@ parser.add_option( "--run_fem","--param_file",
                   help="run code with parameter FILE", metavar="FILE")
 (options, args) = parser.parse_args()
 
+import brainNekLibrary
+
+setup = brainNekLibrary.PySetupAide("optpp_pds/setuprc.0001")
+print setup 
 
 if (options.param_file != None):
   # parse the dakota input file
