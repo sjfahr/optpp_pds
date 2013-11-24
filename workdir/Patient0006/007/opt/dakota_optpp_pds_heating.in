@@ -28,8 +28,8 @@ model,
 
 variables,
         continuous_design = 4
-          initial_point          0.7           0.95           5.e-1              8.e3    
-          lower_bounds           0.2           0.7            5.e1               1.e3    
+          initial_point          0.7           0.95           5.e1               8.e3    
+          lower_bounds           0.2           0.7            5.e-1              1.e3    
           upper_bounds           1.9           1.0            6.e2               5.e4    
           descriptors     'k_0_healthy'  'anfact_healthy'  'mu_a_healthy'  'mu_s_healthy'
         continuous_state = 9
