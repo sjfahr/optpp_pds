@@ -15,6 +15,8 @@ cdef extern from "setupAide.hpp":
 cdef extern from "brain3d.hpp": 
     cdef cppclass brain3d:
         brain3d(setupAide) 
+        int timeStep(double)
+        float dt
 ## cdef extern from "mesh_base.h": 
 ##     cdef cppclass MeshBase:
 ##         Mesh (unsigned int) 

@@ -28,6 +28,7 @@ brainnek_cxxflags.append( "-DOCCA_USE_OPENCL=1"  )
 brainnek_cxxflags.append( "-DOCCA_USE_CUDA=0"    )
 brainnek_cxxflags.append( "-DOCCA_USE_ALL=0"     )
 brainnek_cxxflags.append( "-DOCCA_USE_CPU=1"     )
+brainnek_cxxflags.append( "-O0"     )
 
 brainnek_libraries=[
 "lapack",

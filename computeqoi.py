@@ -321,6 +321,12 @@ import brainNekLibrary
 setup = brainNekLibrary.PySetupAide("optpp_pds/setuprc.0001")
 print setup 
 
+brain = brainNekLibrary.PyBrain3d(setup);
+tstep = 0
+while( brain.timeStep(tstep * .25 ) ) :
+  print brain.dt
+  tstep = tstep + 1
+
 if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)

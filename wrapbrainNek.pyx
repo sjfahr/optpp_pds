@@ -16,11 +16,15 @@ cdef class PySetupAide:
         cdef char* setupfile= PyStringSetupFile
         self.thisptr = new setupAide(string(setupfile))
 # -------------------- wrapper for brain3d --------------------- 
-cdef class PylibMeshGetPot:
+cdef class PyBrain3d:
     cdef brain3d *thisptr  # hold a C++ instance which we're wrapping
     def __cinit__(self,PySetupAide setup not None):
         self.thisptr = new brain3d( cython.operator.dereference(setup.thisptr) )
-## # ---------------- wrapper for libMesh::System ---------------- 
+    def timeStep( self,currentTime):
+        return self.thisptr.timeStep(currentTime)
+    def dt( self):
+        return self.thisptr.dt
+
 ## cdef class PylibMeshSystem:
 ##     cdef System *thisptr  # hold C++ instance we're wrapping
 ##     cdef public object variables # hold variable dictionary
