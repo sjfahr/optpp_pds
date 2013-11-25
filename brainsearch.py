@@ -410,7 +410,7 @@ def ComputeObjective(**kwargs):
 
     # accumulate objective function
     diff =  numpy.abs(mrti_array-fem_array)
-    #diffsq =  diff**2
+    diffsq =  diff**2
     ObjectiveFunction = ObjectiveFunction + diff.sum()
   return ObjectiveFunction 
 # end def ComputeObjective:
