@@ -256,13 +256,13 @@ caseFileTemplate = \
 15
 
 [BODY TEMPERATURE]
-20
+%s
 
 [BLOOD TEMPERATURE]
-20
+%s
 
 [COOLANT TEMPERATURE]
-20
+%s
 
 [BLOOD SPECIFIC HEAT]
 3840
@@ -318,6 +318,7 @@ laserTip  1.0      4180           0.5985        500         14000       0.88
 def ComputeObjective(**kwargs):
   import vtk
   import vtk.util.numpy_support as vtkNumPy 
+  import numpy
   print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
   # FIXME  should this be different ?  
@@ -408,9 +409,9 @@ def ComputeObjective(**kwargs):
     #print type(fem_array )
 
     # accumulate objective function
-    diff =  mrti_array-fem_array
+    diff =  numpy.abs(mrti_array-fem_array)
     diffsq =  diff**2
-    ObjectiveFunction = ObjectiveFunction + diffsq.sum()
+    ObjectiveFunction = ObjectiveFunction + diff.sum()
   return ObjectiveFunction 
 # end def ComputeObjective:
 ##################################################################
@@ -418,6 +419,7 @@ def brainNekWrapper(**kwargs):
   """
   call brainNek code 
   """
+  import math
   # occa case file
   outputOccaCaseFile = '%s/casefunctions.%04d.occa' % (workDirectory,kwargs['fileID'])
   print 'writing', outputOccaCaseFile 
@@ -433,10 +435,20 @@ def brainNekWrapper(**kwargs):
   fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory % kwargs['UID'] ,semwritetime  ) )
   fileHandle.flush(); fileHandle.close()
 
+  # get variables
+  variableDictionary = kwargs['cv']
+
   # case file
   outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
   print 'writing', outputCaseFile 
-  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],workDirectory,kwargs['fileID'])  )
+  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],variableDictionary['body_temp'],variableDictionary['body_temp'],variableDictionary['probe_init'],workDirectory,kwargs['fileID'])  )
+
+#      mu_a_min               <      mu_a + (1-g) mu_s < mu_a_max + (1-g_min) mu_s_max
+#         5.e-1               <          mu_tr         < 600. + .3 * 50000. 
+#
+#  sqrt( 3 * 5.e-1 * 5.e-1 )  <  sqrt( 3 mu_a  mu_tr ) < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+#  sqrt( 3 * 5.e-1 * 5.e-1 )  <        mu_eff          < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+#            8.e-1            <        mu_eff          <    5.3e3
 
   # materials
   outputMaterialFile = '%s/material_types.%04d.setup' % (workDirectory,kwargs['fileID'])
@@ -444,8 +456,12 @@ def brainNekWrapper(**kwargs):
   fileHandle = file(outputMaterialFile   ,'w')
   fileHandle.write('[MATERIAL PROPERTIES]\n'  )
   fileHandle.write('# Name,      Type index, Density, Specific Heat, Conductivity, Perfusion, Absorption, Scattering, Anisotropy\n'  )
-  variableDictionary = kwargs['cv']
-  fileHandle.write('Brain     0           1045     3640           %s        %s     %s      %s      %s \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], variableDictionary['mu_a_healthy' ], variableDictionary['mu_s_healthy' ], variableDictionary['anfact_healthy'       ])
+  mu_s   = 8.e3
+  anfact = .9
+  mu_s_p = mu_s * (1.-anfact) 
+  mu_eff = float(variableDictionary['mu_eff_healthy'])
+  mu_a   =  0.5*( -mu_s_p + math.sqrt( mu_s_p * mu_s_p  + 4. * mu_eff * mu_eff  /3. ) )
+  fileHandle.write('Brain     0           1045     3640           %s        %s     %f      %f      %f \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], mu_a, mu_s, anfact )
  )
   fileHandle.flush(); fileHandle.close()
 
@@ -517,7 +533,7 @@ def ParseInput(paramfilename):
   # for this simple example, put all the variables into a single hardwired array
   continuous_vars = {} 
 
-  DescriptorList = ['robin_coeff','probe_init','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
+  DescriptorList = ['robin_coeff','probe_init','mu_eff_healthy','body_temp','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
   for paramname in DescriptorList:
     try:
       continuous_vars[paramname  ] = paramsdict[paramname ]
