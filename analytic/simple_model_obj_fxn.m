@@ -1,22 +1,27 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run.
 
-function [metric] = simple_model_obj_fxn ( path22, iteration );
-cd (path22);
-input_param = 'optpp_pds.in.mat.';
+function [metric] = simple_model_obj_fxn222 ( path22, iteration );
+cd( path22);
+patient_path = '/workdir/Patient0002/000/opt';
+patient_opt_path = strcat( path22, patient_path);
+cd( patient_opt_path);
+input_param = 'optpp_pds.in.';
 index = num2str(iteration);
 input_filename = strcat( input_param, index);
+input_filename = strcat( input_filename, '.mat' );
 
-aaa=csvimport(input_filename);
-aaa=strtrim(aaa);
-aaa=regexp(aaa,'\s+','split');
+load(input_filename);
+% aaa=strtrim(aaa);
+% aaa=regexp(aaa,'\s+','split'); % Separate the label from the data into two columns.
 
-probe_u = str2num(aaa{2}{1});
-g_anisotropy = str2num(aaa{3}{1});
-mu_a = str2num(aaa{4}{1});
-mu_s = str2num(aaa{5}{1});
-k_cond = str2num(aaa{6}{1});
-w_perf = str2num(aaa{7}{1});
+% Write every string as a number
+probe_u = str2num(probe_init);
+g_anisotropy = str2num(anfact_healthy);
+mu_a = str2num(mu_a_healthy);
+mu_s = str2num(mu_s_healthy);
+k_cond = str2num(k_0_healthy);
+w_perf = str2num(w_0_healthy);
 % x_disp = str2num(aaa{8}{1});
 % y_disp = str2num(aaa{9}{1});
 % z_disp = str2num(aaa{10}{1});
@@ -25,8 +30,6 @@ w_perf = str2num(aaa{7}{1});
 % z_rot = str2num(aaa{13}{1});
 
 robin_co=0; %dummy var
-
-clear aaa;
 
 % Load the recorded power
 power_log = load ('time_then_power.csv');
@@ -37,7 +40,7 @@ mod_point.y=171;
 mod_point.z=1;
 
 % Import the VTK header info
-path_append = strrep ( path22, '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/', '');
+path_append = strrep ( patient_opt_path, '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/', '');
 path_append = strrep ( path_append, 'opt', '');
 FOV_path = strcat( '/FUS4/data2/BioTex/BrainNonMDA/processed/' , path_append );
 FOV_path = strcat( FOV_path , 'laser' );
@@ -143,10 +146,10 @@ diff_Iso= model_Iso - MRTI_Iso;
 metric = abs(sum(sum(diff_Iso)));
 
 cd (path22);
-output_param = 'optpp_pds.out.';
-index = num2str(iteration);
-output_filename = strcat( output_param, index);
-
-csvwrite ( output_filename, metric);
+% output_param = 'optpp_pds.out.';
+% index = num2str(iteration);
+% output_filename = strcat( output_param, index);
+% 
+% csvwrite ( output_filename, metric);
 
 end

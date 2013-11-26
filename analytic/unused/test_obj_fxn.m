@@ -1,23 +1,24 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run.
 
-function [metric] = test_obj_fxn ( path22, iteration );
+function [metric] = test_obj_fxn222 ( path22, iteration );
 cd (path22);
-input_param = 'optpp_pds.in.mat.';
+input_param = 'optpp_pds.in.';
 index = num2str(iteration);
 input_filename = strcat( input_param, index);
+input_filename = strcat( input_filename, '.mat' );
 
-aaa=csvimport(input_filename);
-aaa=strtrim(aaa);
-aaa=regexp(aaa,'\s+','split'); % Separate the label from the data into two columns.
+load(input_filename);
+% aaa=strtrim(aaa);
+% aaa=regexp(aaa,'\s+','split'); % Separate the label from the data into two columns.
 
 % Write every string as a number
-probe_u = str2num(aaa{2}{1});
-g_anisotropy = str2num(aaa{3}{1});
-mu_a = str2num(aaa{4}{1});
-mu_s = str2num(aaa{5}{1});
-k_cond = str2num(aaa{6}{1});
-w_perf = str2num(aaa{7}{1});
+probe_u = str2num(probe_init);
+g_anisotropy = str2num(anfact_healthy);
+mu_a = str2num(mu_a_healthy);
+mu_s = str2num(mu_s_healthy);
+k_cond = str2num(k_0_healthy);
+w_perf = str2num(w_0_healthy);
 % x_disp = str2num(aaa{8}{1});
 % y_disp = str2num(aaa{9}{1});
 % z_disp = str2num(aaa{10}{1});
@@ -26,8 +27,6 @@ w_perf = str2num(aaa{7}{1});
 % z_rot = str2num(aaa{13}{1});
 
 robin_co=0; %dummy var
-
-clear aaa;
 
 % Load the recorded power
 power_log = load ('time_then_power.csv');
