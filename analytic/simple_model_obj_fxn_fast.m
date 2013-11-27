@@ -75,10 +75,13 @@ source.n=5;
 source.length=0.01;  %~0.033 is when n=5 is visible
 source.laser=linspace((-source.length/2),(source.length/2),source.n);
 
+% Only use the hottest time point
+power_log = max( power_log(:,2));
+
+
 % Run the Bioheat model with the unique powers
-[tmap_unique]=Bioheat1D( power_log,dom,source,w_perf,k_cond,g_anisotropy,mu_a,mu_s,probe_u,robin_co);
+[tmap_unique]=Bioheat1Dfast( power_log,dom,source,w_perf,k_cond,g_anisotropy,mu_a,mu_s,probe_u,robin_co);
 tmap_unique=tmap_unique+37;
-tmap_unique(:,:,:,1)=37;
 
 % Make the full temperature history with the unique tmaps
 % [tmap]=Build_tmap_history(tmap_unique,delta_P);
@@ -96,15 +99,17 @@ load 'arrheniusDose.mat'
 MRTI_dose_size=size(arrheniusDose.mean);
 load ( 'VOI.mat' );
 
-% Resize the tmap_unique model into the same spacing as the MRTI
-aa = imresize (tmap_unique , 1/scaling.x);
-bb = aa(round(matrix.x/2),round(matrix.y/2),1,:);
-[~,dd] = max (bb);
+% Resize the tmap_unique model into the same spacing as the MRTI and find
+% the max heating
+aa = imresize (tmap_unique , 1/scaling.x);         
+%bb = aa(round(matrix.x/2),round(matrix.y/2),1,:); % These lines may be
+%unnecessary for fast simulation
+%[~,dd] = max (bb); %Find the max heating time point.
 
-aa_size = size ( aa(:,:,1,dd) );
+aa_size = size ( aa );
 size_diff=[(MRTI_dose_size(1)-aa_size(1)) (MRTI_dose_size(2)-aa_size(2))];
 upper_left_mod = zeros((size(aa,1)+size_diff(1)),(size(aa,2)+size_diff(2)));
-upper_left_mod(1:size(aa,1),1:size(aa,2)) = aa(:,:,1,dd);
+upper_left_mod(1:size(aa,1),1:size(aa,2)) = aa;
 
 % Define the intervals that will be compared
 x_range   = [ (VOI.center_in_pix.y - floor(aa_size(1)/2)) (VOI.center_in_pix.y + floor(aa_size(1)/2))];
@@ -118,7 +123,7 @@ roi_y_MRTI   = [ (VOI.center_in_pix.x - 20) (VOI.center_in_pix.x + 20) ];
 
 x_range = round ( x_range ); % Round everything after calculating them.
 y_range = round ( y_range );
-roi_x = round ( roi_x );  
+roi_x = round ( roi_x );
 roi_y = round ( roi_y );
 roi_x_MRTI = round ( roi_x_MRTI );
 roi_y_MRTI = round ( roi_y_MRTI );

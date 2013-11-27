@@ -8,15 +8,15 @@ path22 = getenv ( 'PATH22' );
 
 index = load ( 'index.txt' );
 
-[metric] = simple_model_obj_fxn ( path22, index );
+[metric] = simple_model_obj_fxn_fast ( path22, index );
 
 index = index + 1;
 csvwrite ('index.txt' , index);
 
 y =  metric;
-disp('perfusion')
-x(1)
-disp('k_0')
-x(2)
-disp('mu_a')
-x(3)
+% disp('perfusion')
+% x(1)
+% disp('k_0')
+% x(2)
+% disp('mu_a')
+% x(3)

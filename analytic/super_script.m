@@ -7,7 +7,7 @@ path22 = getenv ( 'PATH22' );
 
 load index.txt
 
-[metric] = simple_model_obj_fxn ( path22, index );
+[metric] = simple_model_obj_fxn_fast ( path22, index );
 
 index = index + 1;
 csvwrite ('index.txt' , index);
