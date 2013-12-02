@@ -1,7 +1,7 @@
 %This parses the power further so that there are no repeats, redundant
 %intervals.
 
-function [Power_intervals]=power_parser_write_DF_array(power_log);
+function [Power_interval_str]=power_parser_write_DF_array(power_log);
 
 %Find where the power changes at all;
 delta_P = (diff( power_log(:,5) )~=0) + ( diff(power_log(:,6) )~=0);  %Find which elements change from columns 5 and 6; then add the changes into one column
@@ -14,6 +14,14 @@ if isempty ( find ( delta_P )) == 1;
     
     Power_intervals (1,1) = power_log ( end, 4 );
     Power_intervals (1,2) = power_log ( end, 6 );
+    
+    str_power = [ '0' '0' ];
+    
+    Power_interval_str = '[[';
+    Power_interval_str = strcat( Power_interval_str, str_power( 1, 1) );
+    Power_interval_str = strcat( Power_interval_str, '],[' );
+    Power_interval_str = strcat( Power_interval_str, str_power( 1, 2) );
+    Power_interval_str = strcat( Power_interval_str, ']]' );
     
     return
 end
@@ -58,5 +66,34 @@ Power_intervals (:,2) = powers;
 Power_intervals_diff = diff (Power_intervals);
 cut_indices = find ( not ( Power_intervals_diff ( :,2) ));
 Power_intervals ( cut_indices , : )= [];
+
+%Make the Power_intervals a cell array of strings
+str_power = cellstr( num2str( Power_intervals )); % Make the cell array
+str_power = strtrim( str_power ); % Cut the left and right white space
+str_power = regexp( str_power , '\s+' , 'split'); % Use the remaining middle white space to make two columns.
+
+Power_interval_str = '[[';
+
+for ii = 1 : ( size( str_power, 1 ) - 1)
+    
+    Power_interval_str = strcat( Power_interval_str, str_power{ ii }{1} ); % Write the number for time
+    Power_interval_str = strcat( Power_interval_str, ', ' ); % Write the delimeter ', '
+    
+end
+
+Power_interval_str = strcat( Power_interval_str, str_power{ ii + 1 }{1} ); % Write the last time
+Power_interval_str = strcat( Power_interval_str , '],[' ); % Write the middle delimeter between time and power
+
+for ii = 1 : ( size( str_power, 1 ) - 1 )
+    
+    Power_interval_str = strcat( Power_interval_str, str_power{ ii }{2} ); % Write the number for power
+    Power_interval_str = strcat( Power_interval_str, ', ' ); % Write the delimeter ', '
+    
+end
+
+Power_interval_str = strcat( Power_interval_str, str_power{ ii + 1 }{2} ); % Write the last power
+Power_interval_str = strcat( Power_interval_str, ']]' ); % Write the ending delimeter
+Power_interval_str = strrep( Power_interval_str, ',', ', ');
+Power_interval_str = strrep( Power_interval_str, '], [' , '],[');
 
 end
