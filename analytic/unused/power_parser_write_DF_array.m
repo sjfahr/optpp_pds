@@ -13,7 +13,9 @@ delta_P(1,:) = delta_P (2,:);
 if isempty ( find ( delta_P )) == 1;
     
     Power_intervals (1,1) = power_log ( end, 4 );
+    Power_intervals (1,1) = floor ( Power_intervals (1,1) / 2 ); % cut the number of times in two
     Power_intervals (1,2) = power_log ( end, 6 );
+    
     
     str_power = [ '0' '0' ];
     
@@ -54,10 +56,9 @@ powers = k_P( :,2);
 
 % Add a 0 power at the beginning.
 powers = cat (1,0,powers);
-% Add the ending time to the time series
+% Add the ending time to the time series and divide by 2 to round
 times(end+1)=power_log(end,4);
-%times(1) = []; A%%% prolly will cut
-%times = round (times/2);
+times = floor (times/2);
 
 Power_intervals (:,1) = times;  %Write the Power_intervals
 Power_intervals (:,2) = powers;

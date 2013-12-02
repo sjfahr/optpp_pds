@@ -77,7 +77,8 @@ cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0004/006/laser_log'
 load 'power_log.txt';
 cd '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/Patient0004/006/opt'
 [Power_intervals] = power_parser_write_DF_array(power_log);
-csvwrite ('Power_History.csv' , Power_intervals);
+str_saver = 'Power_intervals';
+csvwrite ('Power_History2.txt' , Power_intervals);
 
 cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0005/004/laser_log'
 load 'power_log.txt';
