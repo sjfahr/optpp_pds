@@ -5,9 +5,12 @@
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
 
+setenv ( 'PATHPT' , '/workdir/Patient0006/007/opt' );
+pathpt = getenv ( 'PATHPT' );
+
 load index.txt
 
-[metric] = simple_model_obj_fxn_fast ( path22, index );
+[metric,diff_Iso] = simple_model_obj_fxn_fast ( path22, pathpt, index );
 
-index = index + 1;
-csvwrite ('index.txt' , index);
+% index = index + 1;
+% csvwrite ('index.txt' , index);

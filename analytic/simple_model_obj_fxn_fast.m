@@ -1,9 +1,10 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run.
 
-function [metric] = simple_model_obj_fxn222 ( path22, iteration );
+%function [metric] = simple_model_obj_fxn_fast ( path22, pathpt, iteration );
+function [metric, diff_Iso] = simple_model_obj_fxn_fast ( path22, pathpt, iteration );
 cd( path22);
-patient_path = '/workdir/Patient0002/000/opt';
+patient_path = pathpt;
 patient_opt_path = strcat( path22, patient_path);
 cd( patient_opt_path);
 input_param = 'optpp_pds.in.';
@@ -112,14 +113,14 @@ upper_left_mod = zeros((size(aa,1)+size_diff(1)),(size(aa,2)+size_diff(2)));
 upper_left_mod(1:size(aa,1),1:size(aa,2)) = aa;
 
 % Define the intervals that will be compared
-x_range   = [ (VOI.center_in_pix.y - floor(aa_size(1)/2)) (VOI.center_in_pix.y + floor(aa_size(1)/2))];
-y_range   = [ (VOI.center_in_pix.x - floor(aa_size(2)/2)) (VOI.center_in_pix.x + floor(aa_size(2)/2))];
+x_range   = [ (VOI.center_in_pix(1) - floor(aa_size(1)/2)) (VOI.center_in_pix(1) + floor(aa_size(1)/2))];
+y_range   = [ (VOI.center_in_pix(2) - floor(aa_size(2)/2)) (VOI.center_in_pix(2) + floor(aa_size(2)/2))];
 
-roi_x    = [ (VOI.center_in_pix.y - 60) (VOI.center_in_pix.y + 60) ]; %For model 57 deg C isotherms.
-roi_y    = [ (VOI.center_in_pix.x - 60) (VOI.center_in_pix.x + 60) ];
+roi_x    = [ (VOI.center_in_pix(1) - 65) (VOI.center_in_pix(1) + 65) ]; %For model 57 deg C isotherms.
+roi_y    = [ (VOI.center_in_pix(2) - 65) (VOI.center_in_pix(2) + 65) ];
 
-roi_x_MRTI   = [ (VOI.center_in_pix.y - 20) (VOI.center_in_pix.y + 20) ];  %For MRTI dose.
-roi_y_MRTI   = [ (VOI.center_in_pix.x - 20) (VOI.center_in_pix.x + 20) ];
+roi_x_MRTI   = VOI.x;  %For MRTI dose.
+roi_y_MRTI   = VOI.y;
 
 x_range = round ( x_range ); % Round everything after calculating them.
 y_range = round ( y_range );
@@ -146,15 +147,19 @@ MRTI_Iso ( roi_x_MRTI(2):end, : )  = 0;
 MRTI_Iso ( :, 1:roi_y_MRTI(1) ) = 0;
 MRTI_Iso ( :,roi_y_MRTI(2):end ) = 0;
 
-diff_Iso= model_Iso - MRTI_Iso;
+diff_Iso= abs(model_Iso - MRTI_Iso);
 
 metric = abs(sum(sum(diff_Iso)));
 
+% Edits:  Simple:
+% norm [ (model_temperature , MRTI_temp ), 2];  or something
+% DF wrote ( norm [ (U_model - U_MRTI ),2] ) ^2
+
+figure(1); imagesc(matched_mod , [30 80]);
+figure(2); imagesc(model_Iso);
+figure(3); imagesc(MRTI_Iso);
+figure(4); imagesc(diff_Iso);
+
 cd (path22);
-% output_param = 'optpp_pds.out.';
-% index = num2str(iteration);
-% output_filename = strcat( output_param, index);
-% 
-% csvwrite ( output_filename, metric);
 
 end

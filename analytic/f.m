@@ -6,9 +6,12 @@ function y = f(x)
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
 
-index = load ( 'index.txt' );
+setenv ( 'PATHPT' , '/workdir/Patient0006/007/opt' );
+pathpt = getenv ( 'PATHPT' );
 
-[metric] = simple_model_obj_fxn_fast ( path22, index );
+load index.txt
+
+[metric] = simple_model_obj_fxn_fast ( path22, pathpt, index );
 
 index = index + 1;
 csvwrite ('index.txt' , index);
