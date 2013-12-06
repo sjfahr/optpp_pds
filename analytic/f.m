@@ -1,8 +1,9 @@
 % y = f(x) for Rosenbrock
-function y = f(x)
+function y = f(~)
 %f1 = 10*(x(2) - x(1)^2);
 %f2 = x(1) - 1;
 
+cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
 
@@ -11,7 +12,7 @@ pathpt = getenv ( 'PATHPT' );
 
 load index.txt
 
-[metric] = simple_model_obj_fxn_fast ( path22, pathpt, index );
+[metric] = fast_temperature_obj_fxn ( path22, pathpt, index );
 
 index = index + 1;
 csvwrite ('index.txt' , index);

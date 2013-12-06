@@ -155,10 +155,10 @@ metric = abs(sum(sum(diff_Iso)));
 % norm [ (model_temperature , MRTI_temp ), 2];  or something
 % DF wrote ( norm [ (U_model - U_MRTI ),2] ) ^2
 
-figure(1); imagesc(matched_mod , [30 80]);
-figure(2); imagesc(model_Iso);
-figure(3); imagesc(MRTI_Iso);
-figure(4); imagesc(diff_Iso);
+% figure(1); imagesc(matched_mod , [30 80]);
+% figure(2); imagesc(model_Iso);
+% figure(3); imagesc(MRTI_Iso);
+% figure(4); imagesc(diff_Iso);
 
 cd (path22);
 
