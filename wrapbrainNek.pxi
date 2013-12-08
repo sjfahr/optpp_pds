@@ -1,5 +1,6 @@
 cimport cython 
 #from libcpp.vector   cimport vector
+from libc.stdint  cimport intptr_t
 
 # -------------------- std::string interface ----------------------- 
 cdef extern from "<string>" namespace "std":
@@ -17,6 +18,9 @@ cdef extern from "brain3d.hpp":
         brain3d(setupAide) 
         int timeStep(double)
         float dt
+        # http://documen.tician.de/pyopencl/misc.html#interoperability-with-other-opencl-software
+        intptr_t getTemperaturePointer()
+        intptr_t setTemperaturePointer(intptr_t)
 ## cdef extern from "mesh_base.h": 
 ##     cdef cppclass MeshBase:
 ##         Mesh (unsigned int) 
