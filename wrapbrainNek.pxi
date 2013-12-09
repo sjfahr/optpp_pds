@@ -3,8 +3,8 @@ cimport cython
 # "cimport" is used to import special compile-time information
 # about the numpy module (this is stored in a file numpy.pxd which is
 # currently part of the Cython distribution).
-#import numpy as np
-#cimport numpy as np
+import numpy as np
+cimport numpy as np
 
 
 #from libcpp.vector   cimport vector
@@ -33,9 +33,9 @@ cdef extern from "brain3d.hpp":
         float dt
         void getHostTemperature(  size_t , void *)
         void setDeviceTemperature(size_t , void *)
-        # http://documen.tician.de/pyopencl/misc.html#interoperability-with-other-opencl-software
-        intptr_t getTemperaturePointer()
-        intptr_t setTemperaturePointer(intptr_t)
+#        # http://documen.tician.de/pyopencl/misc.html#interoperability-with-other-opencl-software
+#        intptr_t getTemperaturePointer()
+#        intptr_t setTemperaturePointer(intptr_t)
 ## cdef extern from "mesh_base.h": 
 ##     cdef cppclass MeshBase:
 ##         Mesh (unsigned int) 

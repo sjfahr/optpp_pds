@@ -319,10 +319,12 @@ def ComputeObjective(**kwargs):
   ObjectiveFunction = 0.0
   # initialize brainNek
   import brainNekLibrary
+  import numpy
   # setuprc file
   outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
   setup = brainNekLibrary.PySetupAide(outputSetupRCFile )
   brainNek = brainNekLibrary.PyBrain3d(setup);
+  tmparray  = numpy.zeros(1000000,dtype=numpy.float32)
   tstep = 0
   currentTime = 0.0
   screenshotNum = 1;
@@ -334,13 +336,12 @@ def ComputeObjective(**kwargs):
     currentTime = tstep * .25
     if(currentTime+screenshotTol >= screenshotNum*screenshotInterval):
        screenshotNum = screenshotNum + 1;
-       print "get host data"
-       brainNek.getHostData()
+       brainNek.getHostTemperature(tmparray)
+       print "get host data",tmparray
 
   ## # FIXME vtk needs to be loaded AFTER kernel is built
   ## import vtk
   ## import vtk.util.numpy_support as vtkNumPy 
-  ## import numpy
   ## print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
 

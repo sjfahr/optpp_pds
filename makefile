@@ -12,7 +12,7 @@ $(obj_path)/brainNekLibrary.so:
 	chmod 755 $(obj_path)/brainNekLibrary.so
 
 clean:
-	rm $(obj_path)/brainNekLibrary.so
+	rm -rf $(obj_path)/brainNekLibrary.so ./wrapbrainNek.cpp
 
 BrainNek_SOURCE = /workarea/fuentes/braincode/tym1/
 

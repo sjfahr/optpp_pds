@@ -14,10 +14,14 @@ brainnek_include.append( "%s/include"  % brainnek_dir )
 brainnek_include.append( "%s/libocca"  % brainnek_dir )
 brainnek_include.append( "/opt/apps/khronos/1.1")
 brainnek_include.append( "/usr/include/mpich2")
+brainnek_include.append( "/opt/apps/EPD/epd-7.3-1-rh5-x86_64/lib/python2.7/site-packages/numpy/core/include")
 
 
 # cxx flags
 brainnek_cxxflags = []
+# FIXME why is this flag needed ??
+brainnek_cxxflags.append( "-DCYTHON_CCOMPLEX=0"     )
+
 brainnek_cxxflags.append( "-DMPI_ENABLED=1"      )
 brainnek_cxxflags.append( "-Ddatafloat=float"    )
 brainnek_cxxflags.append( "-DGL_ENABLED=0"       )
