@@ -13,6 +13,7 @@ cdef class PySetupAide:
     """
     cdef setupAide *thisptr  # hold a C++ instance which we're wrapping
     def __cinit__(self,PyStringSetupFile):
+        cl_list_all_devices();
         cdef char* setupfile= PyStringSetupFile
         self.thisptr = new setupAide(string(setupfile))
         self.thisptr.append( (cython.operator.dereference(self.thisptr))[string("CASE FILE")] ) 
@@ -27,6 +28,25 @@ cdef class PyBrain3d:
         return int( self.thisptr.getTemperaturePointer() )
     def dt( self):
         return self.thisptr.dt
+    ## def getHostTemperature( self, np.ndarray Temperature not None):
+    ##     ## if len(Temperature.shape)  != 1:
+    ##     ##     raise ValueError("Only linear arraysupported")
+    ##     assert Temperature.dtype == np.float32 
+    ##     cdef void*  dataptr = Temperature.data
+    ##     cdef size_t databyte = Temperature.shape[0]
+    ##     self.thisptr.getHostTemperature(databyte,dataptr)
+    ## def getHostTemperature(self,np.ndarray[float, ndim=1, mode="c"] Temperature not None):
+    ##     """
+    ##     transfer data to host arrary
+    ##     """
+    ##     cdef size_t databyte = Temperature.shape[0]
+    ## #    self.thisptr.getHostTemperature(databyte,&Temperature[0])
+    ## def setDeviceTemperature(self,np.ndarray[float, ndim=1, mode="c"] Temperature not None):
+    ##     """
+    ##     transfer data to device arrary
+    ##     """
+    ##     cdef size_t databyte = Temperature.shape[0]
+    ## #    self.thisptr.setDeviceTemperature(databyte,&Temperature[0])
 
 ## cdef class PylibMeshSystem:
 ##     cdef System *thisptr  # hold C++ instance we're wrapping

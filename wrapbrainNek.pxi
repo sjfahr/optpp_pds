@@ -1,6 +1,14 @@
 cimport cython 
+
+# "cimport" is used to import special compile-time information
+# about the numpy module (this is stored in a file numpy.pxd which is
+# currently part of the Cython distribution).
+#import numpy as np
+#cimport numpy as np
+
+
 #from libcpp.vector   cimport vector
-from libc.stdint  cimport intptr_t
+#from libc.stdint  cimport intptr_t
 
 # -------------------- std::string interface ----------------------- 
 cdef extern from "<string>" namespace "std":
@@ -8,6 +16,9 @@ cdef extern from "<string>" namespace "std":
         string()
         string(char *)
         char * c_str()
+# -------------------- wrapper for opencl utilities ----------------------- 
+cdef extern from "occa.hpp": 
+    cdef void cl_list_all_devices()
 # -------------------- wrapper for setupAide ----------------------- 
 cdef extern from "setupAide.hpp": 
     cdef cppclass setupAide:
@@ -20,6 +31,8 @@ cdef extern from "brain3d.hpp":
         brain3d(setupAide) 
         int timeStep(double)
         float dt
+        void getHostTemperature(  size_t , void *)
+        void setDeviceTemperature(size_t , void *)
         # http://documen.tician.de/pyopencl/misc.html#interoperability-with-other-opencl-software
         intptr_t getTemperaturePointer()
         intptr_t setTemperaturePointer(intptr_t)
