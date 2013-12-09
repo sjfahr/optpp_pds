@@ -116,8 +116,6 @@ MRTI_hottest = MRTI(:,:,max_temperature_timepoint); % Set the variable
 % Crop the MRTI_image
 MRTI_crop = MRTI_hottest( (VOI.x(1)-1):(VOI.x(2)+1) , (VOI.y(1)-1):(VOI.y(2)+1) ); % Set the cropped region
 
-figure(88); imagesc(MRTI_crop, [30 80]);
-figure(99); imagesc(MRTI(:,:,max_temperature_timepoint), [30 80]);
 % Make the metric
 temperature_diff = tmap_model_scaled_to_MRTI - MRTI_crop ( 2:(end-1), 2:(end-1));
 metric = ( norm ( temperature_diff , 2 ) )^2;
