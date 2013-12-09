@@ -12,6 +12,8 @@ cdef extern from "<string>" namespace "std":
 cdef extern from "setupAide.hpp": 
     cdef cppclass setupAide:
         setupAide(string)
+        void append(string)
+        string operator[](string)
 # ------------------- wrapper for brain3d ----------------------- 
 cdef extern from "brain3d.hpp": 
     cdef cppclass brain3d:

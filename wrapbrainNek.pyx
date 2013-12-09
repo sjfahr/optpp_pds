@@ -15,6 +15,7 @@ cdef class PySetupAide:
     def __cinit__(self,PyStringSetupFile):
         cdef char* setupfile= PyStringSetupFile
         self.thisptr = new setupAide(string(setupfile))
+        self.thisptr.append( (cython.operator.dereference(self.thisptr))[string("CASE FILE")] ) 
 # -------------------- wrapper for brain3d --------------------- 
 cdef class PyBrain3d:
     cdef brain3d *thisptr  # hold a C++ instance which we're wrapping
@@ -22,6 +23,8 @@ cdef class PyBrain3d:
         self.thisptr = new brain3d( cython.operator.dereference(setup.thisptr) )
     def timeStep( self,currentTime):
         return self.thisptr.timeStep(currentTime)
+    def getTemperaturePointer( self):
+        return int( self.thisptr.getTemperaturePointer() )
     def dt( self):
         return self.thisptr.dt
 

@@ -322,6 +322,7 @@ setup = brainNekLibrary.PySetupAide("optpp_pds/setuprc.0001")
 print setup 
 
 brain = brainNekLibrary.PyBrain3d(setup);
+print 'intpointer', brain.getTemperaturePointer() 
 tstep = 0
 while( brain.timeStep(tstep * .25 ) ) :
   print brain.dt

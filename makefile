@@ -17,4 +17,4 @@ clean:
 BrainNek_SOURCE = /workarea/fuentes/braincode/tym1/
 
 tags:
-	ctags -R --langmap=c++:+.txx --langmap=c++:+.cl $(BrainNek_SOURCE) .
+	ctags -R --langmap=c++:+.tpp --langmap=c++:+.cl $(BrainNek_SOURCE) .
