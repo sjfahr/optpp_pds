@@ -31,6 +31,7 @@ cdef extern from "brain3d.hpp":
         brain3d(setupAide) 
         int timeStep(double)
         float dt
+        void screenshot(  datafloat )
         void getHostTemperature(  size_t , void *)
         void setDeviceTemperature(size_t , void *)
 #        # http://documen.tician.de/pyopencl/misc.html#interoperability-with-other-opencl-software

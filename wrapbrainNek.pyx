@@ -24,8 +24,8 @@ cdef class PyBrain3d:
         self.thisptr = new brain3d( cython.operator.dereference(setup.thisptr) )
     def timeStep( self,currentTime):
         return self.thisptr.timeStep(currentTime)
-    ## def getTemperaturePointer( self):
-    ##     return int( self.thisptr.getTemperaturePointer() )
+    def screenshot( self, double CurrentTime ):
+        self.thisptr.screenshot( <float> CurrentTime ) 
     def dt( self):
         return self.thisptr.dt
     ## def getHostTemperature( self, np.ndarray Temperature not None):

@@ -327,6 +327,18 @@ def ComputeObjective(**kwargs):
   tmparray  = numpy.zeros(1000000,dtype=numpy.float32)
   tstep = 0
   currentTime = 0.0
+  # write out mesh
+  brainNek.screenshot( currentTime ) 
+  # read mesh in
+  vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
+  SEMDataDirectory = outputDirectory % kwargs['UID']
+  vtufileName = "%s/%d.vtu" % (SEMDataDirectory,SEMtimeID)
+  vtkSEMReader.SetFileName( vtufileName )
+  vtkSEMReader.SetPointArrayStatus("Temperature",1)
+  vtkSEMReader.Update()
+  fem_point_data= vtkResample.GetOutput().GetPointData() 
+  tmparray = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('image_data')) 
+
   screenshotNum = 1;
   screenshotTol = 1e-10;
   screenshotInterval = 5;
