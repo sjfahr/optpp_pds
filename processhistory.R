@@ -134,7 +134,7 @@ panel.linear <- function(x, y)
 # plot volume change 
 do.legend <- FALSE
 pdf(paste(paste('/var/www/fuentes/ipresults/processhistory',PlotID,sep=""),'.pdf',sep=""))
- pairs(~iter+mu_a+g+mu_s+k+obj,data=iterstats,
+ pairs(~iter+mu_eff+k+dz+obj,data=iterstats,
         diag.panel  = panel.hist, 
         lower.panel = panel.linear,
         upper.panel = panel.cor,

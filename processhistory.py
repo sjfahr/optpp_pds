@@ -2,7 +2,7 @@
 import re
 
 rundirectory = 'workdir/Patient0006/007/opt/'
-maxfile = 130
+maxfile = 126
 
 ##################################################################
 def ParseInput(paramfilename):
@@ -65,7 +65,7 @@ def ParseInput(paramfilename):
   # for this simple example, put all the variables into a single hardwired array
   continuous_vars = {} 
 
-  DescriptorList = ['robin_coeff','probe_init','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
+  DescriptorList = ['robin_coeff','probe_init','mu_eff_healthy','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
   for paramname in DescriptorList:
     try:
       continuous_vars[paramname  ] = paramsdict[paramname ]
@@ -86,7 +86,7 @@ def ParseInput(paramfilename):
   return fem_params
 
 with file('%s/iterationhistory.txt' % rundirectory, 'w') as fileHandle: 
-  fileHandle.write("iter,k,mu_s,mu_a,g,u0,h,obj\n")
+  fileHandle.write("iter,k,mu_eff,dz,u0,h,obj\n")
   for idfile in  range(1,maxfile):
    infile =  '%s/optpp_pds.in.%d'  % (rundirectory,idfile) 
    outfile=  '%s/optpp_pds.out.%d' % (rundirectory,idfile)
@@ -94,5 +94,5 @@ with file('%s/iterationhistory.txt' % rundirectory, 'w') as fileHandle:
    cv =  fem_params['cv']
    with file(outfile, 'r') as objectivefnc: 
      print 
-     fileHandle.write("%05d,%s,%s,%s,%s,%s,%s,%s" %(idfile,cv['k_0_healthy'],cv['mu_s_healthy'],cv['mu_a_healthy'],cv['anfact_healthy'],cv['probe_init'],cv['robin_coeff'],objectivefnc.read()))
+     fileHandle.write("%05d,%s,%s,%s,%s,%s,%s" %(idfile,cv['k_0_healthy'],cv['mu_eff_healthy'],cv['z_displace'],cv['probe_init'],cv['robin_coeff'],objectivefnc.read()))
 

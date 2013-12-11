@@ -256,13 +256,13 @@ caseFileTemplate = \
 15
 
 [BODY TEMPERATURE]
-20
+%s
 
 [BLOOD TEMPERATURE]
-20
+%s
 
 [COOLANT TEMPERATURE]
-20
+%s
 
 [BLOOD SPECIFIC HEAT]
 3840
@@ -316,101 +316,138 @@ laserTip  1.0      4180           0.5985        500         14000       0.88
 
 ##################################################################
 def ComputeObjective(**kwargs):
-  import vtk
-  import vtk.util.numpy_support as vtkNumPy 
-  print "using vtk version", vtk.vtkVersion.GetVTKVersion()
-
-  # FIXME  should this be different ?  
-  SEMDataDirectory = outputDirectory % kwargs['UID']
-
   ObjectiveFunction = 0.0
-  # loop over time points of interest
-  for (SEMtimeID,MRTItimeID) in [(1,kwargs['maxheat'])]:
-    # read SEM data
-    vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
-    vtufileName = "%s/%d.vtu" % (SEMDataDirectory,SEMtimeID)
-    vtkSEMReader.SetFileName( vtufileName )
-    vtkSEMReader.SetPointArrayStatus("Temperature",1)
-    vtkSEMReader.Update()
+  # initialize brainNek
+  import brainNekLibrary
+  import numpy
+  # setuprc file
+  outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
+  setup = brainNekLibrary.PySetupAide(outputSetupRCFile )
+  brainNek = brainNekLibrary.PyBrain3d(setup);
+  tmparray  = numpy.zeros(1000000,dtype=numpy.float32)
+  tstep = 0
+  currentTime = 0.0
+  # write out mesh
+  brainNek.screenshot( currentTime ) 
+  # read mesh in
+  vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
+  SEMDataDirectory = outputDirectory % kwargs['UID']
+  vtufileName = "%s/%d.vtu" % (SEMDataDirectory,SEMtimeID)
+  vtkSEMReader.SetFileName( vtufileName )
+  vtkSEMReader.SetPointArrayStatus("Temperature",1)
+  vtkSEMReader.Update()
+  fem_point_data= vtkResample.GetOutput().GetPointData() 
+  tmparray = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('image_data')) 
 
-    # get registration parameters
-    variableDictionary = kwargs['cv']
+  screenshotNum = 1;
+  screenshotTol = 1e-10;
+  screenshotInterval = 5;
+  while( brainNek.timeStep(tstep * .25 ) ) :
+    print brainNek.dt
+    tstep = tstep + 1
+    currentTime = tstep * .25
+    if(currentTime+screenshotTol >= screenshotNum*screenshotInterval):
+       screenshotNum = screenshotNum + 1;
+       brainNek.getHostTemperature(tmparray)
+       print "get host data",tmparray
 
-    # register the SEM data to MRTI
-    AffineTransform = vtk.vtkTransform()
-    AffineTransform.Translate([ 
-      float(variableDictionary['x_displace']),
-      float(variableDictionary['y_displace']),
-      float(variableDictionary['z_displace'])
-                              ])
-    # FIXME  notice that order of operations is IMPORTANT
-    # FIXME   translation followed by rotation will give different results
-    # FIXME   than rotation followed by translation
-    # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
-    AffineTransform.RotateZ( float(variableDictionary['z_rotate'  ] ) ) 
-    AffineTransform.RotateY( float(variableDictionary['y_rotate'  ] ) )
-    AffineTransform.RotateX( float(variableDictionary['x_rotate'  ] ) )
-    AffineTransform.Scale([1.e0,1.e0,1.e0])
-    SEMRegister = vtk.vtkTransformFilter()
-    SEMRegister.SetInput(vtkSEMReader.GetOutput())
-    SEMRegister.SetTransform(AffineTransform)
-    SEMRegister.Update()
+  ## # FIXME vtk needs to be loaded AFTER kernel is built
+  ## import vtk
+  ## import vtk.util.numpy_support as vtkNumPy 
+  ## print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
-    # write output
-    DebugObjective = True
-    if ( DebugObjective ):
-       vtkSEMWriter = vtk.vtkDataSetWriter()
-       vtkSEMWriter.SetFileTypeToBinary()
-       semfileName = "%s/semtransform%04d.vtk" % (SEMDataDirectory,SEMtimeID)
-       print "writing ", semfileName 
-       vtkSEMWriter.SetFileName( semfileName )
-       vtkSEMWriter.SetInput(SEMRegister.GetOutput())
-       vtkSEMWriter.Update()
 
-    # load image 
-    mrtifilename = '%s/temperature.%04d.vtk' % (kwargs['mrti'], MRTItimeID) 
-    print 'opening' , mrtifilename 
-    vtkImageReader = vtk.vtkDataSetReader() 
-    vtkImageReader.SetFileName(mrtifilename )
-    vtkImageReader.Update() 
-    ## image_cells = vtkImageReader.GetOutput().GetPointData() 
-    ## data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 
-    
-    # extract voi for QOI
-    vtkVOIExtract = vtk.vtkExtractVOI() 
-    vtkVOIExtract.SetInput( vtkImageReader.GetOutput() ) 
-    vtkVOIExtract.SetVOI( kwargs['voi'] ) 
-    vtkVOIExtract.Update()
-    mrti_point_data= vtkVOIExtract.GetOutput().GetPointData() 
-    mrti_array = vtkNumPy.vtk_to_numpy(mrti_point_data.GetArray('image_data')) 
-    #print mrti_array
-    #print type(mrti_array)
 
-    # project SEM onto MRTI for comparison
-    vtkResample = vtk.vtkCompositeDataProbeFilter()
-    vtkResample.SetSource( SEMRegister.GetOutput() )
-    vtkResample.SetInput( vtkVOIExtract.GetOutput() ) 
-    vtkResample.Update()
+  ## # FIXME  should this be different ?  
+  ## SEMDataDirectory = outputDirectory % kwargs['UID']
 
-    # write output
-    if ( DebugObjective ):
-       vtkTemperatureWriter = vtk.vtkDataSetWriter()
-       vtkTemperatureWriter.SetFileTypeToBinary()
-       roifileName = "%s/roi%04d.vtk" % (SEMDataDirectory,SEMtimeID)
-       print "writing ", roifileName 
-       vtkTemperatureWriter.SetFileName( roifileName )
-       vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
-       vtkTemperatureWriter.Update()
+  ## # loop over time points of interest
+  ## for (SEMtimeID,MRTItimeID) in [(1,kwargs['maxheat'])]:
+  ##   # read SEM data
+  ##   vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
+  ##   vtufileName = "%s/%d.vtu" % (SEMDataDirectory,SEMtimeID)
+  ##   vtkSEMReader.SetFileName( vtufileName )
+  ##   vtkSEMReader.SetPointArrayStatus("Temperature",1)
+  ##   vtkSEMReader.Update()
 
-    fem_point_data= vtkResample.GetOutput().GetPointData() 
-    fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('Temperature')) 
-    #print fem_array 
-    #print type(fem_array )
+  ##   # get registration parameters
+  ##   variableDictionary = kwargs['cv']
 
-    # accumulate objective function
-    diff =  mrti_array-fem_array
-    diffsq =  diff**2
-    ObjectiveFunction = ObjectiveFunction + diffsq.sum()
+  ##   # register the SEM data to MRTI
+  ##   AffineTransform = vtk.vtkTransform()
+  ##   AffineTransform.Translate([ 
+  ##     float(variableDictionary['x_displace']),
+  ##     float(variableDictionary['y_displace']),
+  ##     float(variableDictionary['z_displace'])
+  ##                             ])
+  ##   # FIXME  notice that order of operations is IMPORTANT
+  ##   # FIXME   translation followed by rotation will give different results
+  ##   # FIXME   than rotation followed by translation
+  ##   # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
+  ##   AffineTransform.RotateZ( float(variableDictionary['z_rotate'  ] ) ) 
+  ##   AffineTransform.RotateY( float(variableDictionary['y_rotate'  ] ) )
+  ##   AffineTransform.RotateX( float(variableDictionary['x_rotate'  ] ) )
+  ##   AffineTransform.Scale([1.e0,1.e0,1.e0])
+  ##   SEMRegister = vtk.vtkTransformFilter()
+  ##   SEMRegister.SetInput(vtkSEMReader.GetOutput())
+  ##   SEMRegister.SetTransform(AffineTransform)
+  ##   SEMRegister.Update()
+
+  ##   # write output
+  ##   DebugObjective = True
+  ##   if ( DebugObjective ):
+  ##      vtkSEMWriter = vtk.vtkDataSetWriter()
+  ##      vtkSEMWriter.SetFileTypeToBinary()
+  ##      semfileName = "%s/semtransform%04d.vtk" % (SEMDataDirectory,SEMtimeID)
+  ##      print "writing ", semfileName 
+  ##      vtkSEMWriter.SetFileName( semfileName )
+  ##      vtkSEMWriter.SetInput(SEMRegister.GetOutput())
+  ##      vtkSEMWriter.Update()
+
+  ##   # load image 
+  ##   mrtifilename = '%s/temperature.%04d.vtk' % (kwargs['mrti'], MRTItimeID) 
+  ##   print 'opening' , mrtifilename 
+  ##   vtkImageReader = vtk.vtkDataSetReader() 
+  ##   vtkImageReader.SetFileName(mrtifilename )
+  ##   vtkImageReader.Update() 
+  ##   ## image_cells = vtkImageReader.GetOutput().GetPointData() 
+  ##   ## data_array = vtkNumPy.vtk_to_numpy(image_cells.GetArray('scalars')) 
+  ##   
+  ##   # extract voi for QOI
+  ##   vtkVOIExtract = vtk.vtkExtractVOI() 
+  ##   vtkVOIExtract.SetInput( vtkImageReader.GetOutput() ) 
+  ##   vtkVOIExtract.SetVOI( kwargs['voi'] ) 
+  ##   vtkVOIExtract.Update()
+  ##   mrti_point_data= vtkVOIExtract.GetOutput().GetPointData() 
+  ##   mrti_array = vtkNumPy.vtk_to_numpy(mrti_point_data.GetArray('image_data')) 
+  ##   #print mrti_array
+  ##   #print type(mrti_array)
+
+  ##   # project SEM onto MRTI for comparison
+  ##   vtkResample = vtk.vtkCompositeDataProbeFilter()
+  ##   vtkResample.SetSource( SEMRegister.GetOutput() )
+  ##   vtkResample.SetInput( vtkVOIExtract.GetOutput() ) 
+  ##   vtkResample.Update()
+
+  ##   # write output
+  ##   if ( DebugObjective ):
+  ##      vtkTemperatureWriter = vtk.vtkDataSetWriter()
+  ##      vtkTemperatureWriter.SetFileTypeToBinary()
+  ##      roifileName = "%s/roi%04d.vtk" % (SEMDataDirectory,SEMtimeID)
+  ##      print "writing ", roifileName 
+  ##      vtkTemperatureWriter.SetFileName( roifileName )
+  ##      vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
+  ##      vtkTemperatureWriter.Update()
+
+  ##   fem_point_data= vtkResample.GetOutput().GetPointData() 
+  ##   fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('Temperature')) 
+  ##   #print fem_array 
+  ##   #print type(fem_array )
+
+  ##   # accumulate objective function
+  ##   diff =  numpy.abs(mrti_array-fem_array)
+  ##   diffsq =  diff**2
+  ##   ObjectiveFunction = ObjectiveFunction + diff.sum()
   return ObjectiveFunction 
 # end def ComputeObjective:
 ##################################################################
@@ -418,6 +455,7 @@ def brainNekWrapper(**kwargs):
   """
   call brainNek code 
   """
+  import math
   # occa case file
   outputOccaCaseFile = '%s/casefunctions.%04d.occa' % (workDirectory,kwargs['fileID'])
   print 'writing', outputOccaCaseFile 
@@ -433,10 +471,20 @@ def brainNekWrapper(**kwargs):
   fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory % kwargs['UID'] ,semwritetime  ) )
   fileHandle.flush(); fileHandle.close()
 
+  # get variables
+  variableDictionary = kwargs['cv']
+
   # case file
   outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
   print 'writing', outputCaseFile 
-  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],workDirectory,kwargs['fileID'])  )
+  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],variableDictionary['body_temp'],variableDictionary['body_temp'],variableDictionary['probe_init'],workDirectory,kwargs['fileID'])  )
+
+#      mu_a_min               <      mu_a + (1-g) mu_s < mu_a_max + (1-g_min) mu_s_max
+#         5.e-1               <          mu_tr         < 600. + .3 * 50000. 
+#
+#  sqrt( 3 * 5.e-1 * 5.e-1 )  <  sqrt( 3 mu_a  mu_tr ) < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+#  sqrt( 3 * 5.e-1 * 5.e-1 )  <        mu_eff          < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+#            8.e-1            <        mu_eff          <    5.3e3
 
   # materials
   outputMaterialFile = '%s/material_types.%04d.setup' % (workDirectory,kwargs['fileID'])
@@ -444,17 +492,21 @@ def brainNekWrapper(**kwargs):
   fileHandle = file(outputMaterialFile   ,'w')
   fileHandle.write('[MATERIAL PROPERTIES]\n'  )
   fileHandle.write('# Name,      Type index, Density, Specific Heat, Conductivity, Perfusion, Absorption, Scattering, Anisotropy\n'  )
-  variableDictionary = kwargs['cv']
-  fileHandle.write('Brain     0           1045     3640           %s        %s     %s      %s      %s \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], variableDictionary['mu_a_healthy' ], variableDictionary['mu_s_healthy' ], variableDictionary['anfact_healthy'       ])
+  mu_s   = 8.e3
+  anfact = .9
+  mu_s_p = mu_s * (1.-anfact) 
+  mu_eff = float(variableDictionary['mu_eff_healthy'])
+  mu_a   =  0.5*( -mu_s_p + math.sqrt( mu_s_p * mu_s_p  + 4. * mu_eff * mu_eff  /3. ) )
+  fileHandle.write('Brain     0           1045     3640           %s        %s     %f      %f      %f \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], mu_a, mu_s, anfact )
  )
   fileHandle.flush(); fileHandle.close()
 
-  # build command to run brainNek
-  brainNekCommand = "%s/main %s -heattransfercoefficient %s -coolanttemperature  %s > %s/run.%04d.log 2>&1 " % (brainNekDIR , outputSetupRCFile ,variableDictionary['robin_coeff'  ], variableDictionary['probe_init'   ], workDirectory ,kwargs['fileID'])
+  ## # build command to run brainNek
+  ## brainNekCommand = "%s/main %s -heattransfercoefficient %s -coolanttemperature  %s > %s/run.%04d.log 2>&1 " % (brainNekDIR , outputSetupRCFile ,variableDictionary['robin_coeff'  ], variableDictionary['probe_init'   ], workDirectory ,kwargs['fileID'])
 
-  # system call to run brain code
-  print brainNekCommand 
-  os.system(brainNekCommand )
+  ## # system call to run brain code
+  ## print brainNekCommand 
+  ## os.system(brainNekCommand )
 # end def brainNekWrapper:
 ##################################################################
 def ParseInput(paramfilename):
@@ -517,7 +569,7 @@ def ParseInput(paramfilename):
   # for this simple example, put all the variables into a single hardwired array
   continuous_vars = {} 
 
-  DescriptorList = ['robin_coeff','probe_init','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
+  DescriptorList = ['robin_coeff','probe_init','mu_eff_healthy','body_temp','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
   for paramname in DescriptorList:
     try:
       continuous_vars[paramname  ] = paramsdict[paramname ]
@@ -612,8 +664,8 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  MatlabDriver = False
   MatlabDriver = True
+  MatlabDriver = False
   if(MatlabDriver):
 
     # write out for debug
@@ -637,7 +689,7 @@ if (options.param_file != None):
 
     # execute the rosenbrock analysis as a separate Python module
     print "Running BrainNek..."
-    fem_results = brainNekWrapper(**fem_params)
+    brainNekWrapper(**fem_params)
     
     # write objective function back to Dakota
     objfunction = ComputeObjective(**fem_params)

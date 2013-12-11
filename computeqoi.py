@@ -317,19 +317,30 @@ parser.add_option( "--run_fem","--param_file",
 (options, args) = parser.parse_args()
 
 
+
 if (options.param_file != None):
+  import brainNekLibrary
+
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
   brain = BrainNekWrapper(outputDirectory % fem_params['UID'],fem_params['cv'])
 
-  # write objective function back to Dakota
-  objfunction = brain.ComputeObjective(fem_params['mrti'],fem_params['voi'])
-  print "objective function 1", objfunction
-  objfunction = brain.ComputeObjective(fem_params['mrti'],fem_params['voi'])
-  print "objective function 2", objfunction
-  objfunction = brain.ComputeObjective(fem_params['mrti'],fem_params['voi'])
-  print "objective function 3", objfunction
+  setup = brainNekLibrary.PySetupAide("optpp_pds/setuprc.%04d" %  fem_params['fileID'] )
+  print setup 
+  brainNek = brainNekLibrary.PyBrain3d(setup);
+  print 'intpointer', brainNek.getTemperaturePointer() 
+  tstep = 0
+  ## while( brainNek.timeStep(tstep * .25 ) ) :
+  ##   print brainNek.dt
+  ##   tstep = tstep + 1
+  ## # write objective function back to Dakota
+  ## objfunction = brain.ComputeObjective(fem_params['mrti'],fem_params['voi'])
+  ## print "objective function 1", objfunction
+  ## objfunction = brain.ComputeObjective(fem_params['mrti'],fem_params['voi'])
+  ## print "objective function 2", objfunction
+  ## objfunction = brain.ComputeObjective(fem_params['mrti'],fem_params['voi'])
+  ## print "objective function 3", objfunction
 
 else:
   parser.print_help()
