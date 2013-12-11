@@ -12,7 +12,7 @@ pathpt = getenv ( 'PATHPT' );
 
 load index.txt
 
-[metric] = obj_fxn_unified_optics ( path22, pathpt, index );
+[metric] =  obj_fxn_unified_optics ( path22, pathpt, index );
 
 index = index + 1;
 csvwrite ('index.txt' , index);

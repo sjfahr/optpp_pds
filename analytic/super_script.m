@@ -10,7 +10,7 @@ pathpt = getenv ( 'PATHPT' );
 
 load index.txt
 
-[metric,diff_Iso] = simple_model_obj_fxn_fast ( path22, pathpt, index );
+[metric] = fast_temperature_obj_fxn ( path22, pathpt, index );
 
-% index = index + 1;
-% csvwrite ('index.txt' , index);
+index = index + 1;
+csvwrite ('index.txt' , index);

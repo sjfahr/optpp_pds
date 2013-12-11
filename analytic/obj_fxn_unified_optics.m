@@ -18,8 +18,8 @@ load(input_filename);
 % Write every string as a number
 probe_u = str2num(probe_init);
 g_anisotropy = str2num(anfact_healthy);
-mu_eff = str2num(mu_eff_healthy);
-%mu_a = str2num(mu_a_healthy);
+%mu_eff = str2num(mu_eff_healthy);
+mu_a = str2num(mu_a_healthy);
 mu_s = str2num(mu_s_healthy);
 k_cond = str2num(k_0_healthy);
 w_perf = str2num(w_0_healthy);
@@ -33,7 +33,7 @@ w_perf = str2num(w_0_healthy);
 robin_co=0; %dummy var
 
 % Calculate mu_a based on mu_eff, mu_s, and g_anisotropy
-mu_a = (1/6)*(((3-3*g_anisotropy)^2 *mu_s^2+12*mu_eff^2)^(1/2) +3*g_anisotropy*mu_s-3*mu_s);
+%mu_a = (1/6)*(((3-3*g_anisotropy)^2 *mu_s^2+12*mu_eff^2)^(1/2) +3*g_anisotropy*mu_s-3*mu_s);
 
 % Load the recorded power
 power_log = load ('time_then_power.csv');
@@ -100,7 +100,6 @@ power_log = max( power_log(:,2));
 tmap_unique=tmap_unique+37;
 tmap_model_scaled_to_MRTI = imresize (tmap_unique , 1/scaling.x); % Set the model's spacing to MRTI
  
-
 % Change directory and load the temperature from VTK
 cd ../vtk/referenceBased
 MRTI = readVTK_SJF('temperature',161);
@@ -120,14 +119,12 @@ MRTI_hottest = MRTI(:,:,max_temperature_timepoint); % Set the variable
 % Crop the MRTI_image
 MRTI_crop = MRTI_hottest( (VOI.x(1)-1):(VOI.x(2)+1) , (VOI.y(1)-1):(VOI.y(2)+1) ); % Set the cropped region
 
-figure(88); imagesc(MRTI_crop, [30 80]);
-figure(99); imagesc(MRTI(:,:,max_temperature_timepoint), [30 80]);
 % Make the metric
 temperature_diff = tmap_model_scaled_to_MRTI - MRTI_crop ( 2:(end-1), 2:(end-1));
 metric = ( norm ( temperature_diff , 2 ) )^2;
 
-% %%%%% The remaining code is exclusively for testing / debugging / checking
-% %%%%% the registration.
+%%%%% The remaining code is exclusively for testing / debugging / checking
+%%%%% the registration.
 % MRTI_size = size ( MRTI );
 % % Resize the tmap_unique model into the same spacing as the MRTI and find
 % % the max heating
@@ -143,19 +140,12 @@ metric = ( norm ( temperature_diff , 2 ) )^2;
 % matched_mod = zeros (MRTI_size(1), MRTI_size(2));
 % matched_mod ( VOI.x(1): VOI.x(2), VOI.y(1): VOI.y(2) ) = upper_left_mod( 1:aa_size(1) , 1:aa_size(2) );  % Write the data to the correct region
 % 
-% % This is useful for confirming registration, but not for running with
-% % DAKMATLAB.
-% MRTI ( 1: (VOI.x(1)), : ) = 0;  % The '-1' is to ensure that none of the desired data is cropped
-% MRTI ( (VOI.x(2)):end, : )  = 0; % The '+1' is to ensure that none of the desired data is cropped
-% MRTI ( :, 1:(VOI.y(1)) ) = 0;
-% MRTI ( :,(VOI.y(2)):end ) = 0;
-% 
 % figure(1); imagesc(tmap_model_scaled_to_MRTI );
 % figure(2); imagesc(MRTI_crop , [30 80]);
 % figure(3); imagesc(temperature_diff );
 % figure(4); imagesc(matched_mod, [30 80]);
 % figure(5); imagesc(MRTI(:,:,max_temperature_timepoint), [30 80]);
-
-cd (path22);
+% 
+% cd (path22);
 
 end

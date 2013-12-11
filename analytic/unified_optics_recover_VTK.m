@@ -21,8 +21,8 @@ load(input_filename);
 % Write every string as a number
 probe_u = str2num(probe_init);
 g_anisotropy = str2num(anfact_healthy);
-mu_eff = str2num(mu_eff_healthy);
-%mu_a = str2num(mu_a_healthy);
+%mu_eff = str2num(mu_eff_healthy);
+mu_a = str2num(mu_a_healthy);
 mu_s = str2num(mu_s_healthy);
 k_cond = str2num(k_0_healthy);
 w_perf = str2num(w_0_healthy);
@@ -36,7 +36,7 @@ w_perf = str2num(w_0_healthy);
 robin_co=0; %dummy var
 
 % Calculate mu_a based on mu_eff, mu_s, and g_anisotropy
-mu_a = (1/6)*(((3-3*g_anisotropy)^2 *mu_s^2+12*mu_eff^2)^(1/2) +3*g_anisotropy*mu_s-3*mu_s);
+%mu_a = (1/6)*(((3-3*g_anisotropy)^2 *mu_s^2+12*mu_eff^2)^(1/2) +3*g_anisotropy*mu_s-3*mu_s);
 
 % Load the recorded power
 power_log = load ('time_then_power.csv');
