@@ -4,7 +4,7 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run.
 
-function [metric,matched_mod,diff_Iso] = unified_optics_recover_VTK ( path22, pathpt, iteration );
+function [metric] = unified_optics_recover_VTK ( path22, pathpt, iteration );
 cd( path22);
 patient_path = pathpt;
 patient_opt_path = strcat( path22, patient_path);

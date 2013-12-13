@@ -140,11 +140,11 @@ matched_mod ( VOI.x(1): VOI.x(2), VOI.y(1): VOI.y(2) ) = upper_left_mod( 1:aa_si
 % This is useful for confirming registration, but not for running with
 % DAKMATLAB.
 
-figure(1); imagesc(tmap_model_scaled_to_MRTI );
-figure(2); imagesc(MRTI_crop , [30 80]);
-figure(3); imagesc(temperature_diff );
-figure(4); imagesc(matched_mod);
-figure(5); imagesc(MRTI(:,:,max_temperature_timepoint), [30 80]);
+% figure(1); imagesc(tmap_model_scaled_to_MRTI );
+% figure(2); imagesc(MRTI_crop , [30 80]);
+% figure(3); imagesc(temperature_diff );
+% figure(4); imagesc(matched_mod);
+% figure(5); imagesc(MRTI(:,:,max_temperature_timepoint), [30 80]);
 
 cd (path22);
 

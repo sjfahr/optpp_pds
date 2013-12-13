@@ -7,15 +7,21 @@ cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
 
-setenv ( 'PATHPT' , '/workdir/Patient0006/007/opt' );
+index = load ( 'index.txt' );
+patient_index = load ( 'patient_index.txt' );
+
+Patient_Paths = importdata( 'patient_paths.txt' );
+
+setenv ( 'PATHPT' , Patient_Paths( patient_index ) );
 pathpt = getenv ( 'PATHPT' );
 
-load index.txt
-
-[metric] =  obj_fxn_unified_optics ( path22, pathpt, index );
+[metric] =  fast_temperature_obj_fxn ( path22, pathpt, index );
 
 index = index + 1;
 csvwrite ('index.txt' , index);
+
+patient_index = patient_index + 1;
+csvwrite ('patient_index.txt' , patient_index);
 
 y =  metric;
 % disp('perfusion')
