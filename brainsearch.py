@@ -399,10 +399,6 @@ def ComputeObjective(**kwargs):
   AffineTransform.RotateY( float(variableDictionary['y_rotate'  ] ) )
   AffineTransform.RotateX( float(variableDictionary['x_rotate'  ] ) )
   AffineTransform.Scale([1.e0,1.e0,1.e0])
-  SEMRegister = vtk.vtkTransformFilter()
-  SEMRegister.SetInput( hexahedronGrid )
-  SEMRegister.SetTransform(AffineTransform)
-  SEMRegister.Update()
 
   ## vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
   ## SEMDataDirectory = outputDirectory % kwargs['UID']
@@ -464,9 +460,14 @@ def ComputeObjective(**kwargs):
       vtkScalarArray = vtkNumPy.numpy_to_vtk( bNekSoln, DeepCopy) 
       vtkScalarArray.SetName("bioheat") 
       hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
+      hexahedronGrid.Update()
 
       # project SEM onto MRTI for comparison
       print 'resampling' 
+      SEMRegister = vtk.vtkTransformFilter()
+      SEMRegister.SetInput( hexahedronGrid )
+      SEMRegister.SetTransform(AffineTransform)
+      SEMRegister.Update()
       vtkResample = vtk.vtkCompositeDataProbeFilter()
       vtkResample.SetSource( SEMRegister.GetOutput() )
       vtkResample.SetInput( vtkVOIExtract.GetOutput() ) 
@@ -484,20 +485,20 @@ def ComputeObjective(**kwargs):
       DebugObjective = True
       DebugObjective = False
       # write output
-      if ( DebugObjective ):
-        vtkSEMWriter = vtk.vtkXMLUnstructuredGridWriter()
-        semfileName = "%s/semtransform%04d.vtu" % (SEMDataDirectory,MRTItimeID)
-        print "writing ", semfileName 
-        vtkSEMWriter.SetFileName( semfileName )
-        vtkSEMWriter.SetInput(SEMRegister.GetOutput())
-        #vtkSEMWriter.SetDataModeToAscii()
-        vtkSEMWriter.Update()
+      ## if ( DebugObjective ):
+      ##   vtkSEMWriter = vtk.vtkXMLUnstructuredGridWriter()
+      ##   semfileName = "%s/semtransform.%04d.vtu" % (SEMDataDirectory,MRTItimeID)
+      ##   print "writing ", semfileName 
+      ##   vtkSEMWriter.SetFileName( semfileName )
+      ##   vtkSEMWriter.SetInput(SEMRegister.GetOutput())
+      ##   #vtkSEMWriter.SetDataModeToAscii()
+      ##   vtkSEMWriter.Update()
 
       # write output
       if ( DebugObjective ):
          vtkTemperatureWriter = vtk.vtkDataSetWriter()
          vtkTemperatureWriter.SetFileTypeToBinary()
-         roifileName = "%s/roi%04d.vtk" % (SEMDataDirectory,MRTItimeID)
+         roifileName = "%s/roi.%04d.vtk" % (SEMDataDirectory,MRTItimeID)
          print "writing ", roifileName 
          vtkTemperatureWriter.SetFileName( roifileName )
          vtkTemperatureWriter.SetInput(vtkResample.GetOutput())

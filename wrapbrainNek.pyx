@@ -21,31 +21,49 @@ cdef class PySetupAide:
 cdef class PyBrain3d:
     cdef brain3d *thisptr  # hold a C++ instance which we're wrapping
     def __cinit__(self,PySetupAide setup not None):
+        """
+         wrapper to brain3d class
+        """
         self.thisptr = new brain3d( cython.operator.dereference(setup.thisptr) )
     def timeStep( self,currentTime):
+        """
+         advance solution 1 timestep
+        """
         return self.thisptr.timeStep(currentTime)
     def GetNumberOfNodes( self):
+        """
+         get vtu number of nodes
+        """
         return self.thisptr.GetNumberOfNodes()
     def GetNumberOfElements( self):
+        """
+         get vtu number of elements
+        """
         return self.thisptr.GetNumberOfElements()
     def screenshot( self, double CurrentTime ):
+        """
+         write vtu file
+        """
         self.thisptr.screenshot( <float> CurrentTime ) 
     def dt( self):
+        """
+         time step
+        """
         return self.thisptr.dt
-    ## def getHostTemperature( self, np.ndarray Temperature not None):
-    ##     ## if len(Temperature.shape)  != 1:
-    ##     ##     raise ValueError("Only linear arraysupported")
-    ##     assert Temperature.dtype == np.float32 
-    ##     cdef void*  dataptr = Temperature.data
-    ##     cdef size_t databyte = Temperature.shape[0]
-    ##     self.thisptr.getHostTemperature(databyte,dataptr)
-    def getHostTemperature(self,np.ndarray[float, ndim=1, mode="c"] Temperature not None):
+    def getHostTemperature(  self,np.ndarray[float, ndim=1, mode="c"] Temperature not None):
         """
         transfer data to host arrary
         """
         assert Temperature.dtype == np.float32 
         cdef size_t databyte = Temperature.shape[0] * 4
         self.thisptr.getHostTemperature(databyte,&Temperature[0])
+    def setDeviceTemperature(self,np.ndarray[float, ndim=1, mode="c"] Temperature not None):
+        """
+        transfer data to device arrary
+        """
+        assert Temperature.dtype == np.float32 
+        cdef size_t databyte = Temperature.shape[0] * 4
+        self.thisptr.setDeviceTemperature(databyte,&Temperature[0])
     def GetNodes(self,np.ndarray[float, ndim=1, mode="c"] nodesarray not None):
         """
         transfer nodes array as 1-d array
@@ -56,12 +74,6 @@ cdef class PyBrain3d:
         transfer element connectivity as 1-d array
         """
         self.thisptr.GetElements(&elementarray[0])
-    ## def setDeviceTemperature(self,np.ndarray[float, ndim=1, mode="c"] Temperature not None):
-    ##     """
-    ##     transfer data to device arrary
-    ##     """
-    ##     cdef size_t databyte = Temperature.shape[0]
-    ## #    self.thisptr.setDeviceTemperature(databyte,&Temperature[0])
 
 ## cdef class PylibMeshSystem:
 ##     cdef System *thisptr  # hold C++ instance we're wrapping
