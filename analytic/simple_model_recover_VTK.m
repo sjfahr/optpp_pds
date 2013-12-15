@@ -1,8 +1,11 @@
+% This is meant to write VTKs for my model.
+
+
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run.
 
 %function [metric] = simple_model_obj_fxn_fast ( path22, pathpt, iteration );
-function [metric, diff_Iso] = simple_model_obj_fxn_fast ( path22, pathpt, iteration );
+function [metric,matched_mod,diff_Iso] = simple_model_recover_VTK ( path22, pathpt, iteration );
 cd( path22);
 patient_path = pathpt;
 patient_opt_path = strcat( path22, patient_path);
@@ -151,14 +154,23 @@ diff_Iso= abs(model_Iso - MRTI_Iso);
 
 metric = abs(sum(sum(diff_Iso)));
 
-% Edits:  Simple:
-% norm [ (model_temperature , MRTI_temp ), 2];  or something
-% DF wrote ( norm [ (U_model - U_MRTI ),2] ) ^2
-
 % figure(1); imagesc(matched_mod , [30 80]);
 % figure(2); imagesc(model_Iso);
 % figure(3); imagesc(MRTI_Iso);
 % figure(4); imagesc(diff_Iso);
+
+header.ImagePositionPatient(1) = 0;
+header.ImagePositionPatient(2) = 0;
+header.ImagePositionPatient(3) = 0;
+header.PixelSpacing(1) = spacing.x;
+header.PixelSpacing(2) = spacing.y;
+header.SliceThickness  = spacing.z;
+
+cd( patient_opt_path);
+
+writeVTK_SJF( matched_mod, 'model_temperature', header );
+writeVTK_SJF( model_Iso, 'model_57deg_Isotherm', header );
+writeVTK_SJF( diff_Iso, 'difference', header );
 
 cd (path22);
 

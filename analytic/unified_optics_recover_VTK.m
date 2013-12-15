@@ -1,9 +1,12 @@
+% This is meant to write VTKs for my model.
+
+
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run.
 
-function [metric] = simple_model_obj_fxn222 ( path22, iteration );
+function [metric] = unified_optics_recover_VTK ( path22, pathpt, iteration );
 cd( path22);
-patient_path = '/workdir/Patient0002/000/opt';
+patient_path = pathpt;
 patient_opt_path = strcat( path22, patient_path);
 cd( patient_opt_path);
 input_param = 'optpp_pds.in.';
@@ -18,6 +21,7 @@ load(input_filename);
 % Write every string as a number
 probe_u = str2num(probe_init);
 g_anisotropy = str2num(anfact_healthy);
+%mu_eff = str2num(mu_eff_healthy);
 mu_a = str2num(mu_a_healthy);
 mu_s = str2num(mu_s_healthy);
 k_cond = str2num(k_0_healthy);
@@ -30,6 +34,9 @@ w_perf = str2num(w_0_healthy);
 % z_rot = str2num(aaa{13}{1});
 
 robin_co=0; %dummy var
+
+% Calculate mu_a based on mu_eff, mu_s, and g_anisotropy
+%mu_a = (1/6)*(((3-3*g_anisotropy)^2 *mu_s^2+12*mu_eff^2)^(1/2) +3*g_anisotropy*mu_s-3*mu_s);
 
 % Load the recorded power
 power_log = load ('time_then_power.csv');
@@ -75,10 +82,13 @@ source.n=5;
 source.length=0.01;  %~0.033 is when n=5 is visible
 source.laser=linspace((-source.length/2),(source.length/2),source.n);
 
+% Only use the hottest time point
+power_log = max( power_log(:,2));
+
+
 % Run the Bioheat model with the unique powers
-[tmap_unique]=Bioheat1D( power_log,dom,source,w_perf,k_cond,g_anisotropy,mu_a,mu_s,probe_u,robin_co);
+[tmap_unique]=Bioheat1Dfast( power_log,dom,source,w_perf,k_cond,g_anisotropy,mu_a,mu_s,probe_u,robin_co);
 tmap_unique=tmap_unique+37;
-tmap_unique(:,:,:,1)=37;
 
 % Make the full temperature history with the unique tmaps
 % [tmap]=Build_tmap_history(tmap_unique,delta_P);
@@ -96,25 +106,27 @@ load 'arrheniusDose.mat'
 MRTI_dose_size=size(arrheniusDose.mean);
 load ( 'VOI.mat' );
 
-% Resize the tmap_unique model into the same spacing as the MRTI
-aa = imresize (tmap_unique , 1/scaling.x);
-bb = aa(round(matrix.x/2),round(matrix.y/2),1,:);
-[~,dd] = max (bb);
+% Resize the tmap_unique model into the same spacing as the MRTI and find
+% the max heating
+aa = imresize (tmap_unique , 1/scaling.x);         
+%bb = aa(round(matrix.x/2),round(matrix.y/2),1,:); % These lines may be
+%unnecessary for fast simulation
+%[~,dd] = max (bb); %Find the max heating time point.
 
-aa_size = size ( aa(:,:,1,dd) );
+aa_size = size ( aa );
 size_diff=[(MRTI_dose_size(1)-aa_size(1)) (MRTI_dose_size(2)-aa_size(2))];
 upper_left_mod = zeros((size(aa,1)+size_diff(1)),(size(aa,2)+size_diff(2)));
-upper_left_mod(1:size(aa,1),1:size(aa,2)) = aa(:,:,1,dd);
+upper_left_mod(1:size(aa,1),1:size(aa,2)) = aa;
 
 % Define the intervals that will be compared
-x_range   = [ (VOI.center_in_pix.y - floor(aa_size(1)/2)) (VOI.center_in_pix.y + floor(aa_size(1)/2))];
-y_range   = [ (VOI.center_in_pix.x - floor(aa_size(2)/2)) (VOI.center_in_pix.x + floor(aa_size(2)/2))];
+x_range   = [ (VOI.center_in_pix(1) - floor(aa_size(1)/2)) (VOI.center_in_pix(1) + floor(aa_size(1)/2))];
+y_range   = [ (VOI.center_in_pix(2) - floor(aa_size(2)/2)) (VOI.center_in_pix(2) + floor(aa_size(2)/2))];
 
-roi_x    = [ (VOI.center_in_pix.y - 60) (VOI.center_in_pix.y + 60) ]; %For model 57 deg C isotherms.
-roi_y    = [ (VOI.center_in_pix.x - 60) (VOI.center_in_pix.x + 60) ];
+roi_x    = [ (VOI.center_in_pix(1) - 65) (VOI.center_in_pix(1) + 65) ]; %For model 57 deg C isotherms.
+roi_y    = [ (VOI.center_in_pix(2) - 65) (VOI.center_in_pix(2) + 65) ];
 
-roi_x_MRTI   = [ (VOI.center_in_pix.y - 20) (VOI.center_in_pix.y + 20) ];  %For MRTI dose.
-roi_y_MRTI   = [ (VOI.center_in_pix.x - 20) (VOI.center_in_pix.x + 20) ];
+roi_x_MRTI   = VOI.x;  %For MRTI dose.
+roi_y_MRTI   = VOI.y;
 
 x_range = round ( x_range ); % Round everything after calculating them.
 y_range = round ( y_range );
@@ -141,15 +153,28 @@ MRTI_Iso ( roi_x_MRTI(2):end, : )  = 0;
 MRTI_Iso ( :, 1:roi_y_MRTI(1) ) = 0;
 MRTI_Iso ( :,roi_y_MRTI(2):end ) = 0;
 
-diff_Iso= model_Iso - MRTI_Iso;
+diff_Iso= abs(model_Iso - MRTI_Iso);
 
 metric = abs(sum(sum(diff_Iso)));
 
+% figure(1); imagesc(matched_mod , [30 80]);
+% figure(2); imagesc(model_Iso);
+% figure(3); imagesc(MRTI_Iso);
+% figure(4); imagesc(diff_Iso);
+
+header.ImagePositionPatient(1) = 0;
+header.ImagePositionPatient(2) = 0;
+header.ImagePositionPatient(3) = 0;
+header.PixelSpacing(1) = spacing.x;
+header.PixelSpacing(2) = spacing.y;
+header.SliceThickness  = spacing.z;
+
+cd( patient_opt_path);
+
+writeVTK_SJF( matched_mod, 'model_temperature', header );
+writeVTK_SJF( model_Iso, 'model_57deg_Isotherm', header );
+writeVTK_SJF( diff_Iso, 'difference', header );
+
 cd (path22);
-% output_param = 'optpp_pds.out.';
-% index = num2str(iteration);
-% output_filename = strcat( output_param, index);
-% 
-% csvwrite ( output_filename, metric);
 
 end

@@ -4,7 +4,7 @@
 
 % 'w' is the output, (x-dim,y-dim,z-dim). 'T' is the temperature image, (x-dim,y-dim,z-dim,time). 'w.mean_time' finds the differential dose accrued
 % in one time step, 'dt'.  'Iso', (x-dim,y-dim,z-dim) finds the dead voxels.
-function [w,Iso]=ArrDose_for_1D(T,dt);
+function [w,Iso]=ArrDose_for_arbitraryD(T,dt);
 T=double(T);
 
 
