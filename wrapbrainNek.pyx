@@ -24,6 +24,10 @@ cdef class PyBrain3d:
         self.thisptr = new brain3d( cython.operator.dereference(setup.thisptr) )
     def timeStep( self,currentTime):
         return self.thisptr.timeStep(currentTime)
+    def GetNumberOfNodes( self):
+        return self.thisptr.GetNumberOfNodes()
+    def GetNumberOfElements( self):
+        return self.thisptr.GetNumberOfElements()
     def screenshot( self, double CurrentTime ):
         self.thisptr.screenshot( <float> CurrentTime ) 
     def dt( self):
@@ -39,8 +43,19 @@ cdef class PyBrain3d:
         """
         transfer data to host arrary
         """
-        cdef size_t databyte = Temperature.shape[0]
+        assert Temperature.dtype == np.float32 
+        cdef size_t databyte = Temperature.shape[0] * 4
         self.thisptr.getHostTemperature(databyte,&Temperature[0])
+    def GetNodes(self,np.ndarray[float, ndim=1, mode="c"] nodesarray not None):
+        """
+        transfer nodes array as 1-d array
+        """
+        self.thisptr.GetNodes(&nodesarray[0])
+    def GetElements(self,np.ndarray[int, ndim=1, mode="c"] elementarray not None):
+        """
+        transfer element connectivity as 1-d array
+        """
+        self.thisptr.GetElements(&elementarray[0])
     ## def setDeviceTemperature(self,np.ndarray[float, ndim=1, mode="c"] Temperature not None):
     ##     """
     ##     transfer data to device arrary

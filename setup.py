@@ -12,9 +12,10 @@ brainnek_include = []
 brainnek_include.append( "%s/src"      % brainnek_dir )
 brainnek_include.append( "%s/include"  % brainnek_dir )
 brainnek_include.append( "%s/libocca"  % brainnek_dir )
+#FIXME - can we automate the paths ? 
 brainnek_include.append( "/opt/apps/khronos/1.1")
 brainnek_include.append( "/usr/include/mpich2")
-#brainnek_include.append( "/opt/apps/EPD/epd-7.3-1-rh5-x86_64/lib/python2.7/site-packages/numpy/core/include")
+brainnek_include.append( "/opt/apps/EPD/epd-7.3-1-rh5-x86_64/lib/python2.7/site-packages/numpy/core/include")
 
 
 # cxx flags
