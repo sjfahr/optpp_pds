@@ -326,8 +326,6 @@ def ComputeObjective(**kwargs):
   setup = brainNekLibrary.PySetupAide(outputSetupRCFile )
   brainNek = brainNekLibrary.PyBrain3d(setup);
 
-  # write out initial mesh
-  
   # FIXME vtk needs to be loaded AFTER kernel is built
   import vtk
   import vtk.util.numpy_support as vtkNumPy 
@@ -349,31 +347,29 @@ def ComputeObjective(**kwargs):
   bNekNodes        = bNekNodes.reshape(      numPoints , 3)
   bNekConnectivity = bNekConnectivity.reshape(numElems , 8)
 
+  # TODO : check if deepcopy needed
+  DeepCopy = 1
+
   # setup points
   hexahedronPoints = vtk.vtkPoints()
-  for nodecoord in bNekNodes:
-    ipoint = hexahedronPoints.InsertNextPoint(nodecoord );
+  vtkNodeArray = vtkNumPy.numpy_to_vtk( bNekNodes, DeepCopy)
+  hexahedronPoints.SetData(vtkNodeArray)
   hexahedronGrid.SetPoints(hexahedronPoints);
 
   # setup elements
-  for ielem in range(numElems):
-    aHexahedron = vtk.vtkHexahedron()
-    aHexahedron.GetPointIds().SetId(0,bNekConnectivity[ielem][0])
-    aHexahedron.GetPointIds().SetId(1,bNekConnectivity[ielem][1])
-    aHexahedron.GetPointIds().SetId(2,bNekConnectivity[ielem][2])
-    aHexahedron.GetPointIds().SetId(3,bNekConnectivity[ielem][3])
-    aHexahedron.GetPointIds().SetId(4,bNekConnectivity[ielem][4])
-    aHexahedron.GetPointIds().SetId(5,bNekConnectivity[ielem][5])
-    aHexahedron.GetPointIds().SetId(6,bNekConnectivity[ielem][6])
-    aHexahedron.GetPointIds().SetId(7,bNekConnectivity[ielem][7])
-    hexahedronGrid.InsertNextCell(aHexahedron.GetCellType(),
-                                  aHexahedron.GetPointIds())
+  aHexahedron = vtk.vtkHexahedron()
+  HexCellType = aHexahedron.GetCellType()
+  vtkTypeArray     = vtkNumPy.numpy_to_vtk( HexCellType * numpy.ones(  numElems) ,DeepCopy,vtk.VTK_UNSIGNED_CHAR) 
+  vtkLocationArray = vtkNumPy.numpy_to_vtk( numpy.arange(numElems) ,DeepCopy,vtk.VTK_ID_TYPE) 
+  vtkCells = vtk.vtkCellArray()
+  vtkElemArray     = vtkNumPy.numpy_to_vtk( bNekConnectivity  , DeepCopy,vtk.VTK_ID_TYPE)
+  vtkCells.SetCells(HexCellType,vtkElemArray)
+  hexahedronGrid.SetCells(vtkTypeArray,vtkLocationArray,vtkCells) 
   print "done setting hex mesh with %d nodes %d elem"  % (numPoints,numElems)
 
   # setup solution
   bNekSoln = numpy.zeros(numPoints,dtype=numpy.float32)
   brainNek.getHostTemperature(bNekSoln )
-  DeepCopy = 1
   vtkScalarArray = vtkNumPy.numpy_to_vtk( bNekSoln, DeepCopy) 
   vtkScalarArray.SetName("bioheat") 
   hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
