@@ -12,16 +12,13 @@ patient_index = load ( 'patient_index.txt' );
 
 Patient_Paths = importdata( 'patient_paths.txt' );
 
-setenv ( 'PATHPT' , char( Patient_Paths( patient_index ) ) ); % char is to allow 
+setenv ( 'PATHPT' , char( Patient_Paths( patient_index ) ) ); % char is to make the cell string become an array string
 pathpt = getenv ( 'PATHPT' );
 
 [metric] =  fast_temperature_obj_fxn ( path22, pathpt, index );
 
 index = index + 1;
 csvwrite ('index.txt' , index);
-
-patient_index = patient_index + 1;
-csvwrite ('patient_index.txt' , patient_index);
 
 y =  metric;
 % disp('perfusion')
