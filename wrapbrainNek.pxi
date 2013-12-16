@@ -10,6 +10,8 @@ cimport numpy as np
 #from libcpp.vector   cimport vector
 #from libc.stdint  cimport intptr_t
 
+#TODO need to use datafloat type
+ctypedef float brainNekdatafloat
 # -------------------- std::string interface ----------------------- 
 cdef extern from "<string>" namespace "std":
     cdef cppclass string:
@@ -29,9 +31,13 @@ cdef extern from "setupAide.hpp":
 cdef extern from "brain3d.hpp": 
     cdef cppclass brain3d:
         brain3d(setupAide) 
-        int timeStep(double)
-        float dt
-        void screenshot(  datafloat )
+        int GetNumberOfElements()
+        int GetNumberOfNodes()
+        void GetElements(int*)
+        void GetNodes(brainNekdatafloat*)
+        int timeStep(brainNekdatafloat)
+        brainNekdatafloat dt
+        void screenshot(  brainNekdatafloat )
         void getHostTemperature(  size_t , void *)
         void setDeviceTemperature(size_t , void *)
 #        # http://documen.tician.de/pyopencl/misc.html#interoperability-with-other-opencl-software
