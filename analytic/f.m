@@ -12,7 +12,7 @@ patient_index = load ( 'patient_index.txt' );
 
 Patient_Paths = importdata( 'patient_paths.txt' );
 
-setenv ( 'PATHPT' , Patient_Paths( patient_index ) );
+setenv ( 'PATHPT' , char( Patient_Paths( patient_index ) ) ); % char is to allow 
 pathpt = getenv ( 'PATHPT' );
 
 [metric] =  fast_temperature_obj_fxn ( path22, pathpt, index );
