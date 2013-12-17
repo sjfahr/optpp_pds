@@ -336,20 +336,37 @@ def ComputeObjective(**kwargs):
   numPoints = brainNek.GetNumberOfNodes( ) 
   numElems  = brainNek.GetNumberOfElements( ) 
   # initialize nodes and connectivity
+  numHexPts = 8 
   bNekNodes         = numpy.zeros(numPoints * 3,dtype=numpy.float32)
-  bNekConnectivity  = numpy.zeros(numElems  * 8,dtype=numpy.int32)
+  bNekConnectivity  = numpy.zeros(numElems  * (numHexPts +1),dtype=numpy.int32)
   print "setting up hex mesh with %d nodes %d elem"  % (numPoints,numElems)
 
   # get nodes and connectivity from brainnek
   brainNek.GetNodes(   bNekNodes)       ;
   brainNek.GetElements(bNekConnectivity);
-  # reshape for convience
+  # reshape for convenience
   bNekNodes        = bNekNodes.reshape(      numPoints , 3)
-  bNekConnectivity = bNekConnectivity.reshape(numElems , 8)
+
+  ## # setup elements
+  ## bNekConnectivityreshape = bNekConnectivity.reshape(numElems , numHexPts +1)
+  ## for ielem in range(numElems ):
+  ##   aHexahedron = vtk.vtkHexahedron()
+  ##   # print 'number of nodes %d ' % bNekConnectivityreshape[ielem][0]
+  ##   aHexahedron.GetPointIds().SetId(0,bNekConnectivityreshape[ielem][1])
+  ##   aHexahedron.GetPointIds().SetId(1,bNekConnectivityreshape[ielem][2])
+  ##   aHexahedron.GetPointIds().SetId(2,bNekConnectivityreshape[ielem][3])
+  ##   aHexahedron.GetPointIds().SetId(3,bNekConnectivityreshape[ielem][4])
+  ##   aHexahedron.GetPointIds().SetId(4,bNekConnectivityreshape[ielem][5])
+  ##   aHexahedron.GetPointIds().SetId(5,bNekConnectivityreshape[ielem][6])
+  ##   aHexahedron.GetPointIds().SetId(6,bNekConnectivityreshape[ielem][7])
+  ##   aHexahedron.GetPointIds().SetId(7,bNekConnectivityreshape[ielem][8])
+  ##   hexahedronGrid.InsertNextCell(aHexahedron.GetCellType(),
+  ##                                 aHexahedron.GetPointIds())
 
   # TODO : check if deepcopy needed
   DeepCopy = 1
 
+  #hexahedronGrid.DebugOn()
   # setup points
   hexahedronPoints = vtk.vtkPoints()
   vtkNodeArray = vtkNumPy.numpy_to_vtk( bNekNodes, DeepCopy)
@@ -360,10 +377,13 @@ def ComputeObjective(**kwargs):
   aHexahedron = vtk.vtkHexahedron()
   HexCellType = aHexahedron.GetCellType()
   vtkTypeArray     = vtkNumPy.numpy_to_vtk( HexCellType * numpy.ones(  numElems) ,DeepCopy,vtk.VTK_UNSIGNED_CHAR) 
-  vtkLocationArray = vtkNumPy.numpy_to_vtk( numpy.arange(numElems) ,DeepCopy,vtk.VTK_ID_TYPE) 
+  #TODO: off by 1 indexing from npts, ie
+  #TODO: note vtkIdType vtkCellArray::InsertNextCell(vtkIdList *pts) 
+  #TODO:    this->InsertLocation += npts + 1;   (line 264)
+  vtkLocationArray = vtkNumPy.numpy_to_vtk( numpy.arange(0,numElems*(numHexPts+1),(numHexPts+1)) ,DeepCopy,vtk.VTK_ID_TYPE) 
   vtkCells = vtk.vtkCellArray()
   vtkElemArray     = vtkNumPy.numpy_to_vtk( bNekConnectivity  , DeepCopy,vtk.VTK_ID_TYPE)
-  vtkCells.SetCells(HexCellType,vtkElemArray)
+  vtkCells.SetCells(numElems,vtkElemArray)
   hexahedronGrid.SetCells(vtkTypeArray,vtkLocationArray,vtkCells) 
   print "done setting hex mesh with %d nodes %d elem"  % (numPoints,numElems)
 
