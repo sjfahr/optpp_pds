@@ -6,9 +6,9 @@ echo 1 > index.txt
 echo 1 > patient_index.txt
 
 # Begin all patients' runs
-dakota workdir/Patient0002/000/opt/dakota_unified_optics.in
-cat workdir/Patient0002/000/opt/optpp_pds.out.* > workdir/Patient0002/000/opt/obj_fxn_list.txt
-
+#dakota workdir/Patient0002/000/opt/dakota_unified_optics.in
+#cat workdir/Patient0002/000/opt/optpp_pds.out.* > workdir/Patient0002/000/opt/obj_fxn_list.txt
+#
 #echo 2 > patient_index.txt
 #echo 1 > index.txt
 #dakota workdir/Patient0002/001/opt/dakota_unified_optics.in
