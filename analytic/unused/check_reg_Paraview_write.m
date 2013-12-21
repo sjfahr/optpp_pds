@@ -3,10 +3,17 @@
 % /FUS4/data2/BioTex/BrainNonMDA/processed/Patient0002/000/
 
 % function [ center, VOI ] = check_reg_write (  reg,time,crop_big,crop_small );
-function [ center, VOI ] = check_reg_Paraview_write (  VOI_pre );
+function [ center, VOI ] = check_reg_Paraview_write (  VOI_pre, path22, work_dir, pathpt );
+
+% Get to the laser directory
+total_laser_path = strcat ( path22, pathpt); % This path needs mofication by strrep
+total_laser_path = strrep ( total_laser_path, '/workdir', '');
+total_laser_path = strrep ( total_laser_path, 'opt', 'laser');
+
+cd (total_laser_path);
+
 
 % Import the VTK header info
-cd laser
 FOV_import = csvimport ( 'FOV.csv' );
 fov = FOV_import ( 2, : );
 fov = cell2mat (fov);
@@ -108,4 +115,8 @@ VOI
 cd ../../matlab
 save ('VOI.mat' , 'VOI') ;
 cd ..
+
+total_opt_path = strcat ( work_dir, pathpt); % This path needs mofication by strrep
+cd ( total_opt_path );
+save ('VOI.mat' , 'VOI') ;
 end
