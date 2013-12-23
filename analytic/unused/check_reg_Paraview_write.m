@@ -86,7 +86,7 @@ VOI.z = VOI_pre.x;
 % MRTI = (temperature);
 
 cd ../vtk/referenceBased
-MRTI = readVTK_SJF('temperature',161);
+MRTI = readVTK_SJF('temperature',400);
 
 % Crop the displayed VOI
 MRTI_crop = MRTI;                            % Start with original MRTI
@@ -101,20 +101,16 @@ MRTI_crop ( : , (VOI.y(2)+1) : end,:,:) = 0; % Crop right
 % MRTI_crop_small ( : ,  1 : (VOI_small.y(1)-1) ,:,:) = 0; % Crop left
 % MRTI_crop_small ( : , (VOI_small.y(2)+1) : end,:,:) = 0; % Crop right
 
-figure(1); imagesc ( MRTI (:,:,VOI_pre.time) , [40 80] );
-figure(2); imagesc ( MRTI_crop (:,:,VOI_pre.time) , [40 80] );
+% figure(1); imagesc ( MRTI (:,:,VOI_pre.time) , [40 80] );
+% figure(2); imagesc ( MRTI_crop (:,:,VOI_pre.time) , [40 80] );
 % figure(3); imagesc ( MRTI_crop_small (:,:,VOI_pre.time) , [40 80] );
 
 VOI.center_in_meters = reg;
 VOI.center_in_pix = [ center.x center.y center.z ];
 VOI.time = VOI_pre.time;
-center
-center_in_meters
-VOI
-
-cd ../../matlab
-save ('VOI.mat' , 'VOI') ;
-cd ..
+center;
+center_in_meters;
+VOI;
 
 total_opt_path = strcat ( work_dir, pathpt); % This path needs mofication by strrep
 cd ( total_opt_path );

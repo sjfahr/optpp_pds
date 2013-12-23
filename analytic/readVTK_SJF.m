@@ -18,10 +18,10 @@ for ii = 1:timepoints
 %fid = fopen(vtkfile,'r','b');
 fid = fopen(sprintf('%s.%04d.vtk',vtkfile,ii-1),'r','b');
 
-if fid == -1
-    disp('Error, could not open file')
-    return
-end
+% if fid == -1
+%     disp('Error, could not open file')
+%     return
+% end
 
 fgetl(fid); % # vtk Datafile Version 3.6
 fgetl(fid); % comments
