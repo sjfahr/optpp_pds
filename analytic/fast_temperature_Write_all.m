@@ -1,7 +1,7 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run. The metric is based on temperature (not dose and isotherms).
 
-function [metric] = fast_temperature_obj_fxn ( path22, pathpt, iteration, vtk_index );
+function [metric] = fast_temperature_Write_all ( path22, pathpt, iteration );
 cd( path22);
 patient_path = pathpt;
 patient_opt_path = strcat( path22, patient_path);
@@ -99,21 +99,13 @@ tmap_model_scaled_to_MRTI = imresize (tmap_unique , 1/scaling.x); % Set the mode
 
 % Change directory and load the temperature from VTK
 cd ../vtk/referenceBased
-MRTI = readVTK_SJF('temperature', vtk_index);
+MRTI = readVTK_SJF('temperature',161);
 
 % Crop the MRTI using the VOI.
-
-% This is the VOI.x and VOI.y swapped for ParaView
-MRTI ( 1:(VOI.y(1)-1), :, : ) = 0;  % The -1 and +1 make sure the VOI indices aren't cut
-MRTI ( (VOI.y(2)+1):end, :, : )  = 0;
-MRTI ( :, 1:(VOI.x(1)-1), : ) = 0;
-MRTI ( :,(VOI.x(2)+1):end, : ) = 0;
-
-% This is the MATLAB native
-% MRTI ( 1:(VOI.x(1)-1), :, : ) = 0;  % The -1 and +1 make sure the VOI indices aren't cut
-% MRTI ( (VOI.x(2)+1):end, :, : )  = 0;
-% MRTI ( :, 1:(VOI.y(1)-1), : ) = 0;
-% MRTI ( :,(VOI.y(2)+1):end, : ) = 0;
+MRTI ( 1:(VOI.x(1)-1), :, : ) = 0;  % The -1 and +1 make sure the VOI indices aren't cut
+MRTI ( (VOI.x(2)+1):end, :, : )  = 0;
+MRTI ( :, 1:(VOI.y(1)-1), : ) = 0;
+MRTI ( :,(VOI.y(2)+1):end, : ) = 0;
 
 % Find the time with the hottest MRTI and then set a variable to that hot
 % timepoint.
@@ -122,46 +114,51 @@ timepoint_summation = squeeze( sum( sum ( MRTI , 1 ) , 2 ) ); % Sum the temperat
 MRTI_hottest = MRTI(:,:,max_temperature_timepoint); % Set the variable
 
 % Crop the MRTI_image
-% This is the VOI.x and VOI.y swapped for ParaView
-MRTI_crop = MRTI_hottest( (VOI.y(1)-1):(VOI.y(2)+1) , (VOI.x(1)-1):(VOI.x(2)+1) ); % Set the cropped region
-
-% This is the MATLAB native
-%MRTI_crop = MRTI_hottest( (VOI.x(1)-1):(VOI.x(2)+1) , (VOI.y(1)-1):(VOI.y(2)+1) ); % Set the cropped region
+MRTI_crop = MRTI_hottest( (VOI.x(1)-1):(VOI.x(2)+1) , (VOI.y(1)-1):(VOI.y(2)+1) ); % Set the cropped region
 
 % Make the metric
-
-%%%%% There is an error here because ParaView and MATLAB don't agree on
-%%%%% row- vs column- major schemes. My solution is to switch VOI.x with
-%%%%% VOI.y
-
 temperature_diff = tmap_model_scaled_to_MRTI - MRTI_crop ( 2:(end-1), 2:(end-1));
 metric = ( norm ( temperature_diff , 2 ) )^2;
 
 % %%%%% The remaining code is exclusively for testing / debugging / checking
 % %%%%% the registration.
-% MRTI_size = size ( MRTI );
-% % Resize the tmap_unique model into the same spacing as the MRTI and find
-% % the max heating
-% aa = imresize (tmap_unique , 1/scaling.x);  
-% 
-% % This section writes the model data to the upper left of a matrix
-% aa_size = size ( aa );
-% size_diff=[(MRTI_size(1)-aa_size(1)) (MRTI_size(2)-aa_size(2))];
-% upper_left_mod = zeros((size(aa,1)+size_diff(1)),(size(aa,2)+size_diff(2)));
-% upper_left_mod(1:size(aa,1),1:size(aa,2)) = aa; % Write the data to the upper left
-% 
-% % Register the model data to the MRTI
-% matched_mod = zeros (MRTI_size(1), MRTI_size(2));
-% matched_mod ( VOI.x(1): VOI.x(2), VOI.y(1): VOI.y(2) ) = upper_left_mod( 1:aa_size(1) , 1:aa_size(2) );  % Write the data to the correct region
-% 
-% % This is useful for confirming registration, but not for running with
-% % DAKMATLAB.
-% 
+MRTI_size = size ( MRTI );
+% Resize the tmap_unique model into the same spacing as the MRTI and find
+% the max heating
+aa = imresize (tmap_unique , 1/scaling.x);  
+
+% This section writes the model data to the upper left of a matrix
+aa_size = size ( aa );
+size_diff=[(MRTI_size(1)-aa_size(1)) (MRTI_size(2)-aa_size(2))];
+upper_left_mod = zeros((size(aa,1)+size_diff(1)),(size(aa,2)+size_diff(2)));
+upper_left_mod(1:size(aa,1),1:size(aa,2)) = aa; % Write the data to the upper left
+
+% Register the model data to the MRTI
+matched_mod = zeros (MRTI_size(1), MRTI_size(2));
+matched_mod ( VOI.x(1): VOI.x(2), VOI.y(1): VOI.y(2) ) = upper_left_mod( 1:aa_size(1) , 1:aa_size(2) );  % Write the data to the correct region
+
+% This is useful for confirming registration, but not for running with
+% DAKMATLAB.
+% HotHot = zeros( size(matched_mod) ); % Must initialize HotHot for the isotherm contour in the next line
+% HotHot (matched_mod > 57 ) = 1;
 % figure(1); imagesc(tmap_model_scaled_to_MRTI );
 % figure(2); imagesc(MRTI_crop , [30 80]);
 % figure(3); imagesc(temperature_diff );
 % figure(4); imagesc(matched_mod);
 % figure(5); imagesc(MRTI(:,:,max_temperature_timepoint), [30 80]);
+% figure(6); imagesc( HotHot);
+
+% This section records the VTK files
+cd( patient_opt_path);
+
+header.ImagePositionPatient(1) = 0;
+header.ImagePositionPatient(2) = 0;
+header.ImagePositionPatient(3) = 0;
+header.PixelSpacing(1) = spacing.x;
+header.PixelSpacing(2) = spacing.y;
+header.SliceThickness  = spacing.z;
+
+writeVTK_SJF( matched_mod, 'model_temperature', header );
 
 cd (path22);
 

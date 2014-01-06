@@ -1,7 +1,5 @@
 % y = f(x) for Rosenbrock
 function y = f(~)
-%f1 = 10*(x(2) - x(1)^2);
-%f2 = x(1) - 1;
 
 cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/
 setenv ( 'PATH22' , pwd);
@@ -9,19 +7,19 @@ path22 = getenv ( 'PATH22' );
 
 index = load ( 'index.txt' );
 patient_index = load ( 'patient_index.txt' );
+vtk_times = load ( 'VTK_patient_times.txt' );
 
 Patient_Paths = importdata( 'patient_paths.txt' );
 
-setenv ( 'PATHPT' , Patient_Paths( patient_index ) );
+setenv ( 'PATHPT' , char ( Patient_Paths ( patient_index ) ) );
 pathpt = getenv ( 'PATHPT' );
 
-[metric] =  fast_temperature_obj_fxn ( path22, pathpt, index );
+vtk_index = vtk_times ( patient_index );
+
+[metric] =  fast_temperature_obj_fxn ( path22, pathpt, index, vtk_index );
 
 index = index + 1;
 csvwrite ('index.txt' , index);
-
-patient_index = patient_index + 1;
-csvwrite ('patient_index.txt' , patient_index);
 
 y =  metric;
 % disp('perfusion')

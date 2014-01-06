@@ -744,8 +744,8 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  MatlabDriver = True
   MatlabDriver = False
+  MatlabDriver = True
   if(MatlabDriver):
 
     # write out for debug

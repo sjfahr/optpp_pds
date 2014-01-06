@@ -4,7 +4,7 @@ cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
 
-setenv ( 'PATHPT' , '/workdir/Patient0006/007/opt' );
+setenv ( 'PATHPT' , '/workdir/Patient0006/007/opt' );  % Change the path as needed
 pathpt = getenv ( 'PATHPT' );
 
 path_total = strcat ( path22, pathpt );
