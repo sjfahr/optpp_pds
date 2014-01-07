@@ -30,7 +30,7 @@ interface,
 # data quality   1
 #        discrete_state_range = 1
 #          initial_state    0
-#          descriptors      'powerhistory:[[13, 25, 40, 47, 86, 113, 123, 136, 152, 162, 169, 178, 182], [0, 2.85, 0, 2.85, 10.05, 0, 3.15, 10.05, 0, 3, 0, 3, 0], 5.0, [178, 182], [0, 0]]'
+#          descriptors      'powerhistory:[[13, 25, 40, 47, 86, 113, 123, 136, 152, 162, 169, 178, 182], [0, 2.85, 0, 2.85, 10.05, 0, 3.15, 10.05, 0, 3, 0, 3, 0], 5.0, [178, 182], [0, 86]]'
 
 responses,
         objective_functions = 1
@@ -40,12 +40,12 @@ responses,
 
 variables,
         continuous_design = 2
-          initial_point  =  66.500000  0.000000 
-          lower_bounds  =  61.500000  -0.001000 
-          upper_bounds  =  71.500000  0.001000 
+          initial_point  =   6.65000e+01   0.00000e+00 
+          lower_bounds  =   6.15000e+01  -1.00000e-03 
+          upper_bounds  =   7.15000e+01   1.00000e-03 
           descriptors  =  'z_rotate'  'z_displace' 
         continuous_state = 10
-          initial_state  =  -90.000000  0.490000  0.129620  0.113660  0.000000  0.490000  37.000000  21.000000  11200.000000  0.000000 
-          #lower_bounds  =  -95.000000  0.490000  0.128620  0.112660  -5.000000  0.490000  34.000000  20.000000  11200.000000  0.000000 
-          #upper_bounds  =  -85.000000  0.564000  0.130620  0.114660  5.000000  0.564000  40.000000  40.000000  16800.000000  10000.000000 
+          initial_state  =  -9.00000e+01   2.28733e-05   1.29620e-01   1.13660e-01   0.00000e+00   1.38546e-07   3.70000e+01   2.10000e+01   8.00000e-01   0.00000e+00 
+          #lower_bounds  =  -9.50000e+01   1.37787e-05   1.28620e-01   1.12660e-01  -5.00000e+00   1.19227e-07   3.40000e+01   2.00000e+01   1.00000e+00   0.00000e+00 
+          #upper_bounds  =  -8.50000e+01   9.13743e-05   1.30620e-01   1.14660e-01   5.00000e+00   2.91296e-07   4.00000e+01   4.00000e+01   5.30000e+03   1.00000e+04 
           descriptors  =  'y_rotate'  'gamma_healthy'  'x_displace'  'y_displace'  'x_rotate'  'alpha_healthy'  'body_temp'  'probe_init'  'mu_eff_healthy'  'robin_coeff' 

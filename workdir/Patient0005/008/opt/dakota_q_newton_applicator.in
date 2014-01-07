@@ -30,7 +30,7 @@ interface,
 # data quality   0
 #        discrete_state_range = 1
 #          initial_state    0
-#          descriptors      'powerhistory:[[7, 47, 51, 91, 111, 147, 155], [0, 14.55, 0, 14.55, 0, 14.55, 0], 5.0, [0, 0], [0, 0]]'
+#          descriptors      'powerhistory:[[7, 47, 51, 91, 111, 147, 155], [0, 14.55, 0, 14.55, 0, 14.55, 0], 5.0, [0, 0], [0, 47]]'
 
 responses,
         objective_functions = 1
@@ -40,12 +40,12 @@ responses,
 
 variables,
         continuous_design = 1
-          initial_point  =  0.000000 
-          lower_bounds  =  0.000000 
-          upper_bounds  =  10000.000000 
+          initial_point  =   0.00000e+00 
+          lower_bounds  =   0.00000e+00 
+          upper_bounds  =   1.00000e+04 
           descriptors  =  'robin_coeff' 
         continuous_state = 11
-          initial_state  =  90.000000  0.490000  0.116220  0.132560  0.000000  37.000000  0.000000  0.490000  75.000000  21.000000  11200.000000 
-          #lower_bounds  =  85.000000  0.490000  0.115220  0.131560  -0.001000  34.000000  -5.000000  0.490000  70.000000  20.000000  11200.000000 
-          #upper_bounds  =  95.000000  0.564000  0.117220  0.133560  0.001000  40.000000  5.000000  0.564000  80.000000  40.000000  16800.000000 
+          initial_state  =   9.00000e+01   2.28733e-05   1.16220e-01   1.32560e-01   0.00000e+00   3.70000e+01   0.00000e+00   1.38546e-07   7.50000e+01   2.10000e+01   8.00000e-01 
+          #lower_bounds  =   8.50000e+01   1.37787e-05   1.15220e-01   1.31560e-01  -1.00000e-03   3.40000e+01  -5.00000e+00   1.19227e-07   7.00000e+01   2.00000e+01   1.00000e+00 
+          #upper_bounds  =   9.50000e+01   9.13743e-05   1.17220e-01   1.33560e-01   1.00000e-03   4.00000e+01   5.00000e+00   2.91296e-07   8.00000e+01   4.00000e+01   5.30000e+03 
           descriptors  =  'y_rotate'  'gamma_healthy'  'x_displace'  'y_displace'  'z_displace'  'body_temp'  'x_rotate'  'alpha_healthy'  'z_rotate'  'probe_init'  'mu_eff_healthy' 

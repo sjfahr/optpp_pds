@@ -37,12 +37,12 @@ method,
 	  variance_based_decomp #univariate_effects
 	  #output verbose
 	  output silent
-          response_levels    =  0.000000  1.000000 
-          probability_levels =  0.010000  0.022750  0.050000  0.500000  0.950000  0.977250  0.990000 
-          reliability_levels =  0.150000  0.590000 
+          response_levels    =   0.00000e+00   1.00000e+00 
+          probability_levels =   1.00000e-02   2.27500e-02   5.00000e-02   5.00000e-01   9.50000e-01   9.77250e-01   9.90000e-01 
+          reliability_levels =   1.50000e-01   5.90000e-01 
           quadrature_order  =  4  4  4  4 
 variables,
         uniform_uncertain = 4
-          lower_bounds  =  11200.000000  0.490000  0.000000  0.490000 
-          upper_bounds  =  16800.000000  0.564000  10000.000000  0.564000 
+          lower_bounds  =   1.00000e+00   1.37787e-05   0.00000e+00   1.19227e-07 
+          upper_bounds  =   5.30000e+03   9.13743e-05   1.00000e+04   2.91296e-07 
           descriptors  =  'mu_eff_healthy'  'gamma_healthy'  'robin_coeff'  'alpha_healthy' 

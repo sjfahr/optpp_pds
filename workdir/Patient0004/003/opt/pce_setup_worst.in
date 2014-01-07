@@ -34,5 +34,5 @@ method,
           partitions    =  1   1   1   1  
 variables,
         discrete_design_set_real = 4
-          set_values  =  11200.000000 16800.000000  0.490000 0.564000  0.000000 10000.000000  0.490000 0.564000 
+          set_values  =  1.000000 5300.000000  0.000014 0.000091  0.000000 10000.000000  0.000000 0.000000 
           descriptors  =  'mu_eff_healthy'  'gamma_healthy'  'robin_coeff'  'alpha_healthy' 
