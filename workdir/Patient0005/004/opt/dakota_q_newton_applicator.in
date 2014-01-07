@@ -30,7 +30,7 @@ interface,
 # data quality   0
 #        discrete_state_range = 1
 #          initial_state    0
-#          descriptors      'powerhistory:[[9, 51, 59, 81, 92], [0, 14.55, 0, 14.55, 0], 5.0]'
+#          descriptors      'powerhistory:[[9, 51, 59, 81, 92], [0, 14.55, 0, 14.55, 0], 5.0, [81, 92], [0, 0]]'
 
 responses,
         objective_functions = 1

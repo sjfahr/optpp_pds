@@ -440,9 +440,7 @@ def ComputeObjective(**kwargs):
   screenshotTol = 1e-10;
   screenshotInterval = MRTIInterval ;
 
-  ## # loop over time points of interest
-  ## for (SEMtimeID,MRTItimeID) in [(1,kwargs['maxheat'])]:
-
+  ## loop over time
   while( brainNek.timeStep(tstep * .25 ) ) :
     tstep = tstep + 1
     currentTime = tstep * .25
@@ -545,10 +543,10 @@ def brainNekWrapper(**kwargs):
   outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
   print 'writing', outputSetupRCFile 
   fileHandle = file(outputSetupRCFile ,'w')
-  semwritetime = kwargs['semwritetime']
+  semfinaltime = kwargs['finaltime']
   # make sure write directory exists
   os.system('mkdir -p %s' % outputDirectory % kwargs['UID'] )
-  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory % kwargs['UID'] ,semwritetime  ) )
+  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semfinaltime , outputDirectory % kwargs['UID'] ,semfinaltime ) )
   fileHandle.flush(); fileHandle.close()
 
   # get variables
@@ -577,7 +575,13 @@ def brainNekWrapper(**kwargs):
   mu_s_p = mu_s * (1.-anfact) 
   mu_eff = float(variableDictionary['mu_eff_healthy'])
   mu_a   =  0.5*( -mu_s_p + math.sqrt( mu_s_p * mu_s_p  + 4. * mu_eff * mu_eff  /3. ) )
-  fileHandle.write('Brain     0           1045     3640           %s        %s     %f      %f      %f \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], mu_a, mu_s, anfact )
+  alpha  = float(variableDictionary['alpha_healthy'])
+  gamma  = float(variableDictionary['gamma_healthy'])
+  rho    = 1045.
+  c_p    = 3640.
+  k_0    = alpha * c_p * rho 
+  w_0    = gamma * k_0
+  fileHandle.write('Brain     0           %f     %f           %f        %f     %f      %f      %f \n' % ( rho, c_p, k_0, w_0, mu_a, mu_s, anfact )
  )
   fileHandle.flush(); fileHandle.close()
 
@@ -649,7 +653,7 @@ def ParseInput(paramfilename):
   # for this simple example, put all the variables into a single hardwired array
   continuous_vars = {} 
 
-  DescriptorList = ['robin_coeff','probe_init','mu_eff_healthy','body_temp','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
+  DescriptorList = ['robin_coeff','probe_init','mu_eff_healthy','body_temp','anfact_healthy', 'mu_a_healthy','mu_s_healthy','gamma_healthy','alpha_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
   for paramname in DescriptorList:
     try:
       continuous_vars[paramname  ] = paramsdict[paramname ]
@@ -680,8 +684,11 @@ def ParseInput(paramfilename):
   config = ConfigParser.SafeConfigParser({})
   config.read(inisetupfile)
   fem_params['ccode']        = config.get('power','ccode')
-  fem_params['semwritetime'] = config.getfloat('mrti','deltat') * config.getfloat('mrti','maxheat')
-  fem_params['maxheat']      = config.getfloat('mrti','maxheat')
+  timeinterval               = eval(config.get('mrti','heating')  )
+  timeinterval               = eval(config.get('mrti','cooling')  )
+  timeinterval               = eval(config.get('mrti','fulltime') )
+  fem_params['initialtime']  = timeinterval[0] * config.getfloat('mrti','deltat') 
+  fem_params['finaltime']    = timeinterval[1] * config.getfloat('mrti','deltat') 
   fem_params['voi']          = eval(config.get('mrti','voi'))
 
   print 'mrti data from' , fem_params['mrti'] , 'setupfile', inisetupfile  
@@ -744,8 +751,8 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  MatlabDriver = False
   MatlabDriver = True
+  MatlabDriver = False
   if(MatlabDriver):
 
     # write out for debug
