@@ -41,8 +41,8 @@ responses,
 
 variables,
         continuous_design = 2
-          initial_point  =   8.00000e-01   1.38546e-07 
-          lower_bounds  =   1.00000e+00   1.19227e-07 
+          initial_point  =   1.80000e+02   1.38546e-07 
+          lower_bounds  =   8.00000e-01   1.19227e-07 
           upper_bounds  =   5.30000e+03   2.91296e-07 
           descriptors  =  'mu_eff_healthy'  'alpha_healthy' 
         continuous_state = 10

@@ -46,7 +46,7 @@ variables,
           upper_bounds  =   3.50000e+02   1.00000e-03 
           descriptors  =  'z_rotate'  'z_displace' 
         continuous_state = 10
-          initial_state  =   2.70000e+02   2.28733e-05   1.03440e-01   1.17600e-01   0.00000e+00   1.38546e-07   3.70000e+01   2.10000e+01   8.00000e-01   0.00000e+00 
-          #lower_bounds  =   2.65000e+02   1.37787e-05   1.02440e-01   1.16600e-01  -5.00000e+00   1.19227e-07   3.40000e+01   2.00000e+01   1.00000e+00   0.00000e+00 
+          initial_state  =   2.70000e+02   2.28733e-05   1.03440e-01   1.17600e-01   0.00000e+00   1.38546e-07   3.70000e+01   2.10000e+01   1.80000e+02   0.00000e+00 
+          #lower_bounds  =   2.65000e+02   1.37787e-05   1.02440e-01   1.16600e-01  -5.00000e+00   1.19227e-07   3.40000e+01   2.00000e+01   8.00000e-01   0.00000e+00 
           #upper_bounds  =   2.75000e+02   9.13743e-05   1.04440e-01   1.18600e-01   5.00000e+00   2.91296e-07   4.00000e+01   4.00000e+01   5.30000e+03   1.00000e+04 
           descriptors  =  'y_rotate'  'gamma_healthy'  'x_displace'  'y_displace'  'x_rotate'  'alpha_healthy'  'body_temp'  'probe_init'  'mu_eff_healthy'  'robin_coeff' 
