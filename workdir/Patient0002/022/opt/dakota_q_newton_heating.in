@@ -2,7 +2,8 @@
 # DAKOTA INPUT FILE - dakota_opt.in
 strategy,
         single_method
-          graphics,tabular_graphics_data
+          tabular_graphics_data
+          tabular_graphics_file = './workdir/Patient0002/022/opt/dakota_q_newton_heating.in.tabular.dat'
 
 method,
         optpp_q_newton
