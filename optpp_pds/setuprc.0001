@@ -18,7 +18,7 @@ meshes/cooledConformMesh.inp
 0.25
 
 [FINAL TIME]
-690.000000
+800.000000
 
 [PCG TOLERANCE]
 1e-6
@@ -33,4 +33,4 @@ meshes/cooledConformMesh.inp
 /tmp/outputs/dakota/0007
 
 [SCREENSHOT INTERVAL]
-690.000000
+800.000000

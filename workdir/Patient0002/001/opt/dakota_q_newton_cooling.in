@@ -1,0 +1,51 @@
+
+# DAKOTA INPUT FILE - dakota_opt.in
+strategy,
+        single_method
+          graphics,tabular_graphics_data
+
+method,
+        optpp_q_newton
+        #optpp_pds
+        output verbose
+          max_iterations = 1000
+          max_function_evaluations = 2000
+#         solution_accuracy = 1e-4
+#         initial_delta = 0.5
+#         threshold_delta = 1e-4
+#         exploratory_moves basic_pattern
+#         contraction_factor = 0.75
+
+model,
+        single
+
+
+interface,
+        fork                                    #1,#4,#5,#7,#8,#11,#16,#19
+          file_save file_tag
+          analysis_driver = 'python ./brainsearch.py --param_file '
+          parameters_file = './workdir/Patient0002/001/opt/optpp_pds.in'
+          results_file    = './workdir/Patient0002/001/opt/optpp_pds.out'
+
+# data quality   1
+#        discrete_state_range = 1
+#          initial_state    0
+#          descriptors      'powerhistory:[[9, 17, 47, 68, 83], [0, 3, 10.2, 12.15, 0], 5.0, [68, 83], [0, 0]]'
+
+responses,
+        objective_functions = 1
+        numerical_gradients
+        # no_gradients
+        no_hessians
+
+variables,
+        continuous_design = 2
+          initial_point  =  0.490000  0.490000 
+          lower_bounds  =  0.490000  0.490000 
+          upper_bounds  =  0.564000  0.564000 
+          descriptors  =  'gamma_healthy'  'alpha_healthy' 
+        continuous_state = 10
+          initial_state  =  270.000000  0.103440  0.117600  0.000000  37.000000  0.000000  345.000000  21.000000  11200.000000  0.000000 
+          #lower_bounds  =  265.000000  0.102440  0.116600  -0.001000  34.000000  -5.000000  340.000000  20.000000  11200.000000  0.000000 
+          #upper_bounds  =  275.000000  0.104440  0.118600  0.001000  40.000000  5.000000  350.000000  40.000000  16800.000000  10000.000000 
+          descriptors  =  'y_rotate'  'x_displace'  'y_displace'  'z_displace'  'body_temp'  'x_rotate'  'z_rotate'  'probe_init'  'mu_eff_healthy'  'robin_coeff' 
