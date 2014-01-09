@@ -266,7 +266,7 @@ caseFileTemplate = \
 %s
 
 [BLOOD SPECIFIC HEAT]
-3840
+%12.5e
 
 [DAMAGE FREQUENCY FACTOR]
 1e70
@@ -326,8 +326,6 @@ def ComputeObjective(**kwargs):
   setup = brainNekLibrary.PySetupAide(outputSetupRCFile )
   brainNek = brainNekLibrary.PyBrain3d(setup);
 
-  # write out initial mesh
-  
   # FIXME vtk needs to be loaded AFTER kernel is built
   import vtk
   import vtk.util.numpy_support as vtkNumPy 
@@ -338,42 +336,60 @@ def ComputeObjective(**kwargs):
   numPoints = brainNek.GetNumberOfNodes( ) 
   numElems  = brainNek.GetNumberOfElements( ) 
   # initialize nodes and connectivity
+  numHexPts = 8 
   bNekNodes         = numpy.zeros(numPoints * 3,dtype=numpy.float32)
-  bNekConnectivity  = numpy.zeros(numElems  * 8,dtype=numpy.int32)
+  bNekConnectivity  = numpy.zeros(numElems  * (numHexPts +1),dtype=numpy.int32)
   print "setting up hex mesh with %d nodes %d elem"  % (numPoints,numElems)
 
   # get nodes and connectivity from brainnek
   brainNek.GetNodes(   bNekNodes)       ;
   brainNek.GetElements(bNekConnectivity);
-  # reshape for convience
+  # reshape for convenience
   bNekNodes        = bNekNodes.reshape(      numPoints , 3)
-  bNekConnectivity = bNekConnectivity.reshape(numElems , 8)
 
+  ## # setup elements
+  ## bNekConnectivityreshape = bNekConnectivity.reshape(numElems , numHexPts +1)
+  ## for ielem in range(numElems ):
+  ##   aHexahedron = vtk.vtkHexahedron()
+  ##   # print 'number of nodes %d ' % bNekConnectivityreshape[ielem][0]
+  ##   aHexahedron.GetPointIds().SetId(0,bNekConnectivityreshape[ielem][1])
+  ##   aHexahedron.GetPointIds().SetId(1,bNekConnectivityreshape[ielem][2])
+  ##   aHexahedron.GetPointIds().SetId(2,bNekConnectivityreshape[ielem][3])
+  ##   aHexahedron.GetPointIds().SetId(3,bNekConnectivityreshape[ielem][4])
+  ##   aHexahedron.GetPointIds().SetId(4,bNekConnectivityreshape[ielem][5])
+  ##   aHexahedron.GetPointIds().SetId(5,bNekConnectivityreshape[ielem][6])
+  ##   aHexahedron.GetPointIds().SetId(6,bNekConnectivityreshape[ielem][7])
+  ##   aHexahedron.GetPointIds().SetId(7,bNekConnectivityreshape[ielem][8])
+  ##   hexahedronGrid.InsertNextCell(aHexahedron.GetCellType(),
+  ##                                 aHexahedron.GetPointIds())
+
+  # TODO : check if deepcopy needed
+  DeepCopy = 1
+
+  #hexahedronGrid.DebugOn()
   # setup points
   hexahedronPoints = vtk.vtkPoints()
-  for nodecoord in bNekNodes:
-    ipoint = hexahedronPoints.InsertNextPoint(nodecoord );
+  vtkNodeArray = vtkNumPy.numpy_to_vtk( bNekNodes, DeepCopy)
+  hexahedronPoints.SetData(vtkNodeArray)
   hexahedronGrid.SetPoints(hexahedronPoints);
 
   # setup elements
-  for ielem in range(numElems):
-    aHexahedron = vtk.vtkHexahedron()
-    aHexahedron.GetPointIds().SetId(0,bNekConnectivity[ielem][0])
-    aHexahedron.GetPointIds().SetId(1,bNekConnectivity[ielem][1])
-    aHexahedron.GetPointIds().SetId(2,bNekConnectivity[ielem][2])
-    aHexahedron.GetPointIds().SetId(3,bNekConnectivity[ielem][3])
-    aHexahedron.GetPointIds().SetId(4,bNekConnectivity[ielem][4])
-    aHexahedron.GetPointIds().SetId(5,bNekConnectivity[ielem][5])
-    aHexahedron.GetPointIds().SetId(6,bNekConnectivity[ielem][6])
-    aHexahedron.GetPointIds().SetId(7,bNekConnectivity[ielem][7])
-    hexahedronGrid.InsertNextCell(aHexahedron.GetCellType(),
-                                  aHexahedron.GetPointIds())
+  aHexahedron = vtk.vtkHexahedron()
+  HexCellType = aHexahedron.GetCellType()
+  vtkTypeArray     = vtkNumPy.numpy_to_vtk( HexCellType * numpy.ones(  numElems) ,DeepCopy,vtk.VTK_UNSIGNED_CHAR) 
+  #TODO: off by 1 indexing from npts, ie
+  #TODO: note vtkIdType vtkCellArray::InsertNextCell(vtkIdList *pts) 
+  #TODO:    this->InsertLocation += npts + 1;   (line 264)
+  vtkLocationArray = vtkNumPy.numpy_to_vtk( numpy.arange(0,numElems*(numHexPts+1),(numHexPts+1)) ,DeepCopy,vtk.VTK_ID_TYPE) 
+  vtkCells = vtk.vtkCellArray()
+  vtkElemArray     = vtkNumPy.numpy_to_vtk( bNekConnectivity  , DeepCopy,vtk.VTK_ID_TYPE)
+  vtkCells.SetCells(numElems,vtkElemArray)
+  hexahedronGrid.SetCells(vtkTypeArray,vtkLocationArray,vtkCells) 
   print "done setting hex mesh with %d nodes %d elem"  % (numPoints,numElems)
 
   # setup solution
   bNekSoln = numpy.zeros(numPoints,dtype=numpy.float32)
   brainNek.getHostTemperature(bNekSoln )
-  DeepCopy = 1
   vtkScalarArray = vtkNumPy.numpy_to_vtk( bNekSoln, DeepCopy) 
   vtkScalarArray.SetName("bioheat") 
   hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
@@ -399,10 +415,6 @@ def ComputeObjective(**kwargs):
   AffineTransform.RotateY( float(variableDictionary['y_rotate'  ] ) )
   AffineTransform.RotateX( float(variableDictionary['x_rotate'  ] ) )
   AffineTransform.Scale([1.e0,1.e0,1.e0])
-  SEMRegister = vtk.vtkTransformFilter()
-  SEMRegister.SetInput( hexahedronGrid )
-  SEMRegister.SetTransform(AffineTransform)
-  SEMRegister.Update()
 
   ## vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
   ## SEMDataDirectory = outputDirectory % kwargs['UID']
@@ -428,9 +440,7 @@ def ComputeObjective(**kwargs):
   screenshotTol = 1e-10;
   screenshotInterval = MRTIInterval ;
 
-  ## # loop over time points of interest
-  ## for (SEMtimeID,MRTItimeID) in [(1,kwargs['maxheat'])]:
-
+  ## loop over time
   while( brainNek.timeStep(tstep * .25 ) ) :
     tstep = tstep + 1
     currentTime = tstep * .25
@@ -464,9 +474,14 @@ def ComputeObjective(**kwargs):
       vtkScalarArray = vtkNumPy.numpy_to_vtk( bNekSoln, DeepCopy) 
       vtkScalarArray.SetName("bioheat") 
       hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
+      hexahedronGrid.Update()
 
       # project SEM onto MRTI for comparison
       print 'resampling' 
+      SEMRegister = vtk.vtkTransformFilter()
+      SEMRegister.SetInput( hexahedronGrid )
+      SEMRegister.SetTransform(AffineTransform)
+      SEMRegister.Update()
       vtkResample = vtk.vtkCompositeDataProbeFilter()
       vtkResample.SetSource( SEMRegister.GetOutput() )
       vtkResample.SetInput( vtkVOIExtract.GetOutput() ) 
@@ -484,20 +499,20 @@ def ComputeObjective(**kwargs):
       DebugObjective = True
       DebugObjective = False
       # write output
-      if ( DebugObjective ):
-        vtkSEMWriter = vtk.vtkXMLUnstructuredGridWriter()
-        semfileName = "%s/semtransform%04d.vtu" % (SEMDataDirectory,MRTItimeID)
-        print "writing ", semfileName 
-        vtkSEMWriter.SetFileName( semfileName )
-        vtkSEMWriter.SetInput(SEMRegister.GetOutput())
-        #vtkSEMWriter.SetDataModeToAscii()
-        vtkSEMWriter.Update()
+      ## if ( DebugObjective ):
+      ##   vtkSEMWriter = vtk.vtkXMLUnstructuredGridWriter()
+      ##   semfileName = "%s/semtransform.%04d.vtu" % (SEMDataDirectory,MRTItimeID)
+      ##   print "writing ", semfileName 
+      ##   vtkSEMWriter.SetFileName( semfileName )
+      ##   vtkSEMWriter.SetInput(SEMRegister.GetOutput())
+      ##   #vtkSEMWriter.SetDataModeToAscii()
+      ##   vtkSEMWriter.Update()
 
       # write output
       if ( DebugObjective ):
          vtkTemperatureWriter = vtk.vtkDataSetWriter()
          vtkTemperatureWriter.SetFileTypeToBinary()
-         roifileName = "%s/roi%04d.vtk" % (SEMDataDirectory,MRTItimeID)
+         roifileName = "%s/roi.%04d.vtk" % (SEMDataDirectory,MRTItimeID)
          print "writing ", roifileName 
          vtkTemperatureWriter.SetFileName( roifileName )
          vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
@@ -528,26 +543,21 @@ def brainNekWrapper(**kwargs):
   outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
   print 'writing', outputSetupRCFile 
   fileHandle = file(outputSetupRCFile ,'w')
-  semwritetime = kwargs['semwritetime']
+  semfinaltime = kwargs['finaltime']
   # make sure write directory exists
   os.system('mkdir -p %s' % outputDirectory % kwargs['UID'] )
-  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semwritetime, outputDirectory % kwargs['UID'] ,semwritetime  ) )
+  fileHandle.write(setuprcTemplate % (workDirectory,kwargs['fileID'] ,semfinaltime , outputDirectory % kwargs['UID'] ,semfinaltime ) )
   fileHandle.flush(); fileHandle.close()
 
   # get variables
   variableDictionary = kwargs['cv']
 
-  # case file
-  outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
-  print 'writing', outputCaseFile 
-  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],variableDictionary['body_temp'],variableDictionary['body_temp'],variableDictionary['probe_init'],workDirectory,kwargs['fileID'])  )
-
-#      mu_a_min               <      mu_a + (1-g) mu_s < mu_a_max + (1-g_min) mu_s_max
-#         5.e-1               <          mu_tr         < 600. + .3 * 50000. 
-#
-#  sqrt( 3 * 5.e-1 * 5.e-1 )  <  sqrt( 3 mu_a  mu_tr ) < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
-#  sqrt( 3 * 5.e-1 * 5.e-1 )  <        mu_eff          < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
-#            8.e-1            <        mu_eff          <    5.3e3
+  #      mu_a_min               <      mu_a + (1-g) mu_s < mu_a_max + (1-g_min) mu_s_max
+  #         5.e-1               <          mu_tr         < 600. + .3 * 50000. 
+  #
+  #  sqrt( 3 * 5.e-1 * 5.e-1 )  <  sqrt( 3 mu_a  mu_tr ) < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+  #  sqrt( 3 * 5.e-1 * 5.e-1 )  <        mu_eff          < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+  #            8.e-1            <        mu_eff          <    5.3e3
 
   # materials
   outputMaterialFile = '%s/material_types.%04d.setup' % (workDirectory,kwargs['fileID'])
@@ -558,11 +568,27 @@ def brainNekWrapper(**kwargs):
   mu_s   = 8.e3
   anfact = .9
   mu_s_p = mu_s * (1.-anfact) 
+  # mu_tr  = mu_a + (1-g) mu_s 
+  # mu_eff = sqrt( 3 mu_a  mu_tr )
   mu_eff = float(variableDictionary['mu_eff_healthy'])
   mu_a   =  0.5*( -mu_s_p + math.sqrt( mu_s_p * mu_s_p  + 4. * mu_eff * mu_eff  /3. ) )
-  fileHandle.write('Brain     0           1045     3640           %s        %s     %f      %f      %f \n' % ( variableDictionary['k_0_healthy'  ], variableDictionary['w_0_healthy'  ], mu_a, mu_s, anfact )
+  # alpha  == k / rho / c_p
+  # gamma  == k / w   / c_blood
+  alpha  = float(variableDictionary['alpha_healthy'])
+  gamma  = float(variableDictionary['gamma_healthy'])
+  rho     = 1045.
+  c_p     = 3640.
+  c_blood = 3840.
+  k_0    = alpha * c_p * rho 
+  w_0    = k_0 / c_blood / gamma
+  fileHandle.write('Brain     0           %12.5f     %12.5f           %12.5f        %12.5f     %12.5f      %12.5f      %12.5f \n' % ( rho, c_p, k_0, w_0, mu_a, mu_s, anfact )
  )
   fileHandle.flush(); fileHandle.close()
+
+  # case file
+  outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
+  print 'writing', outputCaseFile 
+  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],variableDictionary['body_temp'],variableDictionary['body_temp'],variableDictionary['probe_init'],c_blood,workDirectory,kwargs['fileID'])  )
 
   ## # build command to run brainNek
   ## brainNekCommand = "%s/main %s -heattransfercoefficient %s -coolanttemperature  %s > %s/run.%04d.log 2>&1 " % (brainNekDIR , outputSetupRCFile ,variableDictionary['robin_coeff'  ], variableDictionary['probe_init'   ], workDirectory ,kwargs['fileID'])
@@ -632,7 +658,7 @@ def ParseInput(paramfilename):
   # for this simple example, put all the variables into a single hardwired array
   continuous_vars = {} 
 
-  DescriptorList = ['robin_coeff','probe_init','mu_eff_healthy','body_temp','anfact_healthy', 'mu_a_healthy','mu_s_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
+  DescriptorList = ['robin_coeff','probe_init','mu_eff_healthy','body_temp','anfact_healthy', 'mu_a_healthy','mu_s_healthy','gamma_healthy','alpha_healthy','k_0_healthy','w_0_healthy','x_displace','y_displace','z_displace','x_rotate','y_rotate','z_rotate']
   for paramname in DescriptorList:
     try:
       continuous_vars[paramname  ] = paramsdict[paramname ]
@@ -663,8 +689,12 @@ def ParseInput(paramfilename):
   config = ConfigParser.SafeConfigParser({})
   config.read(inisetupfile)
   fem_params['ccode']        = config.get('power','ccode')
-  fem_params['semwritetime'] = config.getfloat('mrti','deltat') * config.getfloat('mrti','maxheat')
-  fem_params['maxheat']      = config.getfloat('mrti','maxheat')
+  # FIXME : need to automate time interval selection
+  timeinterval               = eval(config.get('mrti','cooling')  )
+  timeinterval               = eval(config.get('mrti','fulltime') )
+  timeinterval               = eval(config.get('mrti','heating')  )
+  fem_params['initialtime']  = timeinterval[0] * config.getfloat('mrti','deltat') 
+  fem_params['finaltime']    = timeinterval[1] * config.getfloat('mrti','deltat') 
   fem_params['voi']          = eval(config.get('mrti','voi'))
 
   print 'mrti data from' , fem_params['mrti'] , 'setupfile', inisetupfile  
@@ -727,8 +757,8 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  MatlabDriver = False
   MatlabDriver = True
+  MatlabDriver = False
   if(MatlabDriver):
 
     # write out for debug
