@@ -10,6 +10,8 @@ power_log = zeros(24,1);
 mu_a = zeros(24,1);
 keep_index = 1;
 keep_fxn = zeros(2,1);
+%keep_patient_path (1:2,1) = 'a';
+
 
 for patient_index = 1:24
     one_patient_path = char ( Patient_Paths ( patient_index ) );

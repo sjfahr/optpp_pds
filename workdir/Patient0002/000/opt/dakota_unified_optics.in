@@ -20,7 +20,7 @@ model,
 
 variables,
         continuous_design = 1
-          initial_point            2000   
+          initial_point            2000
           lower_bounds             100
           upper_bounds             4000   
           descriptors       'mu_a_healthy' 
