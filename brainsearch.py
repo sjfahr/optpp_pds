@@ -266,7 +266,7 @@ caseFileTemplate = \
 %s
 
 [BLOOD SPECIFIC HEAT]
-3840
+%12.5e
 
 [DAMAGE FREQUENCY FACTOR]
 1e70
@@ -552,17 +552,12 @@ def brainNekWrapper(**kwargs):
   # get variables
   variableDictionary = kwargs['cv']
 
-  # case file
-  outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
-  print 'writing', outputCaseFile 
-  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],variableDictionary['body_temp'],variableDictionary['body_temp'],variableDictionary['probe_init'],workDirectory,kwargs['fileID'])  )
-
-#      mu_a_min               <      mu_a + (1-g) mu_s < mu_a_max + (1-g_min) mu_s_max
-#         5.e-1               <          mu_tr         < 600. + .3 * 50000. 
-#
-#  sqrt( 3 * 5.e-1 * 5.e-1 )  <  sqrt( 3 mu_a  mu_tr ) < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
-#  sqrt( 3 * 5.e-1 * 5.e-1 )  <        mu_eff          < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
-#            8.e-1            <        mu_eff          <    5.3e3
+  #      mu_a_min               <      mu_a + (1-g) mu_s < mu_a_max + (1-g_min) mu_s_max
+  #         5.e-1               <          mu_tr         < 600. + .3 * 50000. 
+  #
+  #  sqrt( 3 * 5.e-1 * 5.e-1 )  <  sqrt( 3 mu_a  mu_tr ) < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+  #  sqrt( 3 * 5.e-1 * 5.e-1 )  <        mu_eff          < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+  #            8.e-1            <        mu_eff          <    5.3e3
 
   # materials
   outputMaterialFile = '%s/material_types.%04d.setup' % (workDirectory,kwargs['fileID'])
@@ -573,17 +568,27 @@ def brainNekWrapper(**kwargs):
   mu_s   = 8.e3
   anfact = .9
   mu_s_p = mu_s * (1.-anfact) 
+  # mu_tr  = mu_a + (1-g) mu_s 
+  # mu_eff = sqrt( 3 mu_a  mu_tr )
   mu_eff = float(variableDictionary['mu_eff_healthy'])
   mu_a   =  0.5*( -mu_s_p + math.sqrt( mu_s_p * mu_s_p  + 4. * mu_eff * mu_eff  /3. ) )
+  # alpha  == k / rho / c_p
+  # gamma  == k / w   / c_blood
   alpha  = float(variableDictionary['alpha_healthy'])
   gamma  = float(variableDictionary['gamma_healthy'])
-  rho    = 1045.
-  c_p    = 3640.
+  rho     = 1045.
+  c_p     = 3640.
+  c_blood = 3840.
   k_0    = alpha * c_p * rho 
-  w_0    = gamma * k_0
-  fileHandle.write('Brain     0           %f     %f           %f        %f     %f      %f      %f \n' % ( rho, c_p, k_0, w_0, mu_a, mu_s, anfact )
+  w_0    = k_0 / c_blood / gamma
+  fileHandle.write('Brain     0           %12.5f     %12.5f           %12.5f        %12.5f     %12.5f      %12.5f      %12.5f \n' % ( rho, c_p, k_0, w_0, mu_a, mu_s, anfact )
  )
   fileHandle.flush(); fileHandle.close()
+
+  # case file
+  outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
+  print 'writing', outputCaseFile 
+  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],variableDictionary['body_temp'],variableDictionary['body_temp'],variableDictionary['probe_init'],c_blood,workDirectory,kwargs['fileID'])  )
 
   ## # build command to run brainNek
   ## brainNekCommand = "%s/main %s -heattransfercoefficient %s -coolanttemperature  %s > %s/run.%04d.log 2>&1 " % (brainNekDIR , outputSetupRCFile ,variableDictionary['robin_coeff'  ], variableDictionary['probe_init'   ], workDirectory ,kwargs['fileID'])
@@ -684,9 +689,10 @@ def ParseInput(paramfilename):
   config = ConfigParser.SafeConfigParser({})
   config.read(inisetupfile)
   fem_params['ccode']        = config.get('power','ccode')
-  timeinterval               = eval(config.get('mrti','heating')  )
+  # FIXME : need to automate time interval selection
   timeinterval               = eval(config.get('mrti','cooling')  )
   timeinterval               = eval(config.get('mrti','fulltime') )
+  timeinterval               = eval(config.get('mrti','heating')  )
   fem_params['initialtime']  = timeinterval[0] * config.getfloat('mrti','deltat') 
   fem_params['finaltime']    = timeinterval[1] * config.getfloat('mrti','deltat') 
   fem_params['voi']          = eval(config.get('mrti','voi'))

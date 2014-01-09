@@ -1,29 +1,29 @@
 
-dakota ./workdir/Patient0002/000/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/000/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0002/001/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/001/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0003/002/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0003/002/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0004/003/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0004/003/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0005/004/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0005/004/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0006/005/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/005/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0004/006/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0004/006/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0006/007/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/007/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0005/008/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0005/008/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0006/009/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/009/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0002/010/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/010/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0007/011/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0007/011/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0005/012/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0005/012/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0003/013/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0003/013/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0008/014/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0008/014/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0007/015/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0007/015/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0008/016/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0008/016/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0002/017/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/017/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0003/018/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0003/018/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0006/019/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/019/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0002/020/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/020/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0002/021/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/021/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0002/022/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/022/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0006/023/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/023/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0006/024/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/024/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0003/025/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0003/025/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0007/026/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0007/026/opt/dakota_q_newton_bestfit.in.log 2>&1 
-dakota ./workdir/Patient0008/027/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0008/027/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 000; dakota ./workdir/Patient0002/000/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/000/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 001; dakota ./workdir/Patient0002/001/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/001/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 002; dakota ./workdir/Patient0003/002/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0003/002/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 003; dakota ./workdir/Patient0004/003/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0004/003/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 004; dakota ./workdir/Patient0005/004/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0005/004/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 005; dakota ./workdir/Patient0006/005/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/005/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 006; dakota ./workdir/Patient0004/006/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0004/006/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 007; dakota ./workdir/Patient0006/007/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/007/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 008; dakota ./workdir/Patient0005/008/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0005/008/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 009; dakota ./workdir/Patient0006/009/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/009/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 010; dakota ./workdir/Patient0002/010/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/010/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 011; dakota ./workdir/Patient0007/011/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0007/011/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 012; dakota ./workdir/Patient0005/012/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0005/012/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 013; dakota ./workdir/Patient0003/013/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0003/013/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 014; dakota ./workdir/Patient0008/014/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0008/014/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 015; dakota ./workdir/Patient0007/015/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0007/015/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 016; dakota ./workdir/Patient0008/016/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0008/016/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 017; dakota ./workdir/Patient0002/017/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/017/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 018; dakota ./workdir/Patient0003/018/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0003/018/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 019; dakota ./workdir/Patient0006/019/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/019/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 020; dakota ./workdir/Patient0002/020/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/020/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 021; dakota ./workdir/Patient0002/021/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/021/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 022; dakota ./workdir/Patient0002/022/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0002/022/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 023; dakota ./workdir/Patient0006/023/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/023/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 024; dakota ./workdir/Patient0006/024/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0006/024/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 025; dakota ./workdir/Patient0003/025/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0003/025/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 026; dakota ./workdir/Patient0007/026/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0007/026/opt/dakota_q_newton_bestfit.in.log 2>&1 
+echo 027; dakota ./workdir/Patient0008/027/opt/dakota_q_newton_bestfit.in > ./workdir/Patient0008/027/opt/dakota_q_newton_bestfit.in.log 2>&1 

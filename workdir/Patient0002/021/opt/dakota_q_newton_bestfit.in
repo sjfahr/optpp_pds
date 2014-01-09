@@ -2,7 +2,8 @@
 # DAKOTA INPUT FILE - dakota_opt.in
 strategy,
         single_method
-          graphics,tabular_graphics_data
+          tabular_graphics_data
+          tabular_graphics_file = './workdir/Patient0002/021/opt/dakota_q_newton_bestfit.in.tabular.dat'
 
 method,
         optpp_q_newton
@@ -30,7 +31,7 @@ interface,
 # data quality   0
 #        discrete_state_range = 1
 #          initial_state    0
-#          descriptors      'powerhistory:[[16, 17, 25, 50, 63, 97, 100], [0, 3, 3.15, 10.2, 0, 10.2, 0], 5.0, [63, 97], [0, 0]]'
+#          descriptors      'powerhistory:[[16, 17, 25, 50, 63, 97, 100], [0, 3, 3.15, 10.2, 0, 10.2, 0], 5.0, [63, 97], [0, 97]]'
 
 responses,
         objective_functions = 1
@@ -40,12 +41,12 @@ responses,
 
 variables,
         continuous_design = 2
-          initial_point  =  11200.000000  0.490000 
-          lower_bounds  =  11200.000000  0.490000 
-          upper_bounds  =  16800.000000  0.564000 
+          initial_point  =   1.80000e+02   1.38546e-07 
+          lower_bounds  =   8.00000e-01   1.19227e-07 
+          upper_bounds  =   5.30000e+03   2.91296e-07 
           descriptors  =  'mu_eff_healthy'  'alpha_healthy' 
         continuous_state = 10
-          initial_state  =  270.000000  0.490000  0.091210  0.121120  0.000000  37.000000  0.000000  345.000000  21.000000  0.000000 
-          #lower_bounds  =  265.000000  0.490000  0.090210  0.120120  -0.001000  34.000000  -5.000000  340.000000  20.000000  0.000000 
-          #upper_bounds  =  275.000000  0.564000  0.092210  0.122120  0.001000  40.000000  5.000000  350.000000  40.000000  10000.000000 
+          initial_state  =   2.70000e+02   2.28733e-05   9.12100e-02   1.21120e-01   0.00000e+00   3.70000e+01   0.00000e+00   3.45000e+02   2.10000e+01   0.00000e+00 
+          #lower_bounds  =   2.65000e+02   1.37787e-05   9.02100e-02   1.20120e-01  -1.00000e-03   3.40000e+01  -5.00000e+00   3.40000e+02   2.00000e+01   0.00000e+00 
+          #upper_bounds  =   2.75000e+02   9.13743e-05   9.22100e-02   1.22120e-01   1.00000e-03   4.00000e+01   5.00000e+00   3.50000e+02   4.00000e+01   1.00000e+04 
           descriptors  =  'y_rotate'  'gamma_healthy'  'x_displace'  'y_displace'  'z_displace'  'body_temp'  'x_rotate'  'z_rotate'  'probe_init'  'robin_coeff' 
