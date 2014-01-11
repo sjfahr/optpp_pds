@@ -2,10 +2,10 @@
 cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds
 pkill -9 dakmatlab
 rm dakmatlab_pipe?
-echo 1 > index.txt
-echo 1 > patient_index.txt
 
 # Begin all patients' runs
+echo 1 > index.txt
+echo 1 > patient_index.txt
 ./analytic/dakmatlab -s
 dakota workdir/Patient0002/000/opt/dakota_unified_optics.in
 cat workdir/Patient0002/000/opt/optpp_pds.out.* > workdir/Patient0002/000/opt/obj_fxn_list.txt 
@@ -16,7 +16,7 @@ echo 2 > patient_index.txt
 echo 1 > index.txt
 ./analytic/dakmatlab -s
 dakota workdir/Patient0002/001/opt/dakota_unified_optics.in
-cat workdir/Patient0002/001/opt/optpp_pds.out.* > workdir/Patient0002/00/opt/obj_fxn_list.txt 
+cat workdir/Patient0002/001/opt/optpp_pds.out.* > workdir/Patient0002/001/opt/obj_fxn_list.txt 
 pkill -9 dakmatlab
 rm dakmatlab_pipe?
 
@@ -136,7 +136,7 @@ echo 17 > patient_index.txt
 echo 1 > index.txt
 ./analytic/dakmatlab -s
 dakota workdir/Patient0006/005/opt/dakota_unified_optics.in
-cat workdir/Patient0006/005/opt/optpp_pds.out.* > workdir/Patient0002/005/opt/obj_fxn_list.txt 
+cat workdir/Patient0006/005/opt/optpp_pds.out.* > workdir/Patient0006/005/opt/obj_fxn_list.txt 
 pkill -9 dakmatlab
 rm dakmatlab_pipe?
 
@@ -167,12 +167,28 @@ rm dakmatlab_pipe?
 echo 21 > patient_index.txt
 echo 1 > index.txt
 ./analytic/dakmatlab -s
+dakota workdir/Patient0006/023/opt/dakota_unified_optics.in
+cat workdir/Patient0006/023/opt/optpp_pds.out.* > workdir/Patient0006/023/opt/obj_fxn_list.txt
+pkill -9 dakmatlab
+rm dakmatlab_pipe?
+
+echo 22 > patient_index.txt
+echo 1 > index.txt
+./analytic/dakmatlab -s
 dakota workdir/Patient0006/024/opt/dakota_unified_optics.in
 cat workdir/Patient0006/024/opt/optpp_pds.out.* > workdir/Patient0006/024/opt/obj_fxn_list.txt 
 pkill -9 dakmatlab
 rm dakmatlab_pipe?
 
-echo 22 > patient_index.txt
+echo 23 > patient_index.txt
+echo 1 > index.txt
+./analytic/dakmatlab -s
+dakota workdir/Patient0007/011/opt/dakota_unified_optics.in
+cat workdir/Patient0007/011/opt/optpp_pds.out.* > workdir/Patient0007/011/opt/obj_fxn_list.txt
+pkill -9 dakmatlab
+rm dakmatlab_pipe?
+
+echo 24 > patient_index.txt
 echo 1 > index.txt
 ./analytic/dakmatlab -s
 dakota workdir/Patient0007/015/opt/dakota_unified_optics.in
@@ -180,7 +196,7 @@ cat workdir/Patient0007/015/opt/optpp_pds.out.* > workdir/Patient0007/015/opt/ob
 pkill -9 dakmatlab
 rm dakmatlab_pipe?
 
-echo 23 > patient_index.txt
+echo 25 > patient_index.txt
 echo 1 > index.txt
 ./analytic/dakmatlab -s
 dakota workdir/Patient0007/026/opt/dakota_unified_optics.in
@@ -188,7 +204,7 @@ cat workdir/Patient0007/026/opt/optpp_pds.out.* > workdir/Patient0007/026/opt/ob
 pkill -9 dakmatlab
 rm dakmatlab_pipe?
 
-echo 24 > patient_index.txt
+echo 26 > patient_index.txt
 echo 1 > index.txt
 ./analytic/dakmatlab -s
 dakota workdir/Patient0008/014/opt/dakota_unified_optics.in
@@ -196,7 +212,7 @@ cat workdir/Patient0008/014/opt/optpp_pds.out.* > workdir/Patient0008/014/opt/ob
 pkill -9 dakmatlab
 rm dakmatlab_pipe?
 
-echo 25 > patient_index.txt
+echo 27 > patient_index.txt
 echo 1 > index.txt
 ./analytic/dakmatlab -s
 dakota workdir/Patient0008/016/opt/dakota_unified_optics.in
@@ -204,7 +220,7 @@ cat workdir/Patient0008/016/opt/optpp_pds.out.* > workdir/Patient0008/016/opt/ob
 pkill -9 dakmatlab
 rm dakmatlab_pipe?
 
-echo 26 > patient_index.txt
+echo 28 > patient_index.txt
 echo 1 > index.txt
 ./analytic/dakmatlab -s
 dakota workdir/Patient0008/027/opt/dakota_unified_optics.in

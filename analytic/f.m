@@ -1,6 +1,7 @@
 % y = f(x) for Rosenbrock
 function y = f(~)
 
+inputdatavars = load('./TmpDataInput.mat')
 cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
@@ -22,7 +23,6 @@ index = index + 1;
 csvwrite ('index.txt' , index);
 
 y =  metric;
-% disp('perfusion')
 % x(1)
 % disp('k_0')
 % x(2)
