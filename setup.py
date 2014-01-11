@@ -9,6 +9,7 @@ build_dir   = "build.tmp"
 
 # local includes
 brainnek_include = []
+brainnek_include.append( "."  )
 brainnek_include.append( "%s/src"      % brainnek_dir )
 brainnek_include.append( "%s/include"  % brainnek_dir )
 brainnek_include.append( "%s/libocca"  % brainnek_dir )

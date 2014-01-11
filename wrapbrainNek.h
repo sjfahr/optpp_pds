@@ -1,8 +1,11 @@
+#include "brain3d.hpp"
 
-class wrapbrainNek : public brain3d {
+class wrapbrain3d : public brain3d {
 public:
-/// Load temperature data from cl_mem to host
-#if OCCA_USE_OPENCL==1
+  /// wrap base class constructor
+  wrapbrain3d(setupAide setup):brain3d(setup){}
+  /// Load temperature data from cl_mem to host
+  #if OCCA_USE_OPENCL==1
   int GetNumberOfElements(){
     return elements*(Nq-1)*(Nq-1)*(Nq-1);
   }
@@ -47,6 +50,14 @@ public:
     assert (sz == brain_u.size);
     brain_u.toDevice(sz, dest);
   }
+  void getHostForcing(size_t sz, void *dest){
+    assert (sz == brain_forcing.size);
+    brain_forcing.toHost(sz, dest);
+  }
+  void setDeviceForcing(size_t sz, void *dest){
+    assert (sz == brain_forcing.size);
+    brain_forcing.toDevice(sz, dest);
+  }
   intptr_t getTemperaturePointer() {
     return reinterpret_cast<intptr_t>(brain_u.clMem);
   }
@@ -56,6 +67,6 @@ public:
     brain_u.clMem = reinterpret_cast< cl_mem >(NewData);
     return reinterpret_cast<intptr_t>(oldData);
   }
-#endif
+  #endif
 
 };
