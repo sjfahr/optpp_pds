@@ -689,6 +689,7 @@ def ParseInput(paramfilename):
   config = ConfigParser.SafeConfigParser({})
   config.read(inisetupfile)
   fem_params['ccode']        = config.get('power','ccode')
+  fem_params['powerhistory'] = config.get('power','history')
   # FIXME : need to automate time interval selection
   timeinterval               = eval(config.get('mrti','cooling')  )
   timeinterval               = eval(config.get('mrti','fulltime') )
@@ -757,14 +758,16 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  MatlabDriver = True
   MatlabDriver = False
+  MatlabDriver = True
   if(MatlabDriver):
 
     # write out for debug
-    matlabInputFileName = '%s.mat' % (options.param_file)
-    print matlabInputFileName 
-    scipyio.savemat( matlabInputFileName , fem_params['cv'] )
+    MatlabDataDictionary  = fem_params
+    MatlabDataDictionary['patientID'] = options.param_file.split('/')[2]
+    MatlabDataDictionary['UID']       = options.param_file.split('/')[3]
+    MatlabDataDictionary['vtkNumber'] = 4312
+    scipyio.savemat( 'TmpDataInput.mat' , MatlabDataDictionary )
 
     # setup any needed paths
     os.system( './analytic/dakmatlab setup workspace ' )
