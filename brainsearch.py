@@ -318,6 +318,9 @@ laserTip  1.0      4180           0.5985        500         14000       0.88
 ##################################################################
 def ComputeObjective(**kwargs):
   ObjectiveFunction = 0.0
+  # Debugging flags
+  DebugObjective = False
+  DebugObjective = True
   # initialize brainNek
   import brainNekLibrary
   import numpy
@@ -394,6 +397,42 @@ def ComputeObjective(**kwargs):
   vtkScalarArray.SetName("bioheat") 
   hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
 
+  MonteCarloSource = True
+  MonteCarloSource = False
+  if ( MonteCarloSource ):
+    # Read In Fluence Source
+    vtkForcingImageReader = vtk.vtkDataSetReader() 
+    vtkForcingImageReader.SetFileName('./MC_PtSource.0000.vtk')
+    vtkForcingImageReader.Update() 
+    # Project Fluence Source to gll nodes
+    print 'resampling fluence' 
+    vtkForcingResample = vtk.vtkCompositeDataProbeFilter()
+    vtkForcingResample.SetInput( hexahedronGrid )
+    vtkForcingResample.SetSource( vtkForcingImageReader.GetOutput() ) 
+    vtkForcingResample.Update()
+    resampledForcingMesh = vtkForcingResample.GetOutput() 
+    # test registration
+    if ( DebugObjective ):
+       # compare to old forcing
+       bNekForcing = numpy.zeros(numPoints,dtype=numpy.float32)
+       brainNek.getHostForcing( bNekForcing )
+       vtkForcingArray = vtkNumPy.numpy_to_vtk( bNekForcing , DeepCopy) 
+       vtkForcingArray.SetName("oldforcing") 
+       # FIXME should be able to write all arrays to single mesh w/o copy ??
+       oldForcingCopy = vtk.vtkUnstructuredGrid()
+       oldForcingCopy.DeepCopy(resampledForcingMesh)
+       oldForcingCopy.GetPointData().AddArray(vtkForcingArray);
+
+       vtkDbgMeshWriter = vtk.vtkDataSetWriter() 
+       vtkDbgMeshWriter.SetFileName('oldforcing.vtk')
+       vtkDbgMeshWriter.SetInput( oldForcingCopy )
+       vtkDbgMeshWriter.Update() 
+
+    # Memory Copy projected solution
+    forcing_point_data= resampledForcingMesh.GetPointData() 
+    forcing_array = vtkNumPy.vtk_to_numpy(forcing_point_data.GetArray('scalars')) 
+    brainNek.setDeviceForcing( forcing_array )
+  
   ## # dbg 
   ## brainNek.screenshot( 0.0 )
 
@@ -496,8 +535,6 @@ def ComputeObjective(**kwargs):
       # FIXME  should this be different ?  
       SEMDataDirectory = outputDirectory % kwargs['UID']
 
-      DebugObjective = True
-      DebugObjective = False
       # write output
       ## if ( DebugObjective ):
       ##   vtkSEMWriter = vtk.vtkXMLUnstructuredGridWriter()
@@ -758,8 +795,8 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  MatlabDriver = False
   MatlabDriver = True
+  MatlabDriver = False
   if(MatlabDriver):
 
     # write out for debug
