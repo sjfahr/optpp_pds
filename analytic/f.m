@@ -2,25 +2,31 @@
 function y = f(~)
 
 inputdatavars = load('./TmpDataInput.mat')
-cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/
-setenv ( 'PATH22' , pwd);
-path22 = getenv ( 'PATH22' );
 
-index = load ( 'index.txt' );
-patient_index = load ( 'patient_index.txt' );
-vtk_times = load ( 'VTK_patient_times.txt' );
 
-Patient_Paths = importdata( 'patient_paths.txt' );
+% cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/
+% setenv ( 'PATH22' , pwd);
+% path22 = getenv ( 'PATH22' );
 
-setenv ( 'PATHPT' , char ( Patient_Paths ( patient_index ) ) );
-pathpt = getenv ( 'PATHPT' );
+% patientID = strcat ( inputdatavars.patientID, '/', inputdatavars.patientID, '/');
+% 
+% 
+% index = load ( 'index.txt' );
+% patient_index = load ( 'patient_index.txt' );
+% vtk_times = load ( 'VTK_patient_times.txt' );
+% 
+% Patient_Paths = importdata( 'patient_paths.txt' );
+% 
+% setenv ( 'PATHPT' , char ( Patient_Paths ( patient_index ) ) );
+% pathpt = getenv ( 'PATHPT' );
+% 
+% vtk_index = vtk_times ( patient_index );
 
-vtk_index = vtk_times ( patient_index );
+% [metric] =  fast_temperature_obj_fxn ( path22, pathpt, index, vtk_index );
+[metric] =  fast_temperature_obj_fxn22 ( inputdatavars );
 
-[metric] =  fast_temperature_obj_fxn ( path22, pathpt, index, vtk_index );
-
-index = index + 1;
-csvwrite ('index.txt' , index);
+% index = index + 1;
+% csvwrite ('index.txt' , index);
 
 y =  metric;
 % x(1)
