@@ -20,8 +20,10 @@ VOI_pre.y = [ 108 148 ] ;
 VOI_pre.z = [0 0];
 VOI_pre.center = [ 103 128 0 ];
 VOI_pre.time = 60;
-VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+VOI = char( strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']') );
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0002/001
 VOI_pre.x = [ 89 131 ] ;
@@ -35,7 +37,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0002/010
 VOI_pre.x = [ 100 130 ] ;
@@ -49,7 +53,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0002/0017
 VOI_pre.x = [ 107 137 ] ;
@@ -63,7 +69,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0002/020
 VOI_pre.x = [ 104 134 ] ;
@@ -77,7 +85,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0002/021
 VOI_pre.x = [ 86 108 ] ;
@@ -91,7 +101,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0002/022
 VOI_pre.x = [ 105 135 ] ;
@@ -105,7 +117,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0003/002
 VOI_pre.x = [ 107 137 ] ;
@@ -119,7 +133,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0003/013
 VOI_pre.x = [ 100 140 ] ;
@@ -133,7 +149,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0003/018
 VOI_pre.x = [ 110 140 ] ;
@@ -147,7 +165,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0003/025
 VOI_pre.x = [ 105 139 ] ;
@@ -161,7 +181,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0004/003
 VOI_pre.x = [ 130 170 ] ;
@@ -175,7 +197,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0004/006
 VOI_pre.x = [ 130 160 ] ;
@@ -189,7 +213,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0005/004
 VOI_pre.x = [ 121 145 ] ;
@@ -203,7 +229,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0005/008
 VOI_pre.x = [ 125 145 ] ;
@@ -217,7 +245,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0005/012
 VOI_pre.x = [ 122 142 ] ;
@@ -231,7 +261,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0006/005 (this patient doesn't seem to have a laser pulse)
 VOI_pre.x = [ 100 105 ] ;
@@ -245,7 +277,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0006/007
 VOI_pre.x = [ 100 138 ] ;
@@ -259,7 +293,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0006/009
 VOI_pre.x = [ 112 138 ] ;
@@ -273,7 +309,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0006/019 (this patient doesn't seem to reach max heating)
 VOI_pre.x = [ 110 130 ] ;
@@ -287,7 +325,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0006/023
 VOI_pre.x = [ 104 130 ] ;
@@ -301,7 +341,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0006/024
 VOI_pre.x = [ 90 112 ] ;
@@ -315,7 +357,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0007/011
 VOI_pre.x = [ 88 102 ] ;
@@ -329,7 +373,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0007/015 (no visible pulse in the MRTI)
 VOI_pre.x = [ 100 105 ] ;
@@ -343,7 +389,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0007/026
 VOI_pre.x = [ 95 105 ] ;
@@ -357,7 +405,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0008/014
 VOI_pre.x = [ 91 107 ] ;
@@ -371,7 +421,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0008/016
 VOI_pre.x = [ 105 123 ] ;
@@ -385,7 +437,9 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
 
 % Patient0008/027
 VOI_pre.x = [ 103 121 ] ;
@@ -399,4 +453,8 @@ pathpt = getenv ( 'PATHPT' );
 whole_path = strcat ( work_dir, pathpt);
 cd (whole_path);
 VOI = strcat ( 'voi = [', num2str(VOI_pre.x(1)), ', ', num2str(VOI_pre.x(2)), ', ', num2str(VOI_pre.y(1)), ', ', num2str(VOI_pre.y(2)), ', ', num2str(VOI_pre.z(1)), ', ', num2str(VOI_pre.z(2)), ']');
-save ('VOI.txt', 'VOI', '-ascii');
+fid = fopen( 'VOI.txt' ,'wt','b');
+fprintf( fid, '%s', VOI);
+fclose( fid );
+
+clear
