@@ -25,53 +25,29 @@ end
 power_log = pwr_hist ( (ii+1):end);
 power_log = max(power_log);
 
-clear diff ii
+clear diff
 
-%%%%%%%%%%%%%%% Probably can be deleted for while (~ line 40)
-% cd (patient_opt_path);
-% 
-% input_param = 'optpp_pds.in.';
-% index = num2str(iteration);
-% input_filename = strcat( input_param, index);
-% input_filename = strcat( input_filename, '.mat' );
-% 
-% load(input_filename);
-% aaa=strtrim(aaa);
-% aaa=regexp(aaa,'\s+','split'); % Separate the label from the data into two columns.
-
-% Write every string as a number
+% Read in the CVs from inputdatavars . Write every string as a number
 probe_u = str2num(inputdatavars.cv.probe_init);
 g_anisotropy = str2num(inputdatavars.cv.gamma_healthy);
-mu_a = str2num(inputdatavars.cv.mu_a_healthy);
-mu_s = str2num(inputdatavars.cv.mu_s_healthy);
+mu_a = str2num(inputdatavars.cv.mu_a);
+mu_s = str2num(inputdatavars.cv.mu_s);
 mu_eff = str2num(inputdatavars.cv.mu_eff_healthy);
-k_cond = str2num(inputdatavars.cv.k_0_healthy);
-w_perf = str2num(inputdatavars.cv.w_0_healthy);
+k_cond = str2num(inputdatavars.cv.k_0);
+w_perf = str2num(inputdatavars.cv.w_0);
 x_disp = str2num(inputdatavars.cv.x_displace);
 y_disp = str2num(inputdatavars.cv.y_displace);
 z_disp = str2num(inputdatavars.cv.z_displace);
 x_rot  = str2num(inputdatavars.cv.x_rotate);
 y_rot  = str2num(inputdatavars.cv.y_rotate);
 z_rot  = str2num(inputdatavars.cv.z_rotate);
-% x_disp = str2num(aaa{8}{1});
-% y_disp = str2num(aaa{9}{1});
-% z_disp = str2num(aaa{10}{1});
-% x_rot = str2num(aaa{11}{1});
-% y_rot = str2num(aaa{12}{1});
-% z_rot = str2num(aaa{13}{1});
 
 robin_co=0; %dummy var
 
-% Load the recorded power
-power_log = load ('time_then_power.csv');
-
-% Change directory to load MATLAB registration data.
-dose_path = strcat( '/FUS4/data2/BioTex/BrainNonMDA/processed' , patient_path );
-dose_path = strrep ( dose_path, '/workdir' , '' );
-dose_path = strrep ( dose_path, '/opt' , '' );
-dose_path = strcat( dose_path , '/matlab' );
-cd ( dose_path );
-load ( 'VOI.mat' );
+% Make the VOI; Note the 'inputdatavars.voi' is from ParaView.
+VOI.x = inputdatavars.voi(3:4); % The weird index assignment is coz it's from ParaView.
+VOI.y = inputdatavars.voi(1:2);
+VOI.z = inputdatavars.voi(5:6);
 
 % Define the domain and scaling
 mod_point.x = abs ( VOI.x(1) - VOI.x(2) ) +1;  % x dimension distance
@@ -80,6 +56,8 @@ mod_point.x = abs ( VOI.x(1) - VOI.x(2) ) +1;  % x dimension distance
 mod_point.y = abs ( VOI.y(1) - VOI.y(2) ) +1;  % y dimension
 mod_point.z = 1;
 
+%%%%% The VTK header import section needs to be integrated into DF's .mat
+%%%%% file.
 % Import the VTK header info to determine the MRTI image data dimensions
 path_append = strrep ( patient_opt_path, '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/', '');
 path_append = strrep ( path_append, 'opt', '');
@@ -119,9 +97,6 @@ source.n=5;
 source.length=0.01;  %~0.033 is when n=5 is visible
 source.laser=linspace((-source.length/2),(source.length/2),source.n);
 
-% Only use the hottest time point
-power_log = max( power_log(:,2));
-
 % Run the Bioheat model with the unique powers, and then scale it to MRTI
 [tmap_unique]=Bioheat1Dfast( power_log,dom,source,w_perf,k_cond,g_anisotropy,mu_a,mu_s,probe_u,robin_co);
 tmap_unique=tmap_unique+37;
@@ -129,8 +104,8 @@ tmap_model_scaled_to_MRTI = imresize (tmap_unique , 1/scaling.x); % Set the mode
  
 
 % Change directory and load the temperature from VTK
-cd ../vtk/referenceBased
-MRTI = readVTK_SJF('temperature', vtk_index);
+cd (patient_MRTI_path);
+MRTI = readVTK_SJF('temperature', pwr_hist(ii));   % This 'vtkNumber' should b
 
 % Crop the MRTI using the VOI.
 
