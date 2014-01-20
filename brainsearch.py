@@ -318,6 +318,9 @@ laserTip  1.0      4180           0.5985        500         14000       0.88
 ##################################################################
 def ComputeObjective(**kwargs):
   ObjectiveFunction = 0.0
+  # Debugging flags
+  DebugObjective = False
+  DebugObjective = True
   # initialize brainNek
   import brainNekLibrary
   import numpy
@@ -394,6 +397,42 @@ def ComputeObjective(**kwargs):
   vtkScalarArray.SetName("bioheat") 
   hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
 
+  MonteCarloSource = True
+  MonteCarloSource = False
+  if ( MonteCarloSource ):
+    # Read In Fluence Source
+    vtkForcingImageReader = vtk.vtkDataSetReader() 
+    vtkForcingImageReader.SetFileName('./MC_PtSource.0000.vtk')
+    vtkForcingImageReader.Update() 
+    # Project Fluence Source to gll nodes
+    print 'resampling fluence' 
+    vtkForcingResample = vtk.vtkCompositeDataProbeFilter()
+    vtkForcingResample.SetInput( hexahedronGrid )
+    vtkForcingResample.SetSource( vtkForcingImageReader.GetOutput() ) 
+    vtkForcingResample.Update()
+    resampledForcingMesh = vtkForcingResample.GetOutput() 
+    # test registration
+    if ( DebugObjective ):
+       # compare to old forcing
+       bNekForcing = numpy.zeros(numPoints,dtype=numpy.float32)
+       brainNek.getHostForcing( bNekForcing )
+       vtkForcingArray = vtkNumPy.numpy_to_vtk( bNekForcing , DeepCopy) 
+       vtkForcingArray.SetName("oldforcing") 
+       # FIXME should be able to write all arrays to single mesh w/o copy ??
+       oldForcingCopy = vtk.vtkUnstructuredGrid()
+       oldForcingCopy.DeepCopy(resampledForcingMesh)
+       oldForcingCopy.GetPointData().AddArray(vtkForcingArray);
+
+       vtkDbgMeshWriter = vtk.vtkDataSetWriter() 
+       vtkDbgMeshWriter.SetFileName('oldforcing.vtk')
+       vtkDbgMeshWriter.SetInput( oldForcingCopy )
+       vtkDbgMeshWriter.Update() 
+
+    # Memory Copy projected solution
+    forcing_point_data= resampledForcingMesh.GetPointData() 
+    forcing_array = vtkNumPy.vtk_to_numpy(forcing_point_data.GetArray('scalars')) 
+    brainNek.setDeviceForcing( forcing_array )
+  
   ## # dbg 
   ## brainNek.screenshot( 0.0 )
 
@@ -496,8 +535,6 @@ def ComputeObjective(**kwargs):
       # FIXME  should this be different ?  
       SEMDataDirectory = outputDirectory % kwargs['UID']
 
-      DebugObjective = True
-      DebugObjective = False
       # write output
       ## if ( DebugObjective ):
       ##   vtkSEMWriter = vtk.vtkXMLUnstructuredGridWriter()
@@ -533,7 +570,6 @@ def brainNekWrapper(**kwargs):
   """
   call brainNek code 
   """
-  import math
   # occa case file
   outputOccaCaseFile = '%s/casefunctions.%04d.occa' % (workDirectory,kwargs['fileID'])
   print 'writing', outputOccaCaseFile 
@@ -551,13 +587,13 @@ def brainNekWrapper(**kwargs):
 
   # get variables
   variableDictionary = kwargs['cv']
-
-  #      mu_a_min               <      mu_a + (1-g) mu_s < mu_a_max + (1-g_min) mu_s_max
-  #         5.e-1               <          mu_tr         < 600. + .3 * 50000. 
-  #
-  #  sqrt( 3 * 5.e-1 * 5.e-1 )  <  sqrt( 3 mu_a  mu_tr ) < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
-  #  sqrt( 3 * 5.e-1 * 5.e-1 )  <        mu_eff          < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
-  #            8.e-1            <        mu_eff          <    5.3e3
+  rho    = variableDictionary['rho'    ]   
+  c_p    = variableDictionary['c_p'    ]   
+  k_0    = variableDictionary['k_0'    ]   
+  w_0    = variableDictionary['w_0'    ]   
+  mu_a   = variableDictionary['mu_a'   ]   
+  mu_s   = variableDictionary['mu_s'   ]   
+  anfact = variableDictionary['anfact' ]   
 
   # materials
   outputMaterialFile = '%s/material_types.%04d.setup' % (workDirectory,kwargs['fileID'])
@@ -565,22 +601,6 @@ def brainNekWrapper(**kwargs):
   fileHandle = file(outputMaterialFile   ,'w')
   fileHandle.write('[MATERIAL PROPERTIES]\n'  )
   fileHandle.write('# Name,      Type index, Density, Specific Heat, Conductivity, Perfusion, Absorption, Scattering, Anisotropy\n'  )
-  mu_s   = 8.e3
-  anfact = .9
-  mu_s_p = mu_s * (1.-anfact) 
-  # mu_tr  = mu_a + (1-g) mu_s 
-  # mu_eff = sqrt( 3 mu_a  mu_tr )
-  mu_eff = float(variableDictionary['mu_eff_healthy'])
-  mu_a   =  0.5*( -mu_s_p + math.sqrt( mu_s_p * mu_s_p  + 4. * mu_eff * mu_eff  /3. ) )
-  # alpha  == k / rho / c_p
-  # gamma  == k / w   / c_blood
-  alpha  = float(variableDictionary['alpha_healthy'])
-  gamma  = float(variableDictionary['gamma_healthy'])
-  rho     = 1045.
-  c_p     = 3640.
-  c_blood = 3840.
-  k_0    = alpha * c_p * rho 
-  w_0    = k_0 / c_blood / gamma
   fileHandle.write('Brain     0           %12.5f     %12.5f           %12.5f        %12.5f     %12.5f      %12.5f      %12.5f \n' % ( rho, c_p, k_0, w_0, mu_a, mu_s, anfact )
  )
   fileHandle.flush(); fileHandle.close()
@@ -588,7 +608,7 @@ def brainNekWrapper(**kwargs):
   # case file
   outputCaseFile = '%s/case.%04d.setup' % (workDirectory,kwargs['fileID'])
   print 'writing', outputCaseFile 
-  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],variableDictionary['body_temp'],variableDictionary['body_temp'],variableDictionary['probe_init'],c_blood,workDirectory,kwargs['fileID'])  )
+  with file(outputCaseFile , 'w') as fileHandle: fileHandle.write(caseFileTemplate % (workDirectory,kwargs['fileID'],variableDictionary['body_temp'],variableDictionary['body_temp'],variableDictionary['probe_init'],variableDictionary['c_blood'],workDirectory,kwargs['fileID'])  )
 
   ## # build command to run brainNek
   ## brainNekCommand = "%s/main %s -heattransfercoefficient %s -coolanttemperature  %s > %s/run.%04d.log 2>&1 " % (brainNekDIR , outputSetupRCFile ,variableDictionary['robin_coeff'  ], variableDictionary['probe_init'   ], workDirectory ,kwargs['fileID'])
@@ -670,8 +690,44 @@ def ParseInput(paramfilename):
   except KeyError:
     active_set_vector = [ int(paramsdict['ASV_%d:obj_fn' % (i) ]) for i in range(1,num_fns+1)  ] 
   
+  ################################
+  # convert to uniform interface
+  ################################
+  #      mu_a_min               <      mu_a + (1-g) mu_s < mu_a_max + (1-g_min) mu_s_max
+  #         5.e-1               <          mu_tr         < 600. + .3 * 50000. 
+  #
+  #  sqrt( 3 * 5.e-1 * 5.e-1 )  <  sqrt( 3 mu_a  mu_tr ) < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+  #  sqrt( 3 * 5.e-1 * 5.e-1 )  <        mu_eff          < sqrt( 3 * 600. * (600. + .3 * 50000.) ) 
+  #            8.e-1            <        mu_eff          <    5.3e3
+  import math
+  mu_s   = 8.e3
+  anfact = .9
+  mu_s_p = mu_s * (1.-anfact) 
+  # mu_tr  = mu_a + (1-g) mu_s 
+  # mu_eff = sqrt( 3 mu_a  mu_tr )
+  mu_eff = float(continuous_vars['mu_eff_healthy'])
+  mu_a   =  0.5*( -mu_s_p + math.sqrt( mu_s_p * mu_s_p  + 4. * mu_eff * mu_eff  /3. ) )
+  # alpha  == k / rho / c_p
+  # gamma  == k / w   / c_blood
+  alpha  = float(continuous_vars['alpha_healthy'])
+  gamma  = float(continuous_vars['gamma_healthy'])
+  rho     = 1045.
+  c_p     = 3640.
+  c_blood = 3840.
+  k_0    = alpha * c_p * rho 
+  w_0    = k_0 / c_blood / gamma
+
   # store dakota vars
+  continuous_vars['rho'    ]   =  rho   
+  continuous_vars['c_p'    ]   =  c_p   
+  continuous_vars['k_0'    ]   =  k_0   
+  continuous_vars['w_0'    ]   =  w_0   
+  continuous_vars['mu_a'   ]   =  mu_a  
+  continuous_vars['mu_s'   ]   =  mu_s  
+  continuous_vars['anfact' ]   =  anfact
+  continuous_vars['c_blood']   =  c_blood 
   fem_params['cv']         = continuous_vars
+
   fem_params['asv']        = active_set_vector
   fem_params['functions']  = num_fns
   fem_params['fileID']     = fileID 
@@ -758,8 +814,8 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file)
 
-  MatlabDriver = False
   MatlabDriver = True
+  MatlabDriver = False
   if(MatlabDriver):
 
     # write out for debug
