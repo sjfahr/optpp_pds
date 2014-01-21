@@ -1,27 +1,58 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run. The metric is based on temperature (not dose and isotherms).
 
-function [metric] = fast_temperature_obj_fxn ( path22, pathpt, iteration, vtk_index );
-cd( path22);
-patient_path = pathpt;
-patient_opt_path = strcat( path22, patient_path);
-cd( patient_opt_path);
-input_param = 'optpp_pds.in.';
-index = num2str(iteration);
-input_filename = strcat( input_param, index);
-input_filename = strcat( input_filename, '.mat' );
+function [metric] = fast_temperature_obj_fxn ( inputdatavars );
 
-load(input_filename);
+
+% Make the path to the patient directory
+patientID = strcat ( inputdatavars.patientID, '/', inputdatavars.UID, '/');
+patient_opt_path = strcat ( 'workdir/', patientID, 'opt/' );
+
+% Make the path to the VTK
+patient_MRTI_path = strcat ( 'database/', patientID, 'vtk/referenceBased/' );
+
+% Read in the power and identify the max power moment.
+pwr_hist = str2num(inputdatavars.powerhistory); % Gets just the numbers. (Al a "Just the facts, ma'am.")
+% This for loop identifies the power history's times versus powers for
+% later parsing.
+for ii = 1:(length(pwr_hist) - 1)  % Write the for loop to iterate through all but the last index of 'pwr_hsitory'
+    diff = pwr_hist(ii) - pwr_hist( ii + 1); % Record the difference between neighboring array elements
+    if diff >= 0 % If 'diff' is non-negative, it means the times have stopped and the powers are starting.
+        break;  % Stop the for-loop.      
+    end
+end
+% Based on immediately previous for-loop, parse the times from powers.
+power_log = pwr_hist ( (ii+1):end);
+power_log = max(power_log);
+
+clear diff ii
+
+%%%%%%%%%%%%%%% Probably can be deleted for while (~ line 40)
+% cd (patient_opt_path);
+% 
+% input_param = 'optpp_pds.in.';
+% index = num2str(iteration);
+% input_filename = strcat( input_param, index);
+% input_filename = strcat( input_filename, '.mat' );
+% 
+% load(input_filename);
 % aaa=strtrim(aaa);
 % aaa=regexp(aaa,'\s+','split'); % Separate the label from the data into two columns.
 
 % Write every string as a number
-probe_u = str2num(probe_init);
-g_anisotropy = str2num(anfact_healthy);
-mu_a = str2num(mu_a_healthy);
-mu_s = str2num(mu_s_healthy);
-k_cond = str2num(k_0_healthy);
-w_perf = str2num(w_0_healthy);
+probe_u = str2num(inputdatavars.cv.probe_init);
+g_anisotropy = str2num(inputdatavars.cv.gamma_healthy);
+mu_a = str2num(inputdatavars.cv.mu_a_healthy);
+mu_s = str2num(inputdatavars.cv.mu_s_healthy);
+mu_eff = str2num(inputdatavars.cv.mu_eff_healthy);
+k_cond = str2num(inputdatavars.cv.k_0_healthy);
+w_perf = str2num(inputdatavars.cv.w_0_healthy);
+x_disp = str2num(inputdatavars.cv.x_displace);
+y_disp = str2num(inputdatavars.cv.y_displace);
+z_disp = str2num(inputdatavars.cv.z_displace);
+x_rot  = str2num(inputdatavars.cv.x_rotate);
+y_rot  = str2num(inputdatavars.cv.y_rotate);
+z_rot  = str2num(inputdatavars.cv.z_rotate);
 % x_disp = str2num(aaa{8}{1});
 % y_disp = str2num(aaa{9}{1});
 % z_disp = str2num(aaa{10}{1});
