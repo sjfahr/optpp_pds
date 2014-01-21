@@ -740,6 +740,17 @@ def ParseInput(paramfilename):
   # database and run directory have the same structure
   fem_params['mrti']       = '%s/%s/%s/vtk/referenceBased/' % (databaseDIR,locatemrti[2],locatemrti[3])
 
+  # get header info
+  mrtifilename = '%s/temperature.%04d.vtk' % (fem_params['mrti'], 1) 
+  print 'opening' , mrtifilename 
+  import vtk
+  vtkSetupImageReader = vtk.vtkDataSetReader() 
+  vtkSetupImageReader.SetFileName(mrtifilename )
+  vtkSetupImageReader.Update() 
+  SetupImageData = vtkSetupImageReader.GetOutput() 
+  fem_params['spacing']        = SetupImageData.GetSpacing()
+  fem_params['dimensions']     = SetupImageData.GetDimensions()
+
   # get power file name
   inisetupfile  = "/".join(locatemrti)+"/setup.ini"
   config = ConfigParser.SafeConfigParser({})
