@@ -4,9 +4,9 @@
 function [metric] = fast_temperature_obj_fxn ( inputdatavars );
 
 
-% Make the path to the patient directory
-patientID = strcat ( inputdatavars.patientID, '/', inputdatavars.UID, '/');
-patient_opt_path = strcat ( 'workdir/', patientID, 'opt/' );
+% % Make the path to the patient directory
+% patientID = strcat ( inputdatavars.patientID, '/', inputdatavars.UID, '/');
+% patient_opt_path = strcat ( 'workdir/', patientID, 'opt/' );
 
 % Make the path to the VTK
 patient_MRTI_path = strcat ( 'database/', patientID, 'vtk/referenceBased/' );
@@ -23,7 +23,7 @@ for ii = 1:(length(pwr_hist) - 1)  % Write the for loop to iterate through all b
 end
 % Based on immediately previous for-loop, parse the times from powers.
 power_log = pwr_hist ( (ii+1):end);
-power_log = max(power_log);
+power_log = max(power_log); % Find the maximum power value
 
 clear diff
 
@@ -56,27 +56,15 @@ mod_point.x = abs ( VOI.x(1) - VOI.x(2) ) +1;  % x dimension distance
 mod_point.y = abs ( VOI.y(1) - VOI.y(2) ) +1;  % y dimension
 mod_point.z = 1;
 
-%%%%% The VTK header import section needs to be integrated into DF's .mat
-%%%%% file.
-% Import the VTK header info to determine the MRTI image data dimensions
-path_append = strrep ( patient_opt_path, '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/', '');
-path_append = strrep ( path_append, 'opt', '');
-FOV_path = strcat( '/FUS4/data2/BioTex/BrainNonMDA/processed/' , path_append );
-FOV_path = strcat( FOV_path , 'laser' );
-cd ( FOV_path );
-FOV_import = csvimport ( 'FOV.csv' );
-fov = FOV_import ( 2, : );
-fov = cell2mat (fov);
-
 % Set the matrix for the MRTI
-matrix.x = fov(1);
-matrix.y = fov(2);
-matrix.z = fov(3);
+matrix.x = inputdatavars.dimensions(2); % The indexing is to match ParaView, but all images are 256x256x1 so far, so x,y indexing can be swapped.
+matrix.y = inputdatavars.dimensions(1);
+matrix.z = inputdatavars.dimensions(3);
 
 % Set the spacing for the MRTI
-spacing.x = fov(4);
-spacing.y = fov(5);
-spacing.z = fov(6);
+spacing.x = inputdatavars.spacing(2);
+spacing.y = inputdatavars.spacing(1);
+spacing.z = inputdatavars.spacing(3);
 
 % Set the FOV for the MRTI
 FOV.x = matrix.x * spacing.x;
@@ -168,7 +156,5 @@ metric = ( norm ( temperature_diff , 2 ) )^2;
 % figure(3); imagesc(temperature_diff );
 % figure(4); imagesc(matched_mod);
 % figure(5); imagesc(MRTI(:,:,max_temperature_timepoint), [30 80]);
-
-cd (path22);
 
 end
