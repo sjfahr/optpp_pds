@@ -2,11 +2,13 @@
 % run. The metric is based on temperature (not dose and isotherms).
 
 function [metric] = fast_temperature_obj_fxn ( inputdatavars );
+% Record the working directory
+setenv ( 'PATH22' , pwd);
+path22 = getenv ( 'PATH22' );
 
-
-% % Make the path to the patient directory
-% patientID = strcat ( inputdatavars.patientID, '/', inputdatavars.UID, '/');
-% patient_opt_path = strcat ( 'workdir/', patientID, 'opt/' );
+% Make the path to the patient directory
+patientID = strcat ( inputdatavars.patientID, '/', inputdatavars.UID, '/');
+patient_opt_path = strcat ( path22, '/workdir/', patientID, 'opt/' ); % The '/workdir/' needs the first backslash coz it uses absolute path
 
 % Make the path to the VTK
 patient_MRTI_path = strcat ( 'database/', patientID, 'vtk/referenceBased/' );
@@ -27,14 +29,15 @@ power_log = max(power_log); % Find the maximum power value
 
 clear diff
 
-% Read in the CVs from inputdatavars . Write every string as a number
+% Read in the CVs from inputdatavars . Some need str2num coz they were
+% written as strings.
 probe_u = str2num(inputdatavars.cv.probe_init);
 g_anisotropy = str2num(inputdatavars.cv.gamma_healthy);
-mu_a = str2num(inputdatavars.cv.mu_a);
-mu_s = str2num(inputdatavars.cv.mu_s);
+mu_a = inputdatavars.cv.mu_a;
+mu_s = inputdatavars.cv.mu_s;
 mu_eff = str2num(inputdatavars.cv.mu_eff_healthy);
-k_cond = str2num(inputdatavars.cv.k_0);
-w_perf = str2num(inputdatavars.cv.w_0);
+k_cond = inputdatavars.cv.k_0;
+w_perf = inputdatavars.cv.w_0;
 x_disp = str2num(inputdatavars.cv.x_displace);
 y_disp = str2num(inputdatavars.cv.y_displace);
 z_disp = str2num(inputdatavars.cv.z_displace);
@@ -45,9 +48,9 @@ z_rot  = str2num(inputdatavars.cv.z_rotate);
 robin_co=0; %dummy var
 
 % Make the VOI; Note the 'inputdatavars.voi' is from ParaView.
-VOI.x = inputdatavars.voi(3:4); % The weird index assignment is coz it's from ParaView.
-VOI.y = inputdatavars.voi(1:2);
-VOI.z = inputdatavars.voi(5:6);
+VOI.x = double( inputdatavars.voi(3:4)); % The weird index assignment is coz it's from ParaView.
+VOI.y = double( inputdatavars.voi(1:2));
+VOI.z = double( inputdatavars.voi(5:6));
 
 % Define the domain and scaling
 mod_point.x = abs ( VOI.x(1) - VOI.x(2) ) +1;  % x dimension distance
@@ -57,14 +60,14 @@ mod_point.y = abs ( VOI.y(1) - VOI.y(2) ) +1;  % y dimension
 mod_point.z = 1;
 
 % Set the matrix for the MRTI
-matrix.x = inputdatavars.dimensions(2); % The indexing is to match ParaView, but all images are 256x256x1 so far, so x,y indexing can be swapped.
-matrix.y = inputdatavars.dimensions(1);
-matrix.z = inputdatavars.dimensions(3);
+matrix.x = double(inputdatavars.dimensions(2)); % The indexing is to match ParaView, but all images are 256x256x1 so far, so x,y indexing can be swapped.
+matrix.y = double(inputdatavars.dimensions(1));
+matrix.z = double(inputdatavars.dimensions(3));
 
 % Set the spacing for the MRTI
-spacing.x = inputdatavars.spacing(2);
-spacing.y = inputdatavars.spacing(1);
-spacing.z = inputdatavars.spacing(3);
+spacing.x = double(inputdatavars.spacing(2));
+spacing.y = double(inputdatavars.spacing(1));
+spacing.z = double(inputdatavars.spacing(3));
 
 % Set the FOV for the MRTI
 FOV.x = matrix.x * spacing.x;
@@ -95,8 +98,10 @@ tmap_model_scaled_to_MRTI = imresize (tmap_unique , 1/scaling.x); % Set the mode
 cd (patient_MRTI_path);
 MRTI = readVTK_SJF('temperature', pwr_hist(ii));   % This 'vtkNumber' should b
 
-% Crop the MRTI using the VOI.
+% Go to the workdir
+cd (patient_opt_path);
 
+% Crop the MRTI using the VOI.
 % This is the VOI.x and VOI.y swapped for ParaView
 MRTI ( 1:(VOI.y(1)-1), :, : ) = 0;  % The -1 and +1 make sure the VOI indices aren't cut
 MRTI ( (VOI.y(2)+1):end, :, : )  = 0;
