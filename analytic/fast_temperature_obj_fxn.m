@@ -135,7 +135,7 @@ MRTI_crop = MRTI_hottest( (VOI.y(1)-1):(VOI.y(2)+1) , (VOI.x(1)-1):(VOI.x(2)+1) 
 
 temperature_diff = tmap_model_scaled_to_MRTI - MRTI_crop ( 2:(end-1), 2:(end-1));
 metric = ( norm ( temperature_diff , 2 ) )^2;
-
+cd (path22);
 % %%%%% The remaining code is exclusively for testing / debugging / checking
 % %%%%% the registration.
 % MRTI_size = size ( MRTI );
