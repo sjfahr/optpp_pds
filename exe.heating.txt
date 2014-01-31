@@ -27,4 +27,3 @@ echo 024; dakota ./workdir/Patient0006/024/opt/dakota_q_newton_heating.in > ./wo
 echo 025; dakota ./workdir/Patient0003/025/opt/dakota_q_newton_heating.in > ./workdir/Patient0003/025/opt/dakota_q_newton_heating.in.log 2>&1 
 echo 026; dakota ./workdir/Patient0007/026/opt/dakota_q_newton_heating.in > ./workdir/Patient0007/026/opt/dakota_q_newton_heating.in.log 2>&1 
 echo 027; dakota ./workdir/Patient0008/027/opt/dakota_q_newton_heating.in > ./workdir/Patient0008/027/opt/dakota_q_newton_heating.in.log 2>&1
-pkill -9 dakmatlab; rm dakmatlab_pipe?

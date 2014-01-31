@@ -1,4 +1,12 @@
 all registration parameters are WRT workdir/meshTemplateFull1.e
+------------------------- accumulate stats ---------------------------------------
+
+
+python accumulatehistory.py
+R
+source('datasummary.R')
+
+
 ----------------------------------------------------------------------------------
 parallel direct search in Dakota
 http://dakota.sandia.gov/docs/dakota/5.2/html-ref/MethodCommands.html#MethodOPTPP
