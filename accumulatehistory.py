@@ -1,40 +1,41 @@
 import numpy
 
 resultfileList = [
-'./workdir/Patient0002/000/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0002/001/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0003/002/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0004/003/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0005/004/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0006/005/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0004/006/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0006/007/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0005/008/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0006/009/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0002/010/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0007/011/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0005/012/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0003/013/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0008/014/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0007/015/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0008/016/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0002/017/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0003/018/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0006/019/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0002/020/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0002/021/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0002/022/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0006/023/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0006/024/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0003/025/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0007/026/opt/dakota_q_newton_heating.in.tabular.dat',
-'./workdir/Patient0008/027/opt/dakota_q_newton_heating.in.tabular.dat']
+'./workdir/Patient0002/000/',
+'./workdir/Patient0002/001/',
+'./workdir/Patient0003/002/',
+'./workdir/Patient0004/003/',
+'./workdir/Patient0005/004/',
+'./workdir/Patient0006/005/',
+'./workdir/Patient0004/006/',
+'./workdir/Patient0006/007/',
+'./workdir/Patient0005/008/',
+'./workdir/Patient0006/009/',
+'./workdir/Patient0002/010/',
+'./workdir/Patient0007/011/',
+'./workdir/Patient0005/012/',
+'./workdir/Patient0003/013/',
+'./workdir/Patient0008/014/',
+'./workdir/Patient0007/015/',
+'./workdir/Patient0008/016/',
+'./workdir/Patient0002/017/',
+'./workdir/Patient0003/018/',
+'./workdir/Patient0006/019/',
+'./workdir/Patient0002/020/',
+'./workdir/Patient0002/021/',
+'./workdir/Patient0002/022/',
+'./workdir/Patient0006/023/',
+'./workdir/Patient0006/024/',
+'./workdir/Patient0003/025/',
+'./workdir/Patient0007/026/',
+'./workdir/Patient0008/027/']
 
 with file('datasummary.txt' , 'w') as fileHandle: 
   # write header
   fileHandle.write("iddata,mu_eff,obj\n")
   # loop over files and extract optimal value
-  for filename in resultfileList:
+  for filenamebase in resultfileList:
+    filename = '%s/opt/dakota_q_newton_heating.in.tabular.dat' % filenamebase
     dataid = int(filename.split('/')[3])
     mu_eff = numpy.loadtxt(filename,skiprows=1,usecols=(1,))
     obj_fn = numpy.loadtxt(filename,skiprows=1,usecols=(2,))
@@ -50,3 +51,5 @@ with file('datasummary.txt' , 'w') as fileHandle:
       minobjval =  obj_fn 
     #dataarray = numpy.loadtxt(filename,skiprows=1,usecols=(0,1,2,3,4,6)
     fileHandle.write("%05d,%12.5e,%12.5e\n" %(dataid,mu_effopt,minobjval))
+    # FIXME
+    print "python ./brainsearch.py --param_file  %s/opt/optpp_pds_heating.in.%d %s/opt/optpp_pds_heating.out.%d" % (filenamebase,idmin,filenamebase,idmin)

@@ -546,14 +546,25 @@ def ComputeObjective(**kwargs):
       ##   vtkSEMWriter.Update()
 
       # write output
-      if ( DebugObjective ):
+      # FIXME auto read ??
+      VisualizeOutput = True
+      VisualizeOutput = False
+      if ( DebugObjective or VisualizeOutput ):
          vtkTemperatureWriter = vtk.vtkDataSetWriter()
          vtkTemperatureWriter.SetFileTypeToBinary()
-         roifileName = "%s/roi.%04d.vtk" % (SEMDataDirectory,MRTItimeID)
+         roifileName = "%s/roisem.%s.%04d.vtk" % (kwargs['opttype'],SEMDataDirectory,MRTItimeID)
          print "writing ", roifileName 
          vtkTemperatureWriter.SetFileName( roifileName )
          vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
          vtkTemperatureWriter.Update()
+         # FIXME auto read ??
+         roifileName = "%s/roimrti.%s.%04d.vtk" % (kwargs['opttype'],SEMDataDirectory,MRTItimeID)
+         print "writing ", roifileName 
+         vtkTemperatureWriter.SetFileName( roifileName )
+         vtkTemperatureWriter.SetInput(vtkVOIExtract.GetOutput())
+         vtkTemperatureWriter.Update()
+
+
 
       # accumulate objective function
       diff =  numpy.abs(mrti_array-fem_array)
