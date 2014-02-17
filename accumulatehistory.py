@@ -34,8 +34,9 @@ with file('datasummary.txt' , 'w') as fileHandle:
   # write header
   fileHandle.write("iddata,mu_eff,obj\n")
   # loop over files and extract optimal value
+  opttype = 'heating'
   for filenamebase in resultfileList:
-    filename = '%s/opt/dakota_q_newton_heating.in.tabular.dat' % filenamebase
+    filename = '%s/opt/dakota_q_newton_%s.in.tabular.dat' % (filenamebase,opttype)
     dataid = int(filename.split('/')[3])
     mu_eff = numpy.loadtxt(filename,skiprows=1,usecols=(1,))
     obj_fn = numpy.loadtxt(filename,skiprows=1,usecols=(2,))
@@ -52,4 +53,4 @@ with file('datasummary.txt' , 'w') as fileHandle:
     #dataarray = numpy.loadtxt(filename,skiprows=1,usecols=(0,1,2,3,4,6)
     fileHandle.write("%05d,%12.5e,%12.5e\n" %(dataid,mu_effopt,minobjval))
     # FIXME
-    print "python ./brainsearch.py --param_file  %s/opt/optpp_pds_heating.in.%d %s/opt/optpp_pds_heating.out.%d" % (filenamebase,idmin,filenamebase,idmin)
+    print "python ./brainsearch.py --param_file  %s/opt/optpp_pds.%s.in.%d %s/opt/optpp_pds.%s.out.%d --vis_out" % (filenamebase,opttype,idmin,filenamebase,opttype,idmin)
