@@ -16,6 +16,8 @@ outputDirectory = '/tmp/outputs/dakota/%04d'
 
 # database and run directory have the same structure
 databaseDIR     = 'database/'
+databaseDIR     = 'StudyDatabase/'
+
 # $ ls database workdir/
 # database:
 # Patient0002/  Patient0003/  Patient0004/  Patient0005/  Patient0006/  Patient0007/  Patient0008/
@@ -528,7 +530,7 @@ def ComputeObjective(**kwargs):
 
       fem_point_data= vtkResample.GetOutput().GetPointData() 
       fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('bioheat')) 
-      print 'resampled' ,fem_array 
+      print 'resampled' 
       #print fem_array 
       #print type(fem_array )
 
@@ -547,24 +549,86 @@ def ComputeObjective(**kwargs):
 
       # write output
       # FIXME auto read ??
-      VisualizeOutput = True
-      VisualizeOutput = False
-      if ( DebugObjective or VisualizeOutput ):
+      if ( DebugObjective ):
          vtkTemperatureWriter = vtk.vtkDataSetWriter()
          vtkTemperatureWriter.SetFileTypeToBinary()
-         roifileName = "%s/roisem.%s.%04d.vtk" % (kwargs['opttype'],SEMDataDirectory,MRTItimeID)
+         roifileName = "%s/roisem.%s.%04d.vtk"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID)
          print "writing ", roifileName 
          vtkTemperatureWriter.SetFileName( roifileName )
          vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
          vtkTemperatureWriter.Update()
          # FIXME auto read ??
-         roifileName = "%s/roimrti.%s.%04d.vtk" % (kwargs['opttype'],SEMDataDirectory,MRTItimeID)
+         roifileName = "%s/roimrti.%s.%04d.vtk" % (SEMDataDirectory,kwargs['opttype'],MRTItimeID)
          print "writing ", roifileName 
          vtkTemperatureWriter.SetFileName( roifileName )
          vtkTemperatureWriter.SetInput(vtkVOIExtract.GetOutput())
          vtkTemperatureWriter.Update()
 
 
+      if ( kwargs['VisualizeOutput'] and MRTItimeID == fem_params['maxheatid'] ):
+      #if ( kwargs['VisualizeOutput'] ):
+        magnitudefilename = '%s/magnitude.%04d.vtk' % (kwargs['mrti'], MRTItimeID) 
+        print 'opening' , magnitudefilename 
+        vtkMagnImageReader = vtk.vtkDataSetReader() 
+        vtkMagnImageReader.SetFileName(magnitudefilename )
+        vtkMagnImageReader.Update() 
+        # Start by creating a black/white lookup table.
+        bwLut = vtk.vtkLookupTable()
+        bwLut.SetTableRange (0, 300);
+        bwLut.SetSaturationRange (0, 0);
+        bwLut.SetHueRange (0, 0);
+        bwLut.SetValueRange (0, 1);
+        bwLut.Build(); #effective built
+        # color table
+        # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
+        # http://vtk.org/gitweb?p=VTK.git;a=blob;f=Examples/ImageProcessing/Python/ImageSlicing.py
+        hueLut = vtk.vtkLookupTable()
+        hueLut.SetNumberOfColors (256)
+        #FIXME: adjust here to change color  range
+        hueLut.SetRange ( 30.,80.)  
+        #hueLut.SetSaturationRange (0.0, 1.0)
+        #hueLut.SetValueRange (0.0, 1.0)
+        hueLut.SetHueRange (0.667, 0.0)
+        hueLut.SetRampToLinear ()
+        hueLut.Build()
+        # plot mrti, fem, and magn
+        for (lookuptable,legendname,sourcefilter,outputname) in [ (hueLut,"SEM",vtkResample,"roisem"),(hueLut,"MRTI",vtkVOIExtract,"roimrti"),(bwLut,"Magn",vtkMagnImageReader,"magn")]:
+          # colorbar
+          # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
+          scalarBar = vtk.vtkScalarBarActor()
+          scalarBar.SetTitle(legendname)
+          scalarBar.SetNumberOfLabels(4)
+          scalarBar.SetLookupTable(lookuptable)
+
+          # mapper
+          #mapper = vtk.vtkDataSetMapper()
+          mapper = vtk.vtkImageMapToColors()
+          mapper.SetInput(  sourcefilter.GetOutput() )
+          # set echo to display
+          mapper.SetActiveComponent( 0 )
+          mapper.SetLookupTable(lookuptable)
+  
+          # actor
+          actor = vtk.vtkImageActor()
+          actor.SetInput(mapper.GetOutput())
+           
+          # assign actor to the renderer
+          ren = vtk.vtkRenderer()
+          ren.AddActor(actor)
+          ren.AddActor2D(scalarBar)
+          renWin = vtk.vtkRenderWindow()
+          renWin.AddRenderer(ren)
+          renWin.SetSize(512,512)
+          renWin.Render()
+
+          windowToImage = vtk.vtkWindowToImageFilter() 
+          windowToImage.SetInput(renWin)
+          windowToImage.Update()
+          jpgWriter     = vtk.vtkJPEGWriter() 
+          jpgWriter.SetFileName( "%s/%s.%s.%04d.jpg"  % (SEMDataDirectory,outputname,kwargs['opttype'],MRTItimeID))
+          #jpgWriter.SetInput(extractVOI.GetOutput())
+          jpgWriter.SetInput(windowToImage.GetOutput())
+          jpgWriter.Write()
 
       # accumulate objective function
       diff =  numpy.abs(mrti_array-fem_array)
@@ -629,7 +693,7 @@ def brainNekWrapper(**kwargs):
   ## os.system(brainNekCommand )
 # end def brainNekWrapper:
 ##################################################################
-def ParseInput(paramfilename):
+def ParseInput(paramfilename,VisualizeOutput):
   # ----------------------------
   # Parse DAKOTA parameters file
   # ----------------------------
@@ -743,6 +807,8 @@ def ParseInput(paramfilename):
   fem_params['functions']  = num_fns
   fem_params['fileID']     = fileID 
   fem_params['UID']        = int(paramfilename.split('/').pop(3))
+  fem_params['opttype']    = paramfilename.split('.').pop(-3)
+  fem_params['VisualizeOutput'] = VisualizeOutput 
 
   # parse file path
   locatemrti = paramfilename.split('/')
@@ -769,11 +835,13 @@ def ParseInput(paramfilename):
   fem_params['ccode']        = config.get('power','ccode')
   fem_params['powerhistory'] = config.get('power','history')
   # FIXME : need to automate time interval selection
-  timeinterval               = eval(config.get('mrti','cooling')  )
-  timeinterval               = eval(config.get('mrti','fulltime') )
-  timeinterval               = eval(config.get('mrti','heating')  )
+  fulltimeinterval               = eval(config.get('mrti','fulltime') )
+  cooltimeinterval               = eval(config.get('mrti','cooling')  )
+  heattimeinterval               = eval(config.get('mrti','heating')  )
+  timeinterval = heattimeinterval             
   fem_params['initialtime']  = timeinterval[0] * config.getfloat('mrti','deltat') 
   fem_params['finaltime']    = timeinterval[1] * config.getfloat('mrti','deltat') 
+  fem_params['maxheatid']      = heattimeinterval[1]
   fem_params['voi']          = eval(config.get('mrti','voi'))
 
   print 'mrti data from' , fem_params['mrti'] , 'setupfile', inisetupfile  
@@ -829,12 +897,14 @@ parser = OptionParser()
 parser.add_option( "--run_fem","--param_file", 
                   action="store", dest="param_file", default=None,
                   help="run code with parameter FILE", metavar="FILE")
+parser.add_option( "--vis_out", 
+                  action="store_true", dest="vis_out", default=False,
+                  help="visualise output", metavar="bool")
 (options, args) = parser.parse_args()
-
 
 if (options.param_file != None):
   # parse the dakota input file
-  fem_params = ParseInput(options.param_file)
+  fem_params = ParseInput(options.param_file,options.vis_out)
 
   MatlabDriver = True
   MatlabDriver = False
