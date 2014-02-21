@@ -134,6 +134,12 @@ cd '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/Patient0006/024/opt'
 [Power_intervals] = power_parser_write_DF_array(power_log);
 csvwrite ('Power_History.csv' , Power_intervals);
 
+cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0007/011/laser_log'
+load 'power_log.txt';
+cd '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/Patient0007/011/opt'
+[Power_intervals] = power_parser_write_DF_array(power_log);
+csvwrite ('Power_History.csv' , Power_intervals);
+
 cd '/FUS4/data2/BioTex/BrainNonMDA/processed/Patient0007/015/laser_log'
 load 'power_log.txt';
 cd '/FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/workdir/Patient0007/015/opt'

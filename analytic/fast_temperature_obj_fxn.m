@@ -1,7 +1,7 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run. The metric is based on temperature (not dose and isotherms).
 
-function [metric] = fast_temperature_obj_fxn ( inputdatavars );
+function [metric,tmap_model_scaled_to_MRTI,MRTI_crop] = fast_temperature_obj_fxn ( inputdatavars );
 % Record the working directory
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
@@ -122,7 +122,8 @@ MRTI_hottest = MRTI(:,:,max_temperature_timepoint); % Set the variable
 
 % Crop the MRTI_image
 % This is the VOI.x and VOI.y swapped for ParaView
-MRTI_crop = MRTI_hottest( (VOI.y(1)-1):(VOI.y(2)+1) , (VOI.x(1)-1):(VOI.x(2)+1) ); % Set the cropped region
+MRTI_crop = MRTI_hottest( (VOI.y(1) ):(VOI.y(2) ) , (VOI.x(1) ):(VOI.x(2) ) ); % Set the cropped region
+% MRTI_crop = MRTI_hottest( (VOI.y(1)-1):(VOI.y(2)+1) , (VOI.x(1)-1):(VOI.x(2)+1) ); % Set the cropped region with odd border
 
 % This is the MATLAB native
 %MRTI_crop = MRTI_hottest( (VOI.x(1)-1):(VOI.x(2)+1) , (VOI.y(1)-1):(VOI.y(2)+1) ); % Set the cropped region
@@ -133,7 +134,8 @@ MRTI_crop = MRTI_hottest( (VOI.y(1)-1):(VOI.y(2)+1) , (VOI.x(1)-1):(VOI.x(2)+1) 
 %%%%% row- vs column- major schemes. My solution is to switch VOI.x with
 %%%%% VOI.y
 
-temperature_diff = tmap_model_scaled_to_MRTI - MRTI_crop ( 2:(end-1), 2:(end-1));
+%temperature_diff = tmap_model_scaled_to_MRTI - MRTI_crop ( 2:(end-1), 2:(end-1));
+temperature_diff = tmap_model_scaled_to_MRTI - MRTI_crop;
 metric = ( norm ( temperature_diff , 2 ) )^2;
 cd (path22);
 % %%%%% The remaining code is exclusively for testing / debugging / checking
