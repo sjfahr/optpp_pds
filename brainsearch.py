@@ -318,6 +318,65 @@ laserTip  1.0      4180           0.5985        500         14000       0.88
 """
 
 ##################################################################
+##################################################################
+##################################################################
+class ImageDoseHelper:
+  """ Class for output of arrhenius dose...  """
+  def __init__(self,VOISizeInfo):
+    print " class constructor called \n\n" 
+    # initialize dose map
+    self.dimensions = [(VOISizeInfo[1] - VOISizeInfo[0]) , 
+                       (VOISizeInfo[3] - VOISizeInfo[2]) ,
+                       (VOISizeInfo[5] - VOISizeInfo[4]) ]
+    numpyimagesize = self.dimensions[0]*self.dimensions[1]*self.dimensions[2]
+    self.dosemap = numpy.zeros(numpyimagesize ,
+                               dtype=numpy.float32) 
+
+  def UpdateDoseMap(self,vtkImageData,BaseFileNameOutput):
+    """ update dose map with temperature and write"""
+    vtkImageDataWriter = vtk.vtkDataSetWriter()
+    vtkImageDataWriter.SetFileTypeToBinary()
+    print "writing ", BaseFileNameOutput
+    vtkImageDataWriter.SetFileName( "%s.vtk" % BaseFileNameOutput )
+    vtkImageDataWriter.SetInput(vtkImageData)
+    vtkImageDataWriter.Update()
+
+    # get data in vtk format
+    numpytemperature = vtkNumPy.vtk_to_numpy(vtkImageData.GetOutput().GetPointData().GetArray(0)) 
+    self.dosemap = self.dosemap + self.Freq * exp(self.ActivationEnergy/self.GasConstant * numpytemperature )
+    # output dosemagp
+    vtkDoseImage = self.ConvertNumpyVTKImage(self.dosemap)
+    vtkDoseWriter = vtk.vtkDataSetWriter()
+    vtkDoseWriter.SetFileName( "%s.dose.vtk" % BaseFileNameOutput )
+    vtkDoseWriter.SetInput( vtkDoseImage )
+    vtkDoseWriter.Update()
+    return
+  # write a numpy data to disk in vtk format
+  def ConvertNumpyVTKImage(self,NumpyImageData):
+    # Create initial image
+    dim = self.dimensions
+    # imports raw data and stores it.
+    dataImporter = vtk.vtkImageImport()
+    # array is converted to a string of chars and imported.
+    data_string = NumpyImageData.tostring()
+    dataImporter.CopyImportVoidPointer(data_string, len(data_string))
+    # The type of the newly imported data is set to unsigned char (uint8)
+    dataImporter.SetDataScalarTypeToFloat()
+    # Because the data that is imported only contains an intensity value (it isnt RGB-coded or someting similar), the importer
+    # must be told this is the case.
+    dataImporter.SetNumberOfScalarComponents(dim[3])
+    # The following two functions describe how the data is stored and the dimensions of the array it is stored in. For this
+    # simple case, all axes are of length 75 and begins with the first element. For other data, this is probably not the case.
+    # I have to admit however, that I honestly dont know the difference between SetDataExtent() and SetWholeExtent() although
+    # VTK complains if not both are used.
+    dataImporter.SetDataExtent( 0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1)
+    dataImporter.SetWholeExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1)
+    dataImporter.SetDataSpacing( self.spacing )
+    dataImporter.SetDataOrigin(  self.origin )
+    dataImporter.Update()
+    return dataImporter.GetOutput()
+
+##################################################################
 def ComputeObjective(**kwargs):
   ObjectiveFunction = 0.0
   # Debugging flags
@@ -550,20 +609,8 @@ def ComputeObjective(**kwargs):
       # write output
       # FIXME auto read ??
       if ( DebugObjective ):
-         vtkTemperatureWriter = vtk.vtkDataSetWriter()
-         vtkTemperatureWriter.SetFileTypeToBinary()
-         roifileName = "%s/roisem.%s.%04d.vtk"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID)
-         print "writing ", roifileName 
-         vtkTemperatureWriter.SetFileName( roifileName )
-         vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
-         vtkTemperatureWriter.Update()
-         # FIXME auto read ??
-         roifileName = "%s/roimrti.%s.%04d.vtk" % (SEMDataDirectory,kwargs['opttype'],MRTItimeID)
-         print "writing ", roifileName 
-         vtkTemperatureWriter.SetFileName( roifileName )
-         vtkTemperatureWriter.SetInput(vtkVOIExtract.GetOutput())
-         vtkTemperatureWriter.Update()
-
+         semDose.UpdateDoseMap( vtkResample.GetOutput()  ,"%s/roisem.%s.%04d"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         mrtiDose.UpdateDoseMap(vtkVOIExtract.GetOutput(),"%s/roimrti.%s.%04d" % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
 
       if ( kwargs['VisualizeOutput'] and MRTItimeID == fem_params['maxheatid'] ):
       #if ( kwargs['VisualizeOutput'] ):
@@ -625,7 +672,7 @@ def ComputeObjective(**kwargs):
           windowToImage.SetInput(renWin)
           windowToImage.Update()
           jpgWriter     = vtk.vtkJPEGWriter() 
-          jpgWriter.SetFileName( "%s/%s.%s.%04d.jpg"  % (SEMDataDirectory,outputname,kwargs['opttype'],MRTItimeID))
+          jpgWriter.SetFileName( "%s/%s%s%04d.jpg"  % (SEMDataDirectory,outputname,kwargs['opttype'],MRTItimeID))
           #jpgWriter.SetInput(extractVOI.GetOutput())
           jpgWriter.SetInput(windowToImage.GetOutput())
           jpgWriter.Write()

@@ -1,34 +1,32 @@
 import numpy
+import os
 
 resultfileList = [
-'./workdir/Patient0002/000/',
-'./workdir/Patient0002/001/',
-'./workdir/Patient0003/002/',
-'./workdir/Patient0004/003/',
-'./workdir/Patient0005/004/',
-'./workdir/Patient0006/005/',
-'./workdir/Patient0004/006/',
-'./workdir/Patient0006/007/',
-'./workdir/Patient0005/008/',
-'./workdir/Patient0006/009/',
-'./workdir/Patient0002/010/',
-'./workdir/Patient0007/011/',
-'./workdir/Patient0005/012/',
-'./workdir/Patient0003/013/',
-'./workdir/Patient0008/014/',
-'./workdir/Patient0007/015/',
-'./workdir/Patient0008/016/',
-'./workdir/Patient0002/017/',
-'./workdir/Patient0003/018/',
-'./workdir/Patient0006/019/',
-'./workdir/Patient0002/020/',
-'./workdir/Patient0002/021/',
-'./workdir/Patient0002/022/',
-'./workdir/Patient0006/023/',
-'./workdir/Patient0006/024/',
-'./workdir/Patient0003/025/',
-'./workdir/Patient0007/026/',
-'./workdir/Patient0008/027/']
+'./workdir/Study0030/495/',
+'./workdir/Study0030/497/',
+'./workdir/Study0030/491/',
+'./workdir/Study0030/496/',
+'./workdir/Study0030/490/',
+'./workdir/Study0017/378/',
+'./workdir/Study0025/438/',
+'./workdir/Study0025/435/',
+'./workdir/Study0025/440/',
+'./workdir/Study0025/436/',
+'./workdir/Study0028/466/',
+'./workdir/Study0028/468/',
+'./workdir/Study0028/471/',
+'./workdir/Study0026/447/',
+'./workdir/Study0026/457/',
+'./workdir/Study0026/455/',
+'./workdir/Study0026/453/',
+'./workdir/Study0026/450/',
+'./workdir/Study0026/451/',
+'./workdir/Study0022/418/',
+'./workdir/Study0022/417/',
+'./workdir/Study0021/409/',
+'./workdir/Study0021/414/',
+'./workdir/Study0021/415/',
+]
 
 with file('datasummary.txt' , 'w') as fileHandle: 
   # write header
@@ -53,4 +51,6 @@ with file('datasummary.txt' , 'w') as fileHandle:
     #dataarray = numpy.loadtxt(filename,skiprows=1,usecols=(0,1,2,3,4,6)
     fileHandle.write("%05d,%12.5e,%12.5e\n" %(dataid,mu_effopt,minobjval))
     # FIXME
-    print "python ./brainsearch.py --param_file  %s/opt/optpp_pds.%s.in.%d %s/opt/optpp_pds.%s.out.%d --vis_out" % (filenamebase,opttype,idmin,filenamebase,opttype,idmin)
+    runcmd = "vglrun python ./brainsearch.py --param_file  %s/opt/optpp_pds.%s.in.%d %s/opt/optpp_pds.%s.out.%d --vis_out" % (filenamebase,opttype,idmin,filenamebase,opttype,idmin)
+    print runcmd
+    #os.system( runcmd )
