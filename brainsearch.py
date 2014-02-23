@@ -22,6 +22,9 @@ workDirectory   = 'optpp_pds'
 outputDirectory = '/dev/shm/outputs/dakota/%04d'
 outputDirectory = '/tmp/outputs/dakota/%04d'
 
+# image processing tool
+c3dexe = '/opt/apps/itksnap/c3d-1.0.0-Linux-x86_64/bin/c3d'
+
 # database and run directory have the same structure
 databaseDIR     = 'database/'
 databaseDIR     = 'StudyDatabase/'
@@ -765,12 +768,17 @@ def ComputeObjective(**kwargs):
          # write dose
          WriteVTKOutputFile ( vtksemDose  ,"%s/roisemdose.%s.%04d.vtk"   % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
          WriteVTKOutputFile ( vtkmrtiDose ,"%s/roimrtidose.%s.%04d.vtk"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+
+         # write dice coefficient
+         dicecmd = "%s -verbose %s/roisemdose.%s.%04d.vtk -thresh 1 inf 1 0 -type uchar -as SEM %s/roimrtidose.%s.%04d.vtk -thresh 1 inf 1 0 -type uchar -push SEM -overlap 1 > %s/dice.%s.%04d.txt  2>&1" % (c3dexe,SEMDataDirectory,kwargs['opttype'],MRTItimeID,SEMDataDirectory,kwargs['opttype'],MRTItimeID,SEMDataDirectory,kwargs['opttype'],MRTItimeID)
+         print dicecmd
+         os.system(dicecmd)
          ##if (MRTItimeID > 20):
          ##  raise 
 
       # Write JPG's for tex
-      #if ( kwargs['VisualizeOutput'] and MRTItimeID == fem_params['maxheatid'] ):
-      if ( kwargs['VisualizeOutput'] ):
+      if ( kwargs['VisualizeOutput'] and MRTItimeID == fem_params['maxheatid'] ):
+      #if ( kwargs['VisualizeOutput'] ):
          VisDictionary = {'voi'    :  kwargs['voi'] ,
                           'roisem' : vtkResample.GetOutput()   ,
                           'roimrti': vtkVOIExtract.GetOutput() ,
