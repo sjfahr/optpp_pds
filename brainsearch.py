@@ -388,10 +388,25 @@ def WriteJPGOutputFiles(**visargs):
     hueLut.SetHueRange (0.667, 0.0)
     hueLut.SetRampToLinear ()
     hueLut.Build()
+
+    # color table
+    # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
+    # http://vtk.org/gitweb?p=VTK.git;a=blob;f=Examples/ImageProcessing/Python/ImageSlicing.py
+    arrLut = vtk.vtkLookupTable()
+    arrLut.SetNumberOfColors (256)
+    #FIXME: adjust here to change color  range
+    arrLut.SetRange ( 0., 1.)  
+    #arrLut.SetSaturationRange (0.0, 1.0)
+    #arrLut.SetValueRange (0.0, 1.0)
+    arrLut.SetHueRange (0.667, 0.0)
+    arrLut.SetRampToLinear ()
+    arrLut.Build()
     # plot mrti, fem, and magn
     for (lookuptable,legendname,sourceimage,outputname) in [  
-                           (hueLut,"SEM" ,visargs['roisem'] ,'roisem' ),
-                           (hueLut,"MRTI",visargs['roimrti'],'roimrti'),
+                           (hueLut,"SEM" ,visargs['roisem']     ,'roisem' ),
+                           (hueLut,"MRTI",visargs['roimrti']    ,'roimrti'),
+                           (arrLut,"PDAM",visargs['roisemdose'] ,'roisemdose' ),
+                           (arrLut,"MDAM",visargs['roimrtidose'],'roimrtidose'),
                            (bwLut ,"Magn",vtkMagnImageReader.GetOutput(),"magn")]:
       # colorbar
       # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
@@ -759,6 +774,8 @@ def ComputeObjective(**kwargs):
          VisDictionary = {'voi'    :  kwargs['voi'] ,
                           'roisem' : vtkResample.GetOutput()   ,
                           'roimrti': vtkVOIExtract.GetOutput() ,
+                      'roisemdose' : vtksemDose  ,
+                      'roimrtidose': vtkmrtiDose ,
                 'magnitudefilename':'%s/magnitude.%04d.vtk' % (kwargs['mrti'], MRTItimeID) ,
                  'jpgoutnameformat':"%s/%%s%s%04d.jpg"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID)
                          }
