@@ -9,6 +9,14 @@ import os
 import scipy.io as scipyio
 import ConfigParser
 
+# numerical support
+import numpy
+
+# vis support
+import vtk
+import vtk.util.numpy_support as vtkNumPy 
+print "using vtk version", vtk.vtkVersion.GetVTKVersion()
+
 brainNekDIR     = '/workarea/fuentes/braincode/tym1' 
 workDirectory   = 'optpp_pds'
 outputDirectory = '/dev/shm/outputs/dakota/%04d'
@@ -317,40 +325,64 @@ catheter  1.0      4180           0.5985        500         14000       0.88
 laserTip  1.0      4180           0.5985        500         14000       0.88
 """
 
+# Convenience Routine
+def WriteVTKOutputFile(vtkImageData,VTKOutputFilename):
+    vtkImageDataWriter = vtk.vtkDataSetWriter()
+    vtkImageDataWriter.SetFileTypeToBinary()
+    print "writing ", VTKOutputFilename 
+    vtkImageDataWriter.SetFileName( VTKOutputFilename )
+    vtkImageDataWriter.SetInput(vtkImageData)
+    vtkImageDataWriter.Update()
+
 ##################################################################
 ##################################################################
 ##################################################################
 class ImageDoseHelper:
   """ Class for output of arrhenius dose...  """
-  def __init__(self,VOISizeInfo):
+  def __init__(self,VOISizeInfo,DeltaT,ImageFileNameExample ):
     print " class constructor called \n\n" 
+    # damage paramters
+    self.ActivationEnergy     = 3.1e98
+    self.FrequencyFactor      = 6.28e5
+    self.GasConstant          = 8.314472
+    self.BaseTemperature      = 273.0
+    self.DeltaT               = DeltaT               
+
+    # open image and extract VOI for a reference
+    vtkImageReader = vtk.vtkDataSetReader() 
+    vtkImageReader.SetFileName(ImageFileNameExample )
+    vtkImageReader.Update() 
+    
+    # extract voi for QOI
+    vtkVOIExtract = vtk.vtkExtractVOI() 
+    vtkVOIExtract.SetInput( vtkImageReader.GetOutput() ) 
+    vtkVOIExtract.SetVOI( VOISizeInfo ) 
+    vtkVOIExtract.Update()
+    # VOI Origin should be at the lower bound
+    VOIBounds = vtkVOIExtract.GetOutput().GetBounds()
+    self.origin               = (VOIBounds[0],VOIBounds[2],VOIBounds[4])
+    self.spacing              = vtkVOIExtract.GetOutput().GetSpacing()
+
     # initialize dose map
-    self.dimensions = [(VOISizeInfo[1] - VOISizeInfo[0]) , 
-                       (VOISizeInfo[3] - VOISizeInfo[2]) ,
-                       (VOISizeInfo[5] - VOISizeInfo[4]) ]
+    self.dimensions = [(VOISizeInfo[1] - VOISizeInfo[0]+1) , 
+                       (VOISizeInfo[3] - VOISizeInfo[2]+1) ,
+                       (VOISizeInfo[5] - VOISizeInfo[4]+1) ,1 ]
     numpyimagesize = self.dimensions[0]*self.dimensions[1]*self.dimensions[2]
-    self.dosemap = numpy.zeros(numpyimagesize ,
-                               dtype=numpy.float32) 
+    # store as double precision
+    self.PredictedDamage = numpy.zeros( numpyimagesize, dtype=numpy.float ) 
 
-  def UpdateDoseMap(self,vtkImageData,BaseFileNameOutput):
-    """ update dose map with temperature and write"""
-    vtkImageDataWriter = vtk.vtkDataSetWriter()
-    vtkImageDataWriter.SetFileTypeToBinary()
-    print "writing ", BaseFileNameOutput
-    vtkImageDataWriter.SetFileName( "%s.vtk" % BaseFileNameOutput )
-    vtkImageDataWriter.SetInput(vtkImageData)
-    vtkImageDataWriter.Update()
+  def UpdateDoseMap(self,NumpyTemperatureData ):
+    """ update dose map with temperature """
+    #  input should be temperature in degC
+    #  convert to Kelvin (using double precision)
+    TemperatureKelvin = NumpyTemperatureData.astype(numpy.float) + self.BaseTemperature
 
-    # get data in vtk format
-    numpytemperature = vtkNumPy.vtk_to_numpy(vtkImageData.GetOutput().GetPointData().GetArray(0)) 
-    self.dosemap = self.dosemap + self.Freq * exp(self.ActivationEnergy/self.GasConstant * numpytemperature )
-    # output dosemagp
-    vtkDoseImage = self.ConvertNumpyVTKImage(self.dosemap)
-    vtkDoseWriter = vtk.vtkDataSetWriter()
-    vtkDoseWriter.SetFileName( "%s.dose.vtk" % BaseFileNameOutput )
-    vtkDoseWriter.SetInput( vtkDoseImage )
-    vtkDoseWriter.Update()
-    return
+    #  A exp ( - E_a/ (RT)  ) \Delta t
+    self.PredictedDamage = self.PredictedDamage + self.ActivationEnergy * numpy.exp(- self.FrequencyFactor/self.GasConstant * numpy.reciprocal( TemperatureKelvin )) * self.DeltaT;
+
+    # return vtk format for write (as single precision)
+    return self.ConvertNumpyVTKImage(self.PredictedDamage.astype(numpy.float32))
+
   # write a numpy data to disk in vtk format
   def ConvertNumpyVTKImage(self,NumpyImageData):
     # Create initial image
@@ -382,18 +414,15 @@ def ComputeObjective(**kwargs):
   # Debugging flags
   DebugObjective = False
   DebugObjective = True
+
   # initialize brainNek
+  # CYTHON AND VTK NEED TO BUILD with the same PYTHON INCLUDE and LIB 
   import brainNekLibrary
-  import numpy
   # setuprc file
   outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
   setup = brainNekLibrary.PySetupAide(outputSetupRCFile )
   brainNek = brainNekLibrary.PyBrain3d(setup);
 
-  # FIXME vtk needs to be loaded AFTER kernel is built
-  import vtk
-  import vtk.util.numpy_support as vtkNumPy 
-  print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
   # setup vtkUnstructuredGrid
   hexahedronGrid   = vtk.vtkUnstructuredGrid()
@@ -535,6 +564,10 @@ def ComputeObjective(**kwargs):
   MRTItimeID  = 0
   MRTIInterval = 5.0
 
+  # initialize image dose
+  semDose  = ImageDoseHelper(  kwargs['voi'], MRTIInterval ,'%s/temperature.0001.vtk' % (kwargs['mrti']))
+  mrtiDose = ImageDoseHelper(  kwargs['voi'], MRTIInterval ,'%s/temperature.0001.vtk' % (kwargs['mrti']))
+
   # setup screen shot interval 
   screenshotNum = 1;
   screenshotTol = 1e-10;
@@ -566,6 +599,10 @@ def ComputeObjective(**kwargs):
       vtkVOIExtract.Update()
       mrti_point_data= vtkVOIExtract.GetOutput().GetPointData() 
       mrti_array = vtkNumPy.vtk_to_numpy(mrti_point_data.GetArray('image_data')) 
+      # update dose
+      vtkmrtiDose = mrtiDose.UpdateDoseMap(mrti_array)
+      x = vtkNumPy.vtk_to_numpy(vtkmrtiDose.GetPointData().GetArray('scalars')) 
+      
       #print mrti_array
       #print type(mrti_array)
 
@@ -589,6 +626,8 @@ def ComputeObjective(**kwargs):
 
       fem_point_data= vtkResample.GetOutput().GetPointData() 
       fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('bioheat')) 
+      # update dose
+      vtksemDose  = semDose.UpdateDoseMap(  fem_array)
       print 'resampled' 
       #print fem_array 
       #print type(fem_array )
@@ -609,8 +648,14 @@ def ComputeObjective(**kwargs):
       # write output
       # FIXME auto read ??
       if ( DebugObjective ):
-         semDose.UpdateDoseMap( vtkResample.GetOutput()  ,"%s/roisem.%s.%04d"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
-         mrtiDose.UpdateDoseMap(vtkVOIExtract.GetOutput(),"%s/roimrti.%s.%04d" % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         # write temperature
+         WriteVTKOutputFile ( vtkResample.GetOutput()   ,"%s/roisem.%s.%04d.vtk"   % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         WriteVTKOutputFile ( vtkVOIExtract.GetOutput() ,"%s/roimrti.%s.%04d.vtk"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         # write dose
+         WriteVTKOutputFile ( vtksemDose  ,"%s/roisemdose.%s.%04d.vtk"   % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         WriteVTKOutputFile ( vtkmrtiDose ,"%s/roimrtidose.%s.%04d.vtk"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         ##if (MRTItimeID > 20):
+         ##  raise 
 
       if ( kwargs['VisualizeOutput'] and MRTItimeID == fem_params['maxheatid'] ):
       #if ( kwargs['VisualizeOutput'] ):
@@ -867,7 +912,6 @@ def ParseInput(paramfilename,VisualizeOutput):
   # get header info
   mrtifilename = '%s/temperature.%04d.vtk' % (fem_params['mrti'], 1) 
   print 'opening' , mrtifilename 
-  import vtk
   vtkSetupImageReader = vtk.vtkDataSetReader() 
   vtkSetupImageReader.SetFileName(mrtifilename )
   vtkSetupImageReader.Update() 
