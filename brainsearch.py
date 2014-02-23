@@ -334,6 +334,102 @@ def WriteVTKOutputFile(vtkImageData,VTKOutputFilename):
     vtkImageDataWriter.SetInput(vtkImageData)
     vtkImageDataWriter.Update()
 
+# Convenience Routine
+def WriteJPGOutputFiles(**visargs):
+    print 'opening' , visargs['magnitudefilename'] 
+    vtkMagnImageReader = vtk.vtkDataSetReader() 
+    vtkMagnImageReader.SetFileName( visargs['magnitudefilename'] )
+    vtkMagnImageReader.Update() 
+    # display VOI outline
+    vtkVOIExtract = vtk.vtkExtractVOI() 
+    vtkVOIExtract.SetInput( vtkMagnImageReader.GetOutput() ) 
+    vtkVOIExtract.SetVOI( visargs['voi'] ) 
+    vtkVOIExtract.Update()
+    
+    vtkOutline = vtk.vtkOutlineFilter() 
+    vtkOutline.SetInput( vtkVOIExtract.GetOutput() ) 
+    vtkOutline.Update()
+    
+    # slight rotation fixes vis bug/error
+    AffineTransform = vtk.vtkTransform()
+    AffineTransform.RotateX( 1.0 )
+    OutlineRegister = vtk.vtkTransformFilter()
+    OutlineRegister.SetInput( vtkOutline.GetOutput() )
+    OutlineRegister.SetTransform(AffineTransform)
+    OutlineRegister.Update()
+
+    # create actor to render VOI
+    outlineMapper = vtk.vtkPolyDataMapper(); 
+    outlineMapper.SetInput(OutlineRegister.GetOutput());
+    outlineActor = vtk.vtkActor(); 
+    outlineActor.SetMapper(outlineMapper); 
+    outlineActor.GetProperty().SetColor(1,1,1);
+    outlineActor.GetProperty().SetLineWidth(2);
+    outlineActor.GetProperty().SetRepresentationToWireframe();
+    outlineActor.GetProperty().SetRepresentationToPoints();
+    outlineActor.GetProperty().SetRepresentationToSurface();
+
+    # Start by creating a black/white lookup table.
+    bwLut = vtk.vtkLookupTable()
+    bwLut.SetTableRange (0, 300);
+    bwLut.SetSaturationRange (0, 0);
+    bwLut.SetHueRange (0, 0);
+    bwLut.SetValueRange (0, 1);
+    bwLut.Build(); #effective built
+    # color table
+    # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
+    # http://vtk.org/gitweb?p=VTK.git;a=blob;f=Examples/ImageProcessing/Python/ImageSlicing.py
+    hueLut = vtk.vtkLookupTable()
+    hueLut.SetNumberOfColors (256)
+    #FIXME: adjust here to change color  range
+    hueLut.SetRange ( 30.,80.)  
+    #hueLut.SetSaturationRange (0.0, 1.0)
+    #hueLut.SetValueRange (0.0, 1.0)
+    hueLut.SetHueRange (0.667, 0.0)
+    hueLut.SetRampToLinear ()
+    hueLut.Build()
+    # plot mrti, fem, and magn
+    for (lookuptable,legendname,sourceimage,outputname) in [  
+                           (hueLut,"SEM" ,visargs['roisem'] ,'roisem' ),
+                           (hueLut,"MRTI",visargs['roimrti'],'roimrti'),
+                           (bwLut ,"Magn",vtkMagnImageReader.GetOutput(),"magn")]:
+      # colorbar
+      # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
+      scalarBar = vtk.vtkScalarBarActor()
+      scalarBar.SetTitle(legendname)
+      scalarBar.SetNumberOfLabels(4)
+      scalarBar.SetLookupTable(lookuptable)
+
+      # mapper
+      #mapper = vtk.vtkDataSetMapper()
+      mapper = vtk.vtkImageMapToColors()
+      mapper.SetInput(  sourceimage )
+      # set echo to display
+      mapper.SetActiveComponent( 0 )
+      mapper.SetLookupTable(lookuptable)
+  
+      # actor
+      actor = vtk.vtkImageActor()
+      actor.SetInput(mapper.GetOutput())
+       
+      # assign actor to the renderer
+      ren = vtk.vtkRenderer()
+      ren.AddActor(actor)
+      ren.AddActor(outlineActor)
+      ren.AddActor2D(scalarBar)
+      renWin = vtk.vtkRenderWindow()
+      renWin.AddRenderer(ren)
+      renWin.SetSize(512,512)
+      renWin.Render()
+
+      windowToImage = vtk.vtkWindowToImageFilter() 
+      windowToImage.SetInput(renWin)
+      windowToImage.Update()
+      jpgWriter     = vtk.vtkJPEGWriter() 
+      jpgWriter.SetFileName( visargs['jpgoutnameformat'] % (outputname) )
+      jpgWriter.SetInput(windowToImage.GetOutput())
+      jpgWriter.Write()
+
 ##################################################################
 ##################################################################
 ##################################################################
@@ -657,70 +753,16 @@ def ComputeObjective(**kwargs):
          ##if (MRTItimeID > 20):
          ##  raise 
 
-      if ( kwargs['VisualizeOutput'] and MRTItimeID == fem_params['maxheatid'] ):
-      #if ( kwargs['VisualizeOutput'] ):
-        magnitudefilename = '%s/magnitude.%04d.vtk' % (kwargs['mrti'], MRTItimeID) 
-        print 'opening' , magnitudefilename 
-        vtkMagnImageReader = vtk.vtkDataSetReader() 
-        vtkMagnImageReader.SetFileName(magnitudefilename )
-        vtkMagnImageReader.Update() 
-        # Start by creating a black/white lookup table.
-        bwLut = vtk.vtkLookupTable()
-        bwLut.SetTableRange (0, 300);
-        bwLut.SetSaturationRange (0, 0);
-        bwLut.SetHueRange (0, 0);
-        bwLut.SetValueRange (0, 1);
-        bwLut.Build(); #effective built
-        # color table
-        # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
-        # http://vtk.org/gitweb?p=VTK.git;a=blob;f=Examples/ImageProcessing/Python/ImageSlicing.py
-        hueLut = vtk.vtkLookupTable()
-        hueLut.SetNumberOfColors (256)
-        #FIXME: adjust here to change color  range
-        hueLut.SetRange ( 30.,80.)  
-        #hueLut.SetSaturationRange (0.0, 1.0)
-        #hueLut.SetValueRange (0.0, 1.0)
-        hueLut.SetHueRange (0.667, 0.0)
-        hueLut.SetRampToLinear ()
-        hueLut.Build()
-        # plot mrti, fem, and magn
-        for (lookuptable,legendname,sourcefilter,outputname) in [ (hueLut,"SEM",vtkResample,"roisem"),(hueLut,"MRTI",vtkVOIExtract,"roimrti"),(bwLut,"Magn",vtkMagnImageReader,"magn")]:
-          # colorbar
-          # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
-          scalarBar = vtk.vtkScalarBarActor()
-          scalarBar.SetTitle(legendname)
-          scalarBar.SetNumberOfLabels(4)
-          scalarBar.SetLookupTable(lookuptable)
-
-          # mapper
-          #mapper = vtk.vtkDataSetMapper()
-          mapper = vtk.vtkImageMapToColors()
-          mapper.SetInput(  sourcefilter.GetOutput() )
-          # set echo to display
-          mapper.SetActiveComponent( 0 )
-          mapper.SetLookupTable(lookuptable)
-  
-          # actor
-          actor = vtk.vtkImageActor()
-          actor.SetInput(mapper.GetOutput())
-           
-          # assign actor to the renderer
-          ren = vtk.vtkRenderer()
-          ren.AddActor(actor)
-          ren.AddActor2D(scalarBar)
-          renWin = vtk.vtkRenderWindow()
-          renWin.AddRenderer(ren)
-          renWin.SetSize(512,512)
-          renWin.Render()
-
-          windowToImage = vtk.vtkWindowToImageFilter() 
-          windowToImage.SetInput(renWin)
-          windowToImage.Update()
-          jpgWriter     = vtk.vtkJPEGWriter() 
-          jpgWriter.SetFileName( "%s/%s%s%04d.jpg"  % (SEMDataDirectory,outputname,kwargs['opttype'],MRTItimeID))
-          #jpgWriter.SetInput(extractVOI.GetOutput())
-          jpgWriter.SetInput(windowToImage.GetOutput())
-          jpgWriter.Write()
+      # Write JPG's for tex
+      #if ( kwargs['VisualizeOutput'] and MRTItimeID == fem_params['maxheatid'] ):
+      if ( kwargs['VisualizeOutput'] ):
+         VisDictionary = {'voi'    :  kwargs['voi'] ,
+                          'roisem' : vtkResample.GetOutput()   ,
+                          'roimrti': vtkVOIExtract.GetOutput() ,
+                'magnitudefilename':'%s/magnitude.%04d.vtk' % (kwargs['mrti'], MRTItimeID) ,
+                 'jpgoutnameformat':"%s/%%s%s%04d.jpg"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID)
+                         }
+         WriteJPGOutputFiles(**VisDictionary)
 
       # accumulate objective function
       diff =  numpy.abs(mrti_array-fem_array)
@@ -932,7 +974,7 @@ def ParseInput(paramfilename,VisualizeOutput):
   timeinterval = heattimeinterval             
   fem_params['initialtime']  = timeinterval[0] * config.getfloat('mrti','deltat') 
   fem_params['finaltime']    = timeinterval[1] * config.getfloat('mrti','deltat') 
-  fem_params['maxheatid']      = heattimeinterval[1]
+  fem_params['maxheatid']    = heattimeinterval[1]
   fem_params['voi']          = eval(config.get('mrti','voi'))
 
   print 'mrti data from' , fem_params['mrti'] , 'setupfile', inisetupfile  
