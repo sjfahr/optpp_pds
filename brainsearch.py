@@ -1058,6 +1058,9 @@ parser.add_option( "--run_fem","--param_file",
 parser.add_option( "--vis_out", 
                   action="store_true", dest="vis_out", default=False,
                   help="visualise output", metavar="bool")
+parser.add_option( "--ini", 
+                  action="store", dest="config_ini", default=None,
+                  help="ini FILE containing setup info", metavar="FILE")
 (options, args) = parser.parse_args()
 
 if (options.param_file != None):
@@ -1101,6 +1104,94 @@ if (options.param_file != None):
     fileHandle.write('%f\n' % objfunction )
     fileHandle.flush(); fileHandle.close();
 
+# run planning solver w/ default options from ini file
+elif (options.config_ini != None):
+
+  # read config file
+  config = ConfigParser.SafeConfigParser({})
+  config.read(options.config_ini)
+  
+  fem_params = {}
+  fem_params['powerHistory']  = [[1,10],[0.0,config.getfloat('timestep','power')]]
+  timePowerList = fem_params['powerHistory']  
+  fem_params['deltat']        =  5.0
+  fem_params['ntime']         =  fem_params['powerHistory'][0][-1]
+  fem_params['finaltime']     =  fem_params['deltat']  * fem_params['ntime']
+  fem_params['UID']           =  0000
+  # build ccode of power history
+  ccode = ''
+  controlstatement = 'if'
+  for iBound,powervalue in zip(timePowerList[0],timePowerList[1]):
+      ccode = ccode + '\t%s( time< %f  ) return %f;' % ( controlstatement,iBound*fem_params['deltat'],powervalue )
+      controlstatement = 'else if'
+  fem_params['ccode']         =  ccode
+  fem_params['nsubstep']      =  1
+  fem_params['physics']       = "AddPennesSDASystem"
+  fem_params['u_init']        = 37.0
+  fem_params['fileID']        = 0
+  # store the entire configuration file for convienence
+  fem_params['config_parser'] = config
+  fem_params['ini_filename'] = options.config_ini
+
+  # time stamp
+  import time
+  timeStamp =0 
+  while(True):
+    if(os.path.getmtime(fem_params['ini_filename']) > timeStamp):
+      # set tissue lookup tables
+      k_0Table  = {"default":config.getfloat("thermal_conductivity","k_0_healthy")  ,
+                   "vessel" :config.getfloat("thermal_conductivity","k_0_healthy")  ,
+                   "grey"   :config.getfloat("thermal_conductivity","k_0_grey"   )  ,
+                   "white"  :config.getfloat("thermal_conductivity","k_0_white"  )  ,
+                   "csf"    :config.getfloat("thermal_conductivity","k_0_csf"    )  ,
+                   "tumor"  :config.getfloat("thermal_conductivity","k_0_tumor"  )  }
+      w_0Table  = {"default":config.getfloat("perfusion","w_0_healthy")  ,
+                   "vessel" :config.getfloat("perfusion","w_0_healthy")  ,
+                   "grey"   :config.getfloat("perfusion","w_0_grey"   )  ,
+                   "white"  :config.getfloat("perfusion","w_0_white"  )  ,
+                   "csf"    :config.getfloat("perfusion","w_0_csf"    )  ,
+                   "tumor"  :config.getfloat("perfusion","w_0_tumor"  )  }
+      mu_aTable = {"default":config.getfloat("optical","mu_a_healthy")  ,
+                   "vessel" :config.getfloat("optical","mu_a_healthy")  ,
+                   "grey"   :config.getfloat("optical","mu_a_grey"   )  ,
+                   "white"  :config.getfloat("optical","mu_a_white"  )  ,
+                   "csf"    :config.getfloat("optical","mu_a_csf"    )  ,
+                   "tumor"  :config.getfloat("optical","mu_a_tumor"  )  }
+      mu_sTable = {"default":config.getfloat("optical","mu_s_healthy")  ,
+                   "vessel" :config.getfloat("optical","mu_s_healthy")  ,
+                   "grey"   :config.getfloat("optical","mu_s_grey"   )  ,
+                   "white"  :config.getfloat("optical","mu_s_white"  )  ,
+                   "csf"    :config.getfloat("optical","mu_s_csf"    )  ,
+                   "tumor"  :config.getfloat("optical","mu_s_tumor"  )  }
+      labelTable= {config.get("labels","greymatter" ):"grey" , 
+                   config.get("labels","whitematter"):"white", 
+                   config.get("labels","csf"        ):"csf"  , 
+                   config.get("labels","tumor"      ):"tumor", 
+                   config.get("labels","vessel"     ):"vessel"}
+      labelCount= {"default":0,
+                   "grey"   :0, 
+                   "white"  :0, 
+                   "csf"    :0, 
+                   "tumor"  :0, 
+                   "vessel" :0}
+      # execute 
+      print "Running BrainNek..."
+      brainNekWrapper(**fem_params)
+      
+      # write objective function 
+      objfunction = ComputeObjective(**fem_params)
+    else:
+      print "waiting on user input.."
+      # echo lookup table
+      print "lookup tables"
+      print "labeled %d voxels" % len(imageLabel)
+      print "labels"      , labelTable
+      print "counts"      , labelCount
+      print "conductivity", k_0Table  
+      print "perfusion"   , w_0Table  
+      print "absorption"  , mu_aTable  
+      print "scattering"  , mu_sTable  
+      time.sleep(2)
 else:
   parser.print_help()
   print options
