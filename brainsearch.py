@@ -522,6 +522,173 @@ class ImageDoseHelper:
     dataImporter.Update()
     return dataImporter.GetOutput()
 
+
+def ForwardSolve(**kwargs):
+  ObjectiveFunction = 0.0
+  # Debugging flags
+  DebugObjective = True
+  DebugObjective = False
+
+  # initialize brainNek
+  # CYTHON AND VTK NEED TO BUILD with the same PYTHON INCLUDE and LIB 
+  import brainNekLibrary
+  # setuprc file
+  outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
+  setup = brainNekLibrary.PySetupAide(outputSetupRCFile )
+  brainNek = brainNekLibrary.PyBrain3d(setup);
+
+
+  # setup vtkUnstructuredGrid
+  hexahedronGrid   = vtk.vtkUnstructuredGrid()
+  numPoints = brainNek.GetNumberOfNodes( ) 
+  numElems  = brainNek.GetNumberOfElements( ) 
+  # initialize nodes and connectivity
+  numHexPts = 8 
+  bNekNodes         = numpy.zeros(numPoints * 3,dtype=numpy.float32)
+  bNekConnectivity  = numpy.zeros(numElems  * (numHexPts +1),dtype=numpy.int32)
+  print "setting up hex mesh with %d nodes %d elem"  % (numPoints,numElems)
+
+  # get nodes and connectivity from brainnek
+  brainNek.GetNodes(   bNekNodes)       ;
+  brainNek.GetElements(bNekConnectivity);
+  # reshape for convenience
+  bNekNodes        = bNekNodes.reshape(      numPoints , 3)
+
+  ## # setup elements
+  ## bNekConnectivityreshape = bNekConnectivity.reshape(numElems , numHexPts +1)
+  ## for ielem in range(numElems ):
+  ##   aHexahedron = vtk.vtkHexahedron()
+  ##   # print 'number of nodes %d ' % bNekConnectivityreshape[ielem][0]
+  ##   aHexahedron.GetPointIds().SetId(0,bNekConnectivityreshape[ielem][1])
+  ##   aHexahedron.GetPointIds().SetId(1,bNekConnectivityreshape[ielem][2])
+  ##   aHexahedron.GetPointIds().SetId(2,bNekConnectivityreshape[ielem][3])
+  ##   aHexahedron.GetPointIds().SetId(3,bNekConnectivityreshape[ielem][4])
+  ##   aHexahedron.GetPointIds().SetId(4,bNekConnectivityreshape[ielem][5])
+  ##   aHexahedron.GetPointIds().SetId(5,bNekConnectivityreshape[ielem][6])
+  ##   aHexahedron.GetPointIds().SetId(6,bNekConnectivityreshape[ielem][7])
+  ##   aHexahedron.GetPointIds().SetId(7,bNekConnectivityreshape[ielem][8])
+  ##   hexahedronGrid.InsertNextCell(aHexahedron.GetCellType(),
+  ##                                 aHexahedron.GetPointIds())
+
+  # TODO : check if deepcopy needed
+  DeepCopy = 1
+
+  #hexahedronGrid.DebugOn()
+  # setup points
+  hexahedronPoints = vtk.vtkPoints()
+  vtkNodeArray = vtkNumPy.numpy_to_vtk( bNekNodes, DeepCopy)
+  hexahedronPoints.SetData(vtkNodeArray)
+  hexahedronGrid.SetPoints(hexahedronPoints);
+
+  # setup elements
+  aHexahedron = vtk.vtkHexahedron()
+  HexCellType = aHexahedron.GetCellType()
+  vtkTypeArray     = vtkNumPy.numpy_to_vtk( HexCellType * numpy.ones(  numElems) ,DeepCopy,vtk.VTK_UNSIGNED_CHAR) 
+  #TODO: off by 1 indexing from npts, ie
+  #TODO: note vtkIdType vtkCellArray::InsertNextCell(vtkIdList *pts) 
+  #TODO:    this->InsertLocation += npts + 1;   (line 264)
+  vtkLocationArray = vtkNumPy.numpy_to_vtk( numpy.arange(0,numElems*(numHexPts+1),(numHexPts+1)) ,DeepCopy,vtk.VTK_ID_TYPE) 
+  vtkCells = vtk.vtkCellArray()
+  vtkElemArray     = vtkNumPy.numpy_to_vtk( bNekConnectivity  , DeepCopy,vtk.VTK_ID_TYPE)
+  vtkCells.SetCells(numElems,vtkElemArray)
+  hexahedronGrid.SetCells(vtkTypeArray,vtkLocationArray,vtkCells) 
+  print "done setting hex mesh with %d nodes %d elem"  % (numPoints,numElems)
+
+  # setup solution
+  bNekSoln = numpy.zeros(numPoints,dtype=numpy.float32)
+  brainNek.getHostTemperature(bNekSoln )
+  vtkScalarArray = vtkNumPy.numpy_to_vtk( bNekSoln, DeepCopy) 
+  vtkScalarArray.SetName("bioheat") 
+  hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
+
+  ## # dbg 
+  ## brainNek.screenshot( 0.0 )
+
+  # get registration parameters
+  variableDictionary = kwargs['cv']
+
+  # register the SEM data to MRTI
+  AffineTransform = vtk.vtkTransform()
+  AffineTransform.Translate([ 
+    float(variableDictionary['x_displace']),
+    float(variableDictionary['y_displace']),
+    float(variableDictionary['z_displace'])
+                            ])
+  # FIXME  notice that order of operations is IMPORTANT
+  # FIXME   translation followed by rotation will give different results
+  # FIXME   than rotation followed by translation
+  # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
+  AffineTransform.RotateZ( float(variableDictionary['z_rotate'  ] ) ) 
+  AffineTransform.RotateY( float(variableDictionary['y_rotate'  ] ) )
+  AffineTransform.RotateX( float(variableDictionary['x_rotate'  ] ) )
+  AffineTransform.Scale([1.e0,1.e0,1.e0])
+
+  ## vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
+  ## SEMDataDirectory = outputDirectory % kwargs['UID']
+  ## SEMtimeID = 0 
+  ## vtufileName = "%s/%d.vtu" % (SEMDataDirectory,SEMtimeID)
+  ## print "reading ", vtufileName 
+  ## vtkSEMReader.SetFileName( vtufileName )
+  ## vtkSEMReader.SetPointArrayStatus("Temperature",1)
+  ## vtkSEMReader.Update()
+  ## fem_point_data= vtkSEMReader.GetOutput().GetPointData() 
+  ## tmparray = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('Temperature')) 
+
+  # loop over time steps
+  tstep = 0
+  currentTime = 0.0
+
+  # setup MRTI data read
+  MRTItimeID  = 0
+  MRTIInterval = 5.0
+
+  # setup screen shot interval 
+  screenshotNum = 1;
+  screenshotTol = 1e-10;
+  screenshotInterval = MRTIInterval ;
+
+  ## loop over time
+  while( brainNek.timeStep(tstep * .25 ) ) :
+    tstep = tstep + 1
+    currentTime = tstep * .25
+    ## if(currentTime+screenshotTol >= screenshotNum*screenshotInterval):
+    ##    brainNek.getHostTemperature( bNekSoln )
+    ##    screenshotNum = screenshotNum + 1;
+    ##    print "get host data",bNekSoln 
+
+    if(currentTime+screenshotTol >= MRTItimeID * MRTIInterval):
+      
+      #print mrti_array
+      #print type(mrti_array)
+
+      # get brainNek solution 
+      brainNek.getHostTemperature( bNekSoln )
+      vtkScalarArray = vtkNumPy.numpy_to_vtk( bNekSoln, DeepCopy) 
+      vtkScalarArray.SetName("bioheat") 
+      hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
+      hexahedronGrid.Update()
+
+      #print fem_array 
+      #print type(fem_array )
+
+      # FIXME  should this be different ?  
+      SEMDataDirectory = outputDirectory % kwargs['UID']
+
+      # write output
+      if ( DebugObjective ):
+        vtkSEMWriter = vtk.vtkXMLUnstructuredGridWriter()
+        semfileName = "%s/semtransform.%04d.vtu" % (SEMDataDirectory,MRTItimeID)
+        print "writing ", semfileName 
+        vtkSEMWriter.SetFileName( semfileName )
+        vtkSEMWriter.SetInput(hexahedronGrid)
+        #vtkSEMWriter.SetDataModeToAscii()
+        vtkSEMWriter.Update()
+
+      # update counter
+      MRTItimeID = MRTItimeID + 1;
+
+  return ObjectiveFunction 
+# end def ForwardSolve:
 ##################################################################
 def ComputeObjective(**kwargs):
   ObjectiveFunction = 0.0
@@ -715,7 +882,7 @@ def ComputeObjective(**kwargs):
       mrti_array = vtkNumPy.vtk_to_numpy(mrti_point_data.GetArray('image_data')) 
       # update dose
       vtkmrtiDose = mrtiDose.UpdateDoseMap(mrti_array)
-      x = vtkNumPy.vtk_to_numpy(vtkmrtiDose.GetPointData().GetArray('scalars')) 
+      # x = vtkNumPy.vtk_to_numpy(vtkmrtiDose.GetPointData().GetArray('scalars')) 
       
       #print mrti_array
       #print type(mrti_array)
@@ -1138,6 +1305,7 @@ elif (options.config_ini != None):
   timeStamp =0 
   while(True):
     if(os.path.getmtime(fem_params['ini_filename']) > timeStamp):
+      timeStamp = os.path.getmtime(fem_params['ini_filename'] ) 
       # set tissue lookup tables
       k_0Table  = {"default":config.getfloat("thermal_conductivity","k_0_healthy")  ,
                    "vessel" :config.getfloat("thermal_conductivity","k_0_healthy")  ,
@@ -1163,6 +1331,12 @@ elif (options.config_ini != None):
                    "white"  :config.getfloat("optical","mu_s_white"  )  ,
                    "csf"    :config.getfloat("optical","mu_s_csf"    )  ,
                    "tumor"  :config.getfloat("optical","mu_s_tumor"  )  }
+      anfactTable={"default":config.getfloat("optical","anfact_healthy")  ,
+                   "vessel" :config.getfloat("optical","anfact_healthy")  ,
+                   "grey"   :config.getfloat("optical","anfact_grey"   )  ,
+                   "white"  :config.getfloat("optical","anfact_white"  )  ,
+                   "csf"    :config.getfloat("optical","anfact_csf"    )  ,
+                   "tumor"  :config.getfloat("optical","anfact_tumor"  )  }
       labelTable= {config.get("labels","greymatter" ):"grey" , 
                    config.get("labels","whitematter"):"white", 
                    config.get("labels","csf"        ):"csf"  , 
@@ -1174,23 +1348,43 @@ elif (options.config_ini != None):
                    "csf"    :0, 
                    "tumor"  :0, 
                    "vessel" :0}
+      # store constitutive data
+      continuous_vars  = {}
+      continuous_vars['rho'    ]   =  1045.
+      continuous_vars['c_p'    ]   =  3640.
+      continuous_vars['c_blood']   =  3840.
+      continuous_vars['k_0'    ]   =  k_0Table["default"]
+      continuous_vars['w_0'    ]   =  w_0Table["default"]
+      continuous_vars['mu_a'   ]   =  mu_aTable["default"] 
+      continuous_vars['mu_s'   ]   =  mu_sTable["default"]
+      continuous_vars['anfact' ]   =  anfactTable["default"]
+      continuous_vars['body_temp'] = config.getfloat("initial_condition","u_init"  ) 
+      continuous_vars['probe_init'] = 21.0
+      continuous_vars['x_displace'] = 0.0
+      continuous_vars['y_displace'] = 0.0
+      continuous_vars['z_displace'] = 0.0
+      continuous_vars['x_rotate']   = 0.0
+      continuous_vars['y_rotate']   = 0.0
+      continuous_vars['z_rotate']   = 0.0
+      fem_params['cv']         = continuous_vars
       # execute 
       print "Running BrainNek..."
       brainNekWrapper(**fem_params)
       
       # write objective function 
-      objfunction = ComputeObjective(**fem_params)
+      objfunction = ForwardSolve(**fem_params)
     else:
       print "waiting on user input.."
       # echo lookup table
       print "lookup tables"
-      print "labeled %d voxels" % len(imageLabel)
+      #print "labeled %d voxels" % len(imageLabel)
       print "labels"      , labelTable
       print "counts"      , labelCount
       print "conductivity", k_0Table  
       print "perfusion"   , w_0Table  
       print "absorption"  , mu_aTable  
       print "scattering"  , mu_sTable  
+      print "anfact"      , anfactTable  
       time.sleep(2)
 else:
   parser.print_help()
