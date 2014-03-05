@@ -687,6 +687,77 @@ def ForwardSolve(**kwargs):
       # update counter
       MRTItimeID = MRTItimeID + 1;
 
+  # template laser tip        at coordinate (0,0,0.  ) meter
+  # template laser distal end at coordinate (0,0,0.03) meter
+  originalLength = 0.03
+  originalOrientation = vtk.vtkPoints()
+  originalOrientation.SetNumberOfPoints(2)
+  originalOrientation.SetPoint(0,0.,0.,0.  )
+  originalOrientation.SetPoint(1,0.,0.,originalLength)
+
+
+  # get updated laser coordinates
+  newIni = ConfigParser.SafeConfigParser({})
+  newIni.read(fem_params['ini_filename'])
+  slicerOrientation   = vtk.vtkPoints()
+  slicerOrientation.SetNumberOfPoints(2)
+  # TODO Verify correct orientation info
+  pointtip   = numpy.array((newIni.getfloat('probe','x_0'),newIni.getfloat('probe','y_0'),newIni.getfloat('probe','z_0')))
+  pointentry = numpy.array((newIni.getfloat('probe','x_1'),newIni.getfloat('probe','y_1'),newIni.getfloat('probe','z_1')))
+  slicerLength   = numpy.linalg.norm( pointentry - pointtip)
+  unitdirection  = 1./slicerLength * (pointentry - pointtip) 
+  pointscaled = pointentry  + originalLength * unitdirection
+  slicerOrientation.SetPoint(0,pointtip[   0],pointtip[   1],pointtip[   2] )
+  slicerOrientation.SetPoint(1,pointscaled[0],pointscaled[1],pointscaled[2] )
+
+  LaserLineTransform = vtk.vtkLandmarkTransform()
+  LaserLineTransform.SetSourceLandmarks(originalOrientation)
+  LaserLineTransform.SetTargetLandmarks(slicerOrientation  )
+
+  # scale to millimeter for vis
+  ScaleAffineTransform = vtk.vtkTransform()
+  ScaleAffineTransform.Translate([ 0.0,0.0,0.0])
+  ScaleAffineTransform.RotateZ( 0.0  )
+  ScaleAffineTransform.RotateY( 0.0  )
+  ScaleAffineTransform.RotateX( 0.0  )
+  ScaleAffineTransform.Scale([1000.,1000.,1000.])
+
+  slicertransformFilter = vtk.vtkTransformFilter()
+  slicertransformFilter.SetInput(hexahedronGrid) 
+  slicertransformFilter.SetTransform(LaserLineTransform ) 
+  slicertransformFilter.Update()
+
+  scaletransformFilter = vtk.vtkTransformFilter()
+  scaletransformFilter.SetInput( slicertransformFilter.GetOutput() ) 
+  scaletransformFilter.SetTransform(ScaleAffineTransform ) 
+  scaletransformFilter.Update()
+
+  # setup contour filter
+  vtkContour = vtk.vtkContourFilter()
+  vtkContour.SetInput( scaletransformFilter.GetOutput() )
+  # TODO: not sure why this works...
+  # set the array to process at the temperature == bioheat 
+  vtkContour.SetInputArrayToProcess(0,0,0,0,'bioheat')
+  ## contourValuesList  = eval(newIni.get('exec','contours'))
+  contourValuesList  = [47. , 52.]
+  vtkContour.SetNumberOfContours( len(contourValuesList ) )
+  print "plotting array:", vtkContour.GetArrayComponent( )
+  for idContour,contourValue in enumerate(contourValuesList):
+     print "plotting contour:",idContour,contourValue
+     vtkContour.SetValue( idContour,contourValue )
+  vtkContour.Update( )
+
+  # write stl file
+  stlWriter = vtk.vtkSTLWriter()
+  stlWriter.SetInput(vtkContour.GetOutput( ))
+  stlWriter.SetFileName("fem.stl")
+  stlWriter.SetFileTypeToBinary()
+  stlWriter.Write()
+  # write support file to signal full stl file is written
+  #  Slicer module will wait for this file to be written
+  #  before trying to open stl file to avoid incomplete reads
+  with open('./fem.finish', 'w') as signalFile:
+    signalFile.write("the stl file has been written\n")
   return ObjectiveFunction 
 # end def ForwardSolve:
 ##################################################################
@@ -1292,9 +1363,6 @@ elif (options.config_ini != None):
       ccode = ccode + '\t%s( time< %f  ) return %f;' % ( controlstatement,iBound*fem_params['deltat'],powervalue )
       controlstatement = 'else if'
   fem_params['ccode']         =  ccode
-  fem_params['nsubstep']      =  1
-  fem_params['physics']       = "AddPennesSDASystem"
-  fem_params['u_init']        = 37.0
   fem_params['fileID']        = 0
   # store the entire configuration file for convienence
   fem_params['config_parser'] = config
