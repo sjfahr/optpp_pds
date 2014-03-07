@@ -28,7 +28,8 @@ Patient_paths {5,2} = '009';
 
 mu_eff_opt = zeros (5,1); % Initialize a couple looped variables
 min_obj_fxn_indices = zeros (5,1);
-for ii = 1:5 % This loop finds the optimized mu_eff values from datasets that have already been optimized
+% for ii = 1:5 % This loop finds the optimized mu_eff values from datasets that have already been optimized
+for ii = 1:5
     single_path = strcat( 'workdir/', Patient_paths{ii,1}, '/', Patient_paths{ii,2}, '/opt/');
     tab_dat = load (strcat( single_path,'dakota_q_newton_heating.in.tabular.dat') );
     [~,min_obj_fxn_indices(ii)] = min( tab_dat(:,3) );
