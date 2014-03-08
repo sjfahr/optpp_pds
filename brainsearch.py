@@ -503,8 +503,13 @@ class ImageDoseHelper:
     dim = self.dimensions
     # imports raw data and stores it.
     dataImporter = vtk.vtkImageImport()
-    # array is converted to a string of chars and imported.
+    #  indexing is painful.... reshape to dimensions and transpose 2d dimensions only
+    ## try:
+    ##   numpytmp = NumpyImageData.reshape(self.dimensions[0:3],order='F').transpose(1,0,2)
+    ## except:
+    ##   numpytmp = NumpyImageData.reshape(self.dimensions[0:2],order='F').transpose(1,0)
     data_string = NumpyImageData.tostring()
+    # array is converted to a string of chars and imported.
     dataImporter.CopyImportVoidPointer(data_string, len(data_string))
     # The type of the newly imported data is set to unsigned char (uint8)
     dataImporter.SetDataScalarTypeToFloat()
