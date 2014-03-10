@@ -525,6 +525,7 @@ class ImageDoseHelper:
     dataImporter.SetDataSpacing( self.spacing )
     dataImporter.SetDataOrigin(  self.origin )
     dataImporter.Update()
+    dataImporter.SetScalarArrayName("arrayname")
     return dataImporter.GetOutput()
 
 
