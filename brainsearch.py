@@ -16,6 +16,7 @@ outputDirectory = '/tmp/outputs/dakota/%04d'
 
 # database and run directory have the same structure
 databaseDIR     = 'database/'
+databaseDIR     = 'new_database/'
 # $ ls database workdir/
 # database:
 # Patient0002/  Patient0003/  Patient0004/  Patient0005/  Patient0006/  Patient0007/  Patient0008/
