@@ -9,14 +9,26 @@ import os
 import scipy.io as scipyio
 import ConfigParser
 
+# numerical support
+import numpy
+
+# vis support
+import vtk
+import vtk.util.numpy_support as vtkNumPy 
+print "using vtk version", vtk.vtkVersion.GetVTKVersion()
+
 brainNekDIR     = '/workarea/fuentes/braincode/tym1' 
 workDirectory   = 'optpp_pds'
 outputDirectory = '/dev/shm/outputs/dakota/%04d'
 outputDirectory = '/tmp/outputs/dakota/%04d'
 
+# image processing tool
+c3dexe = '/opt/apps/itksnap/c3d-1.0.0-Linux-x86_64/bin/c3d'
+
 # database and run directory have the same structure
 databaseDIR     = 'database/'
-databaseDIR     = 'new_database/'
+databaseDIR     = 'StudyDatabase/'
+
 # $ ls database workdir/
 # database:
 # Patient0002/  Patient0003/  Patient0004/  Patient0005/  Patient0006/  Patient0007/  Patient0008/
@@ -316,24 +328,459 @@ catheter  1.0      4180           0.5985        500         14000       0.88
 laserTip  1.0      4180           0.5985        500         14000       0.88
 """
 
+# Convenience Routine
+def WriteVTKOutputFile(vtkImageData,VTKOutputFilename):
+    vtkImageDataWriter = vtk.vtkDataSetWriter()
+    vtkImageDataWriter.SetFileTypeToBinary()
+    print "writing ", VTKOutputFilename 
+    vtkImageDataWriter.SetFileName( VTKOutputFilename )
+    vtkImageDataWriter.SetInput(vtkImageData)
+    vtkImageDataWriter.Update()
+
+# Convenience Routine
+def WriteJPGOutputFiles(**visargs):
+    print 'opening' , visargs['magnitudefilename'] 
+    vtkMagnImageReader = vtk.vtkDataSetReader() 
+    vtkMagnImageReader.SetFileName( visargs['magnitudefilename'] )
+    vtkMagnImageReader.Update() 
+    # display VOI outline
+    vtkVOIExtract = vtk.vtkExtractVOI() 
+    vtkVOIExtract.SetInput( vtkMagnImageReader.GetOutput() ) 
+    vtkVOIExtract.SetVOI( visargs['voi'] ) 
+    vtkVOIExtract.Update()
+    
+    vtkOutline = vtk.vtkOutlineFilter() 
+    vtkOutline.SetInput( vtkVOIExtract.GetOutput() ) 
+    vtkOutline.Update()
+    
+    # slight rotation fixes vis bug/error
+    AffineTransform = vtk.vtkTransform()
+    AffineTransform.RotateX( 1.0 )
+    OutlineRegister = vtk.vtkTransformFilter()
+    OutlineRegister.SetInput( vtkOutline.GetOutput() )
+    OutlineRegister.SetTransform(AffineTransform)
+    OutlineRegister.Update()
+
+    # create actor to render VOI
+    outlineMapper = vtk.vtkPolyDataMapper(); 
+    outlineMapper.SetInput(OutlineRegister.GetOutput());
+    outlineActor = vtk.vtkActor(); 
+    outlineActor.SetMapper(outlineMapper); 
+    outlineActor.GetProperty().SetColor(1,1,1);
+    outlineActor.GetProperty().SetLineWidth(2);
+    outlineActor.GetProperty().SetRepresentationToWireframe();
+    outlineActor.GetProperty().SetRepresentationToPoints();
+    outlineActor.GetProperty().SetRepresentationToSurface();
+
+    # Start by creating a black/white lookup table.
+    bwLut = vtk.vtkLookupTable()
+    bwLut.SetTableRange (0, 300);
+    bwLut.SetSaturationRange (0, 0);
+    bwLut.SetHueRange (0, 0);
+    bwLut.SetValueRange (0, 1);
+    bwLut.Build(); #effective built
+    # color table
+    # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
+    # http://vtk.org/gitweb?p=VTK.git;a=blob;f=Examples/ImageProcessing/Python/ImageSlicing.py
+    hueLut = vtk.vtkLookupTable()
+    hueLut.SetNumberOfColors (256)
+    #FIXME: adjust here to change color  range
+    hueLut.SetRange ( 30.,80.)  
+    #hueLut.SetSaturationRange (0.0, 1.0)
+    #hueLut.SetValueRange (0.0, 1.0)
+    hueLut.SetHueRange (0.667, 0.0)
+    hueLut.SetRampToLinear ()
+    hueLut.Build()
+
+    # color table
+    # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
+    # http://vtk.org/gitweb?p=VTK.git;a=blob;f=Examples/ImageProcessing/Python/ImageSlicing.py
+    arrLut = vtk.vtkLookupTable()
+    arrLut.SetNumberOfColors (256)
+    #FIXME: adjust here to change color  range
+    arrLut.SetRange ( 0., 1.)  
+    #arrLut.SetSaturationRange (0.0, 1.0)
+    #arrLut.SetValueRange (0.0, 1.0)
+    arrLut.SetHueRange (0.667, 0.0)
+    arrLut.SetRampToLinear ()
+    arrLut.Build()
+    # plot mrti, fem, and magn
+    for (lookuptable,legendname,sourceimage,outputname) in [  
+                           (hueLut,"SEM" ,visargs['roisem']     ,'roisem' ),
+                           (hueLut,"MRTI",visargs['roimrti']    ,'roimrti'),
+                           (arrLut,"PDAM",visargs['roisemdose'] ,'roisemdose' ),
+                           (arrLut,"MDAM",visargs['roimrtidose'],'roimrtidose'),
+                           (bwLut ,"Magn",vtkMagnImageReader.GetOutput(),"magn")]:
+      # colorbar
+      # http://www.vtk.org/doc/release/5.8/html/c2_vtk_e_3.html#c2_vtk_e_vtkLookupTable
+      scalarBar = vtk.vtkScalarBarActor()
+      scalarBar.SetTitle(legendname)
+      scalarBar.SetNumberOfLabels(4)
+      scalarBar.SetLookupTable(lookuptable)
+
+      # mapper
+      #mapper = vtk.vtkDataSetMapper()
+      mapper = vtk.vtkImageMapToColors()
+      mapper.SetInput(  sourceimage )
+      # set echo to display
+      mapper.SetActiveComponent( 0 )
+      mapper.SetLookupTable(lookuptable)
+  
+      # actor
+      actor = vtk.vtkImageActor()
+      actor.SetInput(mapper.GetOutput())
+       
+      # assign actor to the renderer
+      ren = vtk.vtkRenderer()
+      ren.AddActor(actor)
+      ren.AddActor(outlineActor)
+      ren.AddActor2D(scalarBar)
+      renWin = vtk.vtkRenderWindow()
+      renWin.AddRenderer(ren)
+      renWin.SetSize(512,512)
+      renWin.Render()
+
+      windowToImage = vtk.vtkWindowToImageFilter() 
+      windowToImage.SetInput(renWin)
+      windowToImage.Update()
+      jpgWriter     = vtk.vtkJPEGWriter() 
+      jpgWriter.SetFileName( visargs['jpgoutnameformat'] % (outputname) )
+      jpgWriter.SetInput(windowToImage.GetOutput())
+      jpgWriter.Write()
+
+##################################################################
+##################################################################
+##################################################################
+class ImageDoseHelper:
+  """ Class for output of arrhenius dose...  """
+  def __init__(self,VOISizeInfo,DeltaT,ImageFileNameExample ):
+    print " class constructor called \n\n" 
+    # damage paramters
+    self.ActivationEnergy     = 3.1e98
+    self.FrequencyFactor      = 6.28e5
+    self.GasConstant          = 8.314472
+    self.BaseTemperature      = 273.0
+    self.DeltaT               = DeltaT               
+
+    # open image and extract VOI for a reference
+    vtkImageReader = vtk.vtkDataSetReader() 
+    vtkImageReader.SetFileName(ImageFileNameExample )
+    vtkImageReader.Update() 
+    
+    # extract voi for QOI
+    vtkVOIExtract = vtk.vtkExtractVOI() 
+    vtkVOIExtract.SetInput( vtkImageReader.GetOutput() ) 
+    vtkVOIExtract.SetVOI( VOISizeInfo ) 
+    vtkVOIExtract.Update()
+    # VOI Origin should be at the lower bound
+    VOIBounds = vtkVOIExtract.GetOutput().GetBounds()
+    self.origin               = (VOIBounds[0],VOIBounds[2],VOIBounds[4])
+    self.spacing              = vtkVOIExtract.GetOutput().GetSpacing()
+
+    # initialize dose map
+    self.dimensions = [(VOISizeInfo[1] - VOISizeInfo[0]+1) , 
+                       (VOISizeInfo[3] - VOISizeInfo[2]+1) ,
+                       (VOISizeInfo[5] - VOISizeInfo[4]+1) ,1 ]
+    numpyimagesize = self.dimensions[0]*self.dimensions[1]*self.dimensions[2]
+    # store as double precision
+    self.PredictedDamage = numpy.zeros( numpyimagesize, dtype=numpy.float ) 
+
+  def UpdateDoseMap(self,NumpyTemperatureData ):
+    """ update dose map with temperature """
+    #  input should be temperature in degC
+    #  convert to Kelvin (using double precision)
+    TemperatureKelvin = NumpyTemperatureData.astype(numpy.float) + self.BaseTemperature
+
+    #  A exp ( - E_a/ (RT)  ) \Delta t
+    self.PredictedDamage = self.PredictedDamage + self.ActivationEnergy * numpy.exp(- self.FrequencyFactor/self.GasConstant * numpy.reciprocal( TemperatureKelvin )) * self.DeltaT;
+
+    # return vtk format for write (as single precision)
+    return self.ConvertNumpyVTKImage(self.PredictedDamage.astype(numpy.float32))
+
+  # write a numpy data to disk in vtk format
+  def ConvertNumpyVTKImage(self,NumpyImageData):
+    # Create initial image
+    dim = self.dimensions
+    # imports raw data and stores it.
+    dataImporter = vtk.vtkImageImport()
+    #  indexing is painful.... reshape to dimensions and transpose 2d dimensions only
+    ## try:
+    ##   numpytmp = NumpyImageData.reshape(self.dimensions[0:3],order='F').transpose(1,0,2)
+    ## except:
+    ##   numpytmp = NumpyImageData.reshape(self.dimensions[0:2],order='F').transpose(1,0)
+    data_string = NumpyImageData.tostring()
+    # array is converted to a string of chars and imported.
+    dataImporter.CopyImportVoidPointer(data_string, len(data_string))
+    # The type of the newly imported data is set to unsigned char (uint8)
+    dataImporter.SetDataScalarTypeToFloat()
+    # Because the data that is imported only contains an intensity value (it isnt RGB-coded or someting similar), the importer
+    # must be told this is the case.
+    dataImporter.SetNumberOfScalarComponents(dim[3])
+    # The following two functions describe how the data is stored and the dimensions of the array it is stored in. For this
+    # simple case, all axes are of length 75 and begins with the first element. For other data, this is probably not the case.
+    # I have to admit however, that I honestly dont know the difference between SetDataExtent() and SetWholeExtent() although
+    # VTK complains if not both are used.
+    dataImporter.SetDataExtent( 0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1)
+    dataImporter.SetWholeExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1)
+    dataImporter.SetDataSpacing( self.spacing )
+    dataImporter.SetDataOrigin(  self.origin )
+    dataImporter.Update()
+    dataImporter.SetScalarArrayName("arrayname")
+    return dataImporter.GetOutput()
+
+
+def ForwardSolve(**kwargs):
+  ObjectiveFunction = 0.0
+  # Debugging flags
+  DebugObjective = True
+  DebugObjective = False
+
+  # initialize brainNek
+  # CYTHON AND VTK NEED TO BUILD with the same PYTHON INCLUDE and LIB 
+  import brainNekLibrary
+  # setuprc file
+  outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
+  setup = brainNekLibrary.PySetupAide(outputSetupRCFile )
+  brainNek = brainNekLibrary.PyBrain3d(setup);
+
+
+  # setup vtkUnstructuredGrid
+  hexahedronGrid   = vtk.vtkUnstructuredGrid()
+  numPoints = brainNek.GetNumberOfNodes( ) 
+  numElems  = brainNek.GetNumberOfElements( ) 
+  # initialize nodes and connectivity
+  numHexPts = 8 
+  bNekNodes         = numpy.zeros(numPoints * 3,dtype=numpy.float32)
+  bNekConnectivity  = numpy.zeros(numElems  * (numHexPts +1),dtype=numpy.int32)
+  print "setting up hex mesh with %d nodes %d elem"  % (numPoints,numElems)
+
+  # get nodes and connectivity from brainnek
+  brainNek.GetNodes(   bNekNodes)       ;
+  brainNek.GetElements(bNekConnectivity);
+  # reshape for convenience
+  bNekNodes        = bNekNodes.reshape(      numPoints , 3)
+
+  ## # setup elements
+  ## bNekConnectivityreshape = bNekConnectivity.reshape(numElems , numHexPts +1)
+  ## for ielem in range(numElems ):
+  ##   aHexahedron = vtk.vtkHexahedron()
+  ##   # print 'number of nodes %d ' % bNekConnectivityreshape[ielem][0]
+  ##   aHexahedron.GetPointIds().SetId(0,bNekConnectivityreshape[ielem][1])
+  ##   aHexahedron.GetPointIds().SetId(1,bNekConnectivityreshape[ielem][2])
+  ##   aHexahedron.GetPointIds().SetId(2,bNekConnectivityreshape[ielem][3])
+  ##   aHexahedron.GetPointIds().SetId(3,bNekConnectivityreshape[ielem][4])
+  ##   aHexahedron.GetPointIds().SetId(4,bNekConnectivityreshape[ielem][5])
+  ##   aHexahedron.GetPointIds().SetId(5,bNekConnectivityreshape[ielem][6])
+  ##   aHexahedron.GetPointIds().SetId(6,bNekConnectivityreshape[ielem][7])
+  ##   aHexahedron.GetPointIds().SetId(7,bNekConnectivityreshape[ielem][8])
+  ##   hexahedronGrid.InsertNextCell(aHexahedron.GetCellType(),
+  ##                                 aHexahedron.GetPointIds())
+
+  # TODO : check if deepcopy needed
+  DeepCopy = 1
+
+  #hexahedronGrid.DebugOn()
+  # setup points
+  hexahedronPoints = vtk.vtkPoints()
+  vtkNodeArray = vtkNumPy.numpy_to_vtk( bNekNodes, DeepCopy)
+  hexahedronPoints.SetData(vtkNodeArray)
+  hexahedronGrid.SetPoints(hexahedronPoints);
+
+  # setup elements
+  aHexahedron = vtk.vtkHexahedron()
+  HexCellType = aHexahedron.GetCellType()
+  vtkTypeArray     = vtkNumPy.numpy_to_vtk( HexCellType * numpy.ones(  numElems) ,DeepCopy,vtk.VTK_UNSIGNED_CHAR) 
+  #TODO: off by 1 indexing from npts, ie
+  #TODO: note vtkIdType vtkCellArray::InsertNextCell(vtkIdList *pts) 
+  #TODO:    this->InsertLocation += npts + 1;   (line 264)
+  vtkLocationArray = vtkNumPy.numpy_to_vtk( numpy.arange(0,numElems*(numHexPts+1),(numHexPts+1)) ,DeepCopy,vtk.VTK_ID_TYPE) 
+  vtkCells = vtk.vtkCellArray()
+  vtkElemArray     = vtkNumPy.numpy_to_vtk( bNekConnectivity  , DeepCopy,vtk.VTK_ID_TYPE)
+  vtkCells.SetCells(numElems,vtkElemArray)
+  hexahedronGrid.SetCells(vtkTypeArray,vtkLocationArray,vtkCells) 
+  print "done setting hex mesh with %d nodes %d elem"  % (numPoints,numElems)
+
+  # setup solution
+  bNekSoln = numpy.zeros(numPoints,dtype=numpy.float32)
+  brainNek.getHostTemperature(bNekSoln )
+  vtkScalarArray = vtkNumPy.numpy_to_vtk( bNekSoln, DeepCopy) 
+  vtkScalarArray.SetName("bioheat") 
+  hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
+
+  ## # dbg 
+  ## brainNek.screenshot( 0.0 )
+
+  # get registration parameters
+  variableDictionary = kwargs['cv']
+
+  # register the SEM data to MRTI
+  AffineTransform = vtk.vtkTransform()
+  AffineTransform.Translate([ 
+    float(variableDictionary['x_displace']),
+    float(variableDictionary['y_displace']),
+    float(variableDictionary['z_displace'])
+                            ])
+  # FIXME  notice that order of operations is IMPORTANT
+  # FIXME   translation followed by rotation will give different results
+  # FIXME   than rotation followed by translation
+  # FIXME  Translate -> RotateZ -> RotateY -> RotateX -> Scale seems to be the order of paraview
+  AffineTransform.RotateZ( float(variableDictionary['z_rotate'  ] ) ) 
+  AffineTransform.RotateY( float(variableDictionary['y_rotate'  ] ) )
+  AffineTransform.RotateX( float(variableDictionary['x_rotate'  ] ) )
+  AffineTransform.Scale([1.e0,1.e0,1.e0])
+
+  ## vtkSEMReader = vtk.vtkXMLUnstructuredGridReader()
+  ## SEMDataDirectory = outputDirectory % kwargs['UID']
+  ## SEMtimeID = 0 
+  ## vtufileName = "%s/%d.vtu" % (SEMDataDirectory,SEMtimeID)
+  ## print "reading ", vtufileName 
+  ## vtkSEMReader.SetFileName( vtufileName )
+  ## vtkSEMReader.SetPointArrayStatus("Temperature",1)
+  ## vtkSEMReader.Update()
+  ## fem_point_data= vtkSEMReader.GetOutput().GetPointData() 
+  ## tmparray = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('Temperature')) 
+
+  # loop over time steps
+  tstep = 0
+  currentTime = 0.0
+
+  # setup MRTI data read
+  MRTItimeID  = 0
+  MRTIInterval = 5.0
+
+  # setup screen shot interval 
+  screenshotNum = 1;
+  screenshotTol = 1e-10;
+  screenshotInterval = MRTIInterval ;
+
+  ## loop over time
+  while( brainNek.timeStep(tstep * .25 ) ) :
+    tstep = tstep + 1
+    currentTime = tstep * .25
+    ## if(currentTime+screenshotTol >= screenshotNum*screenshotInterval):
+    ##    brainNek.getHostTemperature( bNekSoln )
+    ##    screenshotNum = screenshotNum + 1;
+    ##    print "get host data",bNekSoln 
+
+    if(currentTime+screenshotTol >= MRTItimeID * MRTIInterval):
+      
+      #print mrti_array
+      #print type(mrti_array)
+
+      # get brainNek solution 
+      brainNek.getHostTemperature( bNekSoln )
+      vtkScalarArray = vtkNumPy.numpy_to_vtk( bNekSoln, DeepCopy) 
+      vtkScalarArray.SetName("bioheat") 
+      hexahedronGrid.GetPointData().SetScalars(vtkScalarArray);
+      hexahedronGrid.Update()
+
+      #print fem_array 
+      #print type(fem_array )
+
+      # FIXME  should this be different ?  
+      SEMDataDirectory = outputDirectory % kwargs['UID']
+
+      # write output
+      if ( DebugObjective ):
+        vtkSEMWriter = vtk.vtkXMLUnstructuredGridWriter()
+        semfileName = "%s/semtransform.%04d.vtu" % (SEMDataDirectory,MRTItimeID)
+        print "writing ", semfileName 
+        vtkSEMWriter.SetFileName( semfileName )
+        vtkSEMWriter.SetInput(hexahedronGrid)
+        #vtkSEMWriter.SetDataModeToAscii()
+        vtkSEMWriter.Update()
+
+      # update counter
+      MRTItimeID = MRTItimeID + 1;
+
+  # template laser tip        at coordinate (0,0,0.  ) meter
+  # template laser distal end at coordinate (0,0,0.03) meter
+  originalLength = 0.03
+  originalOrientation = vtk.vtkPoints()
+  originalOrientation.SetNumberOfPoints(2)
+  originalOrientation.SetPoint(0,0.,0.,0.  )
+  originalOrientation.SetPoint(1,0.,0.,originalLength)
+
+
+  # get updated laser coordinates
+  newIni = ConfigParser.SafeConfigParser({})
+  newIni.read(fem_params['ini_filename'])
+  slicerOrientation   = vtk.vtkPoints()
+  slicerOrientation.SetNumberOfPoints(2)
+  # TODO Verify correct orientation info
+  pointtip   = numpy.array((newIni.getfloat('probe','x_0'),newIni.getfloat('probe','y_0'),newIni.getfloat('probe','z_0')))
+  pointentry = numpy.array((newIni.getfloat('probe','x_1'),newIni.getfloat('probe','y_1'),newIni.getfloat('probe','z_1')))
+  slicerLength   = numpy.linalg.norm( pointentry - pointtip)
+  unitdirection  = 1./slicerLength * (pointentry - pointtip) 
+  pointscaled = pointentry  + originalLength * unitdirection
+  slicerOrientation.SetPoint(0,pointtip[   0],pointtip[   1],pointtip[   2] )
+  slicerOrientation.SetPoint(1,pointscaled[0],pointscaled[1],pointscaled[2] )
+
+  LaserLineTransform = vtk.vtkLandmarkTransform()
+  LaserLineTransform.SetSourceLandmarks(originalOrientation)
+  LaserLineTransform.SetTargetLandmarks(slicerOrientation  )
+
+  # scale to millimeter for vis
+  ScaleAffineTransform = vtk.vtkTransform()
+  ScaleAffineTransform.Translate([ 0.0,0.0,0.0])
+  ScaleAffineTransform.RotateZ( 0.0  )
+  ScaleAffineTransform.RotateY( 0.0  )
+  ScaleAffineTransform.RotateX( 0.0  )
+  ScaleAffineTransform.Scale([1000.,1000.,1000.])
+
+  slicertransformFilter = vtk.vtkTransformFilter()
+  slicertransformFilter.SetInput(hexahedronGrid) 
+  slicertransformFilter.SetTransform(LaserLineTransform ) 
+  slicertransformFilter.Update()
+
+  scaletransformFilter = vtk.vtkTransformFilter()
+  scaletransformFilter.SetInput( slicertransformFilter.GetOutput() ) 
+  scaletransformFilter.SetTransform(ScaleAffineTransform ) 
+  scaletransformFilter.Update()
+
+  # setup contour filter
+  vtkContour = vtk.vtkContourFilter()
+  vtkContour.SetInput( scaletransformFilter.GetOutput() )
+  # TODO: not sure why this works...
+  # set the array to process at the temperature == bioheat 
+  vtkContour.SetInputArrayToProcess(0,0,0,0,'bioheat')
+  ## contourValuesList  = eval(newIni.get('exec','contours'))
+  contourValuesList  = [47. , 52.]
+  vtkContour.SetNumberOfContours( len(contourValuesList ) )
+  print "plotting array:", vtkContour.GetArrayComponent( )
+  for idContour,contourValue in enumerate(contourValuesList):
+     print "plotting contour:",idContour,contourValue
+     vtkContour.SetValue( idContour,contourValue )
+  vtkContour.Update( )
+
+  # write stl file
+  stlWriter = vtk.vtkSTLWriter()
+  stlWriter.SetInput(vtkContour.GetOutput( ))
+  stlWriter.SetFileName("fem.stl")
+  stlWriter.SetFileTypeToBinary()
+  stlWriter.Write()
+  # write support file to signal full stl file is written
+  #  Slicer module will wait for this file to be written
+  #  before trying to open stl file to avoid incomplete reads
+  with open('./fem.finish', 'w') as signalFile:
+    signalFile.write("the stl file has been written\n")
+  return ObjectiveFunction 
+# end def ForwardSolve:
 ##################################################################
 def ComputeObjective(**kwargs):
   ObjectiveFunction = 0.0
   # Debugging flags
   DebugObjective = False
   DebugObjective = True
+
   # initialize brainNek
+  # CYTHON AND VTK NEED TO BUILD with the same PYTHON INCLUDE and LIB 
   import brainNekLibrary
-  import numpy
   # setuprc file
   outputSetupRCFile = '%s/setuprc.%04d' % (workDirectory,kwargs['fileID'])
   setup = brainNekLibrary.PySetupAide(outputSetupRCFile )
   brainNek = brainNekLibrary.PyBrain3d(setup);
 
-  # FIXME vtk needs to be loaded AFTER kernel is built
-  import vtk
-  import vtk.util.numpy_support as vtkNumPy 
-  print "using vtk version", vtk.vtkVersion.GetVTKVersion()
 
   # setup vtkUnstructuredGrid
   hexahedronGrid   = vtk.vtkUnstructuredGrid()
@@ -475,6 +922,10 @@ def ComputeObjective(**kwargs):
   MRTItimeID  = 0
   MRTIInterval = 5.0
 
+  # initialize image dose
+  semDose  = ImageDoseHelper(  kwargs['voi'], MRTIInterval ,'%s/temperature.0001.vtk' % (kwargs['mrti']))
+  mrtiDose = ImageDoseHelper(  kwargs['voi'], MRTIInterval ,'%s/temperature.0001.vtk' % (kwargs['mrti']))
+
   # setup screen shot interval 
   screenshotNum = 1;
   screenshotTol = 1e-10;
@@ -506,6 +957,10 @@ def ComputeObjective(**kwargs):
       vtkVOIExtract.Update()
       mrti_point_data= vtkVOIExtract.GetOutput().GetPointData() 
       mrti_array = vtkNumPy.vtk_to_numpy(mrti_point_data.GetArray('image_data')) 
+      # update dose
+      vtkmrtiDose = mrtiDose.UpdateDoseMap(mrti_array)
+      # x = vtkNumPy.vtk_to_numpy(vtkmrtiDose.GetPointData().GetArray('scalars')) 
+      
       #print mrti_array
       #print type(mrti_array)
 
@@ -529,7 +984,9 @@ def ComputeObjective(**kwargs):
 
       fem_point_data= vtkResample.GetOutput().GetPointData() 
       fem_array = vtkNumPy.vtk_to_numpy(fem_point_data.GetArray('bioheat')) 
-      print 'resampled' ,fem_array 
+      # update dose
+      vtksemDose  = semDose.UpdateDoseMap(  fem_array)
+      print 'resampled' 
       #print fem_array 
       #print type(fem_array )
 
@@ -547,14 +1004,34 @@ def ComputeObjective(**kwargs):
       ##   vtkSEMWriter.Update()
 
       # write output
+      # FIXME auto read ??
       if ( DebugObjective ):
-         vtkTemperatureWriter = vtk.vtkDataSetWriter()
-         vtkTemperatureWriter.SetFileTypeToBinary()
-         roifileName = "%s/roi.%04d.vtk" % (SEMDataDirectory,MRTItimeID)
-         print "writing ", roifileName 
-         vtkTemperatureWriter.SetFileName( roifileName )
-         vtkTemperatureWriter.SetInput(vtkResample.GetOutput())
-         vtkTemperatureWriter.Update()
+         # write temperature
+         WriteVTKOutputFile ( vtkResample.GetOutput()   ,"%s/roisem.%s.%04d.vtk"   % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         WriteVTKOutputFile ( vtkVOIExtract.GetOutput() ,"%s/roimrti.%s.%04d.vtk"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         # write dose
+         WriteVTKOutputFile ( vtksemDose  ,"%s/roisemdose.%s.%04d.vtk"   % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+         WriteVTKOutputFile ( vtkmrtiDose ,"%s/roimrtidose.%s.%04d.vtk"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID))
+
+         # write dice coefficient
+         dicecmd = "%s -verbose %s/roisemdose.%s.%04d.vtk -thresh 1 inf 1 0 -type uchar -as SEM %s/roimrtidose.%s.%04d.vtk -thresh 1 inf 1 0 -type uchar -push SEM -overlap 1 > %s/dice.%s.%04d.txt  2>&1" % (c3dexe,SEMDataDirectory,kwargs['opttype'],MRTItimeID,SEMDataDirectory,kwargs['opttype'],MRTItimeID,SEMDataDirectory,kwargs['opttype'],MRTItimeID)
+         print dicecmd
+         os.system(dicecmd)
+         ##if (MRTItimeID > 20):
+         ##  raise 
+
+      # Write JPG's for tex
+      if ( kwargs['VisualizeOutput'] and MRTItimeID == fem_params['maxheatid'] ):
+      #if ( kwargs['VisualizeOutput'] ):
+         VisDictionary = {'voi'    :  kwargs['voi'] ,
+                          'roisem' : vtkResample.GetOutput()   ,
+                          'roimrti': vtkVOIExtract.GetOutput() ,
+                      'roisemdose' : vtksemDose  ,
+                      'roimrtidose': vtkmrtiDose ,
+                'magnitudefilename':'%s/magnitude.%04d.vtk' % (kwargs['mrti'], MRTItimeID) ,
+                 'jpgoutnameformat':"%s/%%s%s%04d.jpg"  % (SEMDataDirectory,kwargs['opttype'],MRTItimeID)
+                         }
+         WriteJPGOutputFiles(**VisDictionary)
 
       # accumulate objective function
       diff =  numpy.abs(mrti_array-fem_array)
@@ -619,7 +1096,7 @@ def brainNekWrapper(**kwargs):
   ## os.system(brainNekCommand )
 # end def brainNekWrapper:
 ##################################################################
-def ParseInput(paramfilename):
+def ParseInput(paramfilename,VisualizeOutput):
   # ----------------------------
   # Parse DAKOTA parameters file
   # ----------------------------
@@ -733,6 +1210,8 @@ def ParseInput(paramfilename):
   fem_params['functions']  = num_fns
   fem_params['fileID']     = fileID 
   fem_params['UID']        = int(paramfilename.split('/').pop(3))
+  fem_params['opttype']    = paramfilename.split('.').pop(-3)
+  fem_params['VisualizeOutput'] = VisualizeOutput 
 
   # parse file path
   locatemrti = paramfilename.split('/')
@@ -744,7 +1223,6 @@ def ParseInput(paramfilename):
   # get header info
   mrtifilename = '%s/temperature.%04d.vtk' % (fem_params['mrti'], 1) 
   print 'opening' , mrtifilename 
-  import vtk
   vtkSetupImageReader = vtk.vtkDataSetReader() 
   vtkSetupImageReader.SetFileName(mrtifilename )
   vtkSetupImageReader.Update() 
@@ -759,11 +1237,13 @@ def ParseInput(paramfilename):
   fem_params['ccode']        = config.get('power','ccode')
   fem_params['powerhistory'] = config.get('power','history')
   # FIXME : need to automate time interval selection
-  timeinterval               = eval(config.get('mrti','cooling')  )
-  timeinterval               = eval(config.get('mrti','fulltime') )
-  timeinterval               = eval(config.get('mrti','heating')  )
+  fulltimeinterval               = eval(config.get('mrti','fulltime') )
+  cooltimeinterval               = eval(config.get('mrti','cooling')  )
+  heattimeinterval               = eval(config.get('mrti','heating')  )
+  timeinterval = heattimeinterval             
   fem_params['initialtime']  = timeinterval[0] * config.getfloat('mrti','deltat') 
   fem_params['finaltime']    = timeinterval[1] * config.getfloat('mrti','deltat') 
+  fem_params['maxheatid']    = heattimeinterval[1]
   fem_params['voi']          = eval(config.get('mrti','voi'))
 
   print 'mrti data from' , fem_params['mrti'] , 'setupfile', inisetupfile  
@@ -819,12 +1299,17 @@ parser = OptionParser()
 parser.add_option( "--run_fem","--param_file", 
                   action="store", dest="param_file", default=None,
                   help="run code with parameter FILE", metavar="FILE")
+parser.add_option( "--vis_out", 
+                  action="store_true", dest="vis_out", default=False,
+                  help="visualise output", metavar="bool")
+parser.add_option( "--ini", 
+                  action="store", dest="config_ini", default=None,
+                  help="ini FILE containing setup info", metavar="FILE")
 (options, args) = parser.parse_args()
-
 
 if (options.param_file != None):
   # parse the dakota input file
-  fem_params = ParseInput(options.param_file)
+  fem_params = ParseInput(options.param_file,options.vis_out)
 
   MatlabDriver = False
   MatlabDriver = True
@@ -865,6 +1350,118 @@ if (options.param_file != None):
     fileHandle.write('%f\n' % objfunction )
     fileHandle.flush(); fileHandle.close();
 
+# run planning solver w/ default options from ini file
+elif (options.config_ini != None):
+
+  # read config file
+  config = ConfigParser.SafeConfigParser({})
+  config.read(options.config_ini)
+  
+  fem_params = {}
+  fem_params['powerHistory']  = [[1,10],[0.0,config.getfloat('timestep','power')]]
+  timePowerList = fem_params['powerHistory']  
+  fem_params['deltat']        =  5.0
+  fem_params['ntime']         =  fem_params['powerHistory'][0][-1]
+  fem_params['finaltime']     =  fem_params['deltat']  * fem_params['ntime']
+  fem_params['UID']           =  0000
+  # build ccode of power history
+  ccode = ''
+  controlstatement = 'if'
+  for iBound,powervalue in zip(timePowerList[0],timePowerList[1]):
+      ccode = ccode + '\t%s( time< %f  ) return %f;' % ( controlstatement,iBound*fem_params['deltat'],powervalue )
+      controlstatement = 'else if'
+  fem_params['ccode']         =  ccode
+  fem_params['fileID']        = 0
+  # store the entire configuration file for convienence
+  fem_params['config_parser'] = config
+  fem_params['ini_filename'] = options.config_ini
+
+  # time stamp
+  import time
+  timeStamp =0 
+  while(True):
+    if(os.path.getmtime(fem_params['ini_filename']) > timeStamp):
+      timeStamp = os.path.getmtime(fem_params['ini_filename'] ) 
+      # set tissue lookup tables
+      k_0Table  = {"default":config.getfloat("thermal_conductivity","k_0_healthy")  ,
+                   "vessel" :config.getfloat("thermal_conductivity","k_0_healthy")  ,
+                   "grey"   :config.getfloat("thermal_conductivity","k_0_grey"   )  ,
+                   "white"  :config.getfloat("thermal_conductivity","k_0_white"  )  ,
+                   "csf"    :config.getfloat("thermal_conductivity","k_0_csf"    )  ,
+                   "tumor"  :config.getfloat("thermal_conductivity","k_0_tumor"  )  }
+      w_0Table  = {"default":config.getfloat("perfusion","w_0_healthy")  ,
+                   "vessel" :config.getfloat("perfusion","w_0_healthy")  ,
+                   "grey"   :config.getfloat("perfusion","w_0_grey"   )  ,
+                   "white"  :config.getfloat("perfusion","w_0_white"  )  ,
+                   "csf"    :config.getfloat("perfusion","w_0_csf"    )  ,
+                   "tumor"  :config.getfloat("perfusion","w_0_tumor"  )  }
+      mu_aTable = {"default":config.getfloat("optical","mu_a_healthy")  ,
+                   "vessel" :config.getfloat("optical","mu_a_healthy")  ,
+                   "grey"   :config.getfloat("optical","mu_a_grey"   )  ,
+                   "white"  :config.getfloat("optical","mu_a_white"  )  ,
+                   "csf"    :config.getfloat("optical","mu_a_csf"    )  ,
+                   "tumor"  :config.getfloat("optical","mu_a_tumor"  )  }
+      mu_sTable = {"default":config.getfloat("optical","mu_s_healthy")  ,
+                   "vessel" :config.getfloat("optical","mu_s_healthy")  ,
+                   "grey"   :config.getfloat("optical","mu_s_grey"   )  ,
+                   "white"  :config.getfloat("optical","mu_s_white"  )  ,
+                   "csf"    :config.getfloat("optical","mu_s_csf"    )  ,
+                   "tumor"  :config.getfloat("optical","mu_s_tumor"  )  }
+      anfactTable={"default":config.getfloat("optical","anfact_healthy")  ,
+                   "vessel" :config.getfloat("optical","anfact_healthy")  ,
+                   "grey"   :config.getfloat("optical","anfact_grey"   )  ,
+                   "white"  :config.getfloat("optical","anfact_white"  )  ,
+                   "csf"    :config.getfloat("optical","anfact_csf"    )  ,
+                   "tumor"  :config.getfloat("optical","anfact_tumor"  )  }
+      labelTable= {config.get("labels","greymatter" ):"grey" , 
+                   config.get("labels","whitematter"):"white", 
+                   config.get("labels","csf"        ):"csf"  , 
+                   config.get("labels","tumor"      ):"tumor", 
+                   config.get("labels","vessel"     ):"vessel"}
+      labelCount= {"default":0,
+                   "grey"   :0, 
+                   "white"  :0, 
+                   "csf"    :0, 
+                   "tumor"  :0, 
+                   "vessel" :0}
+      # store constitutive data
+      continuous_vars  = {}
+      continuous_vars['rho'    ]   =  1045.
+      continuous_vars['c_p'    ]   =  3640.
+      continuous_vars['c_blood']   =  3840.
+      continuous_vars['k_0'    ]   =  k_0Table["default"]
+      continuous_vars['w_0'    ]   =  w_0Table["default"]
+      continuous_vars['mu_a'   ]   =  mu_aTable["default"] 
+      continuous_vars['mu_s'   ]   =  mu_sTable["default"]
+      continuous_vars['anfact' ]   =  anfactTable["default"]
+      continuous_vars['body_temp'] = config.getfloat("initial_condition","u_init"  ) 
+      continuous_vars['probe_init'] = 21.0
+      continuous_vars['x_displace'] = 0.0
+      continuous_vars['y_displace'] = 0.0
+      continuous_vars['z_displace'] = 0.0
+      continuous_vars['x_rotate']   = 0.0
+      continuous_vars['y_rotate']   = 0.0
+      continuous_vars['z_rotate']   = 0.0
+      fem_params['cv']         = continuous_vars
+      # execute 
+      print "Running BrainNek..."
+      brainNekWrapper(**fem_params)
+      
+      # write objective function 
+      objfunction = ForwardSolve(**fem_params)
+    else:
+      print "waiting on user input.."
+      # echo lookup table
+      print "lookup tables"
+      #print "labeled %d voxels" % len(imageLabel)
+      print "labels"      , labelTable
+      print "counts"      , labelCount
+      print "conductivity", k_0Table  
+      print "perfusion"   , w_0Table  
+      print "absorption"  , mu_aTable  
+      print "scattering"  , mu_sTable  
+      print "anfact"      , anfactTable  
+      time.sleep(2)
 else:
   parser.print_help()
   print options

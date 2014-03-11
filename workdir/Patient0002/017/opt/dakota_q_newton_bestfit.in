@@ -25,13 +25,13 @@ interface,
         fork                                    #1,#4,#5,#7,#8,#11,#16,#19
           file_save file_tag
           analysis_driver = 'python ./brainsearch.py --param_file '
-          parameters_file = './workdir/Patient0002/017/opt/optpp_pds.in'
-          results_file    = './workdir/Patient0002/017/opt/optpp_pds.out'
+          parameters_file = './workdir/Patient0002/017/opt/optpp_pds_bestfit.in'
+          results_file    = './workdir/Patient0002/017/opt/optpp_pds_bestfit.out'
 
-# data quality   0
+# data quality   1
 #        discrete_state_range = 1
 #          initial_state    0
-#          descriptors      'powerhistory:[[7, 9, 13, 19, 72, 77], [0, 3, 0, 3, 10.05, 0], 5.0, [72, 77], [0, 72]]'
+#          descriptors      'powerhistory:[[7, 16, 34, 54, 63], [0, 3, 9.15, 11.85, 0], 5.0, [54, 63], [0, 54]]'
 
 responses,
         objective_functions = 1
@@ -46,7 +46,7 @@ variables,
           upper_bounds  =   5.30000e+03   2.91296e-07 
           descriptors  =  'mu_eff_healthy'  'alpha_healthy' 
         continuous_state = 10
-          initial_state  =   2.70000e+02   2.28733e-05   1.13020e-01   1.15630e-01   0.00000e+00   3.70000e+01   0.00000e+00   3.45000e+02   2.10000e+01   0.00000e+00 
-          #lower_bounds  =   2.65000e+02   1.37787e-05   1.12020e-01   1.14630e-01  -1.00000e-03   3.40000e+01  -5.00000e+00   3.40000e+02   2.00000e+01   0.00000e+00 
-          #upper_bounds  =   2.75000e+02   9.13743e-05   1.14020e-01   1.16630e-01   1.00000e-03   4.00000e+01   5.00000e+00   3.50000e+02   4.00000e+01   1.00000e+04 
+          initial_state  =   2.70000e+02   2.28733e-05   1.06860e-01   1.16300e-01   0.00000e+00   3.70000e+01   0.00000e+00   3.45000e+02   2.10000e+01   0.00000e+00 
+          #lower_bounds  =   2.65000e+02   1.37787e-05   1.05860e-01   1.15300e-01  -1.00000e-03   3.40000e+01  -5.00000e+00   3.40000e+02   2.00000e+01   0.00000e+00 
+          #upper_bounds  =   2.75000e+02   9.13743e-05   1.07860e-01   1.17300e-01   1.00000e-03   4.00000e+01   5.00000e+00   3.50000e+02   4.00000e+01   1.00000e+04 
           descriptors  =  'y_rotate'  'gamma_healthy'  'x_displace'  'y_displace'  'z_displace'  'body_temp'  'x_rotate'  'z_rotate'  'probe_init'  'robin_coeff' 
