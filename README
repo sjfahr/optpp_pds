@@ -1,4 +1,19 @@
 all registration parameters are WRT workdir/meshTemplateFull1.e
+
+------------------------- Running with MATLAB ------------------------------------
+
+1. Make sure 'brainsearch.py' has MATLAB = True . Make sure DAKMATLAB isn't running and the pipes are absent.  pkill -9 dakmatlab
+2. ./analytic/dakmatlab setup workspace
+3. ./exe.heathing.txt           Or whatever script you want to run
+
+------------------------- accumulate stats ---------------------------------------
+
+
+python accumulatehistory.py
+R
+source('datasummary.R')
+
+
 ----------------------------------------------------------------------------------
 parallel direct search in Dakota
 http://dakota.sandia.gov/docs/dakota/5.2/html-ref/MethodCommands.html#MethodOPTPP

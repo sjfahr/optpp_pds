@@ -4,25 +4,25 @@ clear all
 cd /FUS4/data2/sjfahrenholtz/gitMATLAB/optpp_pds/
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
-Patient_Paths = importdata( 'Quality_data_paths.txt' );
-obj_fxn = zeros(24,2);
-power_log = zeros(24,1);
-mu_a = zeros(24,1);
+Patient_Paths = importdata( 'patient_paths.txt' );
+obj_fxn = zeros(28,2);
+power_log = zeros(28,1);
+mu_eff = zeros(28,1);
 keep_index = 1;
 keep_fxn = zeros(2,1);
 %keep_patient_path (1:2,1) = 'a';
 
 
-for patient_index = 1:24
+for patient_index = 1:28
     one_patient_path = char ( Patient_Paths ( patient_index ) );
     patient_opt_path = strcat( path22, one_patient_path);
     cd (patient_opt_path);
-    load ( 'obj_fxn_list.txt' );
-    null_check = isempty (obj_fxn_list);
+    tabular_dat = load ( 'dakota_q_newton_heating.in.tabular.dat' );
+    null_check = isempty (tabular_dat);
     if null_check == 1;
-        obj_fxn_list = 0;
+        tabular_dat = 0;
     end
-    [obj_fxn( patient_index , 1 ), obj_fxn( patient_index , 2 )] = min( obj_fxn_list );
+    [obj_fxn( patient_index , 1 ), obj_fxn( patient_index , 2 )] = min( tabular_dat ( :,3) );
     
     input_param = 'optpp_pds.in.';
     index = num2str( obj_fxn( patient_index , 2 ) );
@@ -30,7 +30,7 @@ for patient_index = 1:24
     input_filename = strcat( input_filename, '.mat' );
     
     load(input_filename);
-    mu_a ( patient_index) = str2num(mu_a_healthy);
+    mu_eff ( patient_index) = str2num(mu_eff_healthy);
     
     power_one_patient = load ('time_then_power.csv');
     power_log (patient_index) = max( power_one_patient (:,2));
@@ -38,7 +38,7 @@ for patient_index = 1:24
     
     if obj_fxn( patient_index,1) < 3e+5
         keep_fxn ( keep_index) = obj_fxn( patient_index, 1);
-        keep_mu_a ( keep_index) = mu_a( patient_index);
+        keep_mu_eff ( keep_index) = mu_eff( patient_index);
         keep_patient_path ( keep_index) = Patient_Paths(patient_index);
         keep_index = keep_index + 1;
     end

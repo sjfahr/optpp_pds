@@ -1311,8 +1311,8 @@ if (options.param_file != None):
   # parse the dakota input file
   fem_params = ParseInput(options.param_file,options.vis_out)
 
-  MatlabDriver = True
   MatlabDriver = False
+  MatlabDriver = True
   if(MatlabDriver):
 
     # write out for debug
@@ -1322,8 +1322,10 @@ if (options.param_file != None):
     MatlabDataDictionary['vtkNumber'] = 4312
     scipyio.savemat( 'TmpDataInput.mat' , MatlabDataDictionary )
 
-    # setup any needed paths
-    os.system( './analytic/dakmatlab setup workspace ' )
+    # FIXME setup any needed paths
+    # FIXME this nees to have a clean matlab env for dakmatlab
+    # FIXME then setup ONCE
+    #os.system( './analytic/dakmatlab setup workspace ' )
     matlabcommand  = './analytic/dakmatlab %s %s' %  (options.param_file,sys.argv[3])
     print matlabcommand  
     os.system( matlabcommand )
