@@ -41,6 +41,7 @@ for ii = 1:n_patients
     params_iter.patientID = Patient_paths{ii,1}; % Write the patient path information into the params_iter structure
     params_iter.UID = Patient_paths{ii,2};
     params_iter.voi(1:2) = VOI.x;
+    params_iter.voi(1) = 80;
     params_iter.voi(3:4) = VOI.y;
    
     % This section runs the thermal code
