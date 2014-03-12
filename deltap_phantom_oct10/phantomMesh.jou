@@ -1,0 +1,55 @@
+##cubit -nographics -batch -input phantomMesh.jou
+reset
+set developer on
+
+# create two cylinders to represent the phantom domain and apply 
+# proper BC
+#       
+create cylinder radius 13.75 height 70 # units in mm
+webcut volume 1 with plane xplane 
+webcut volume 1 with plane yplane 
+# 35mm - 18 mm
+webcut volume 1 with plane zplane offset 12 # units in mm
+delete volume 2 3
+#
+## merge geometry
+imprint volume   1 4
+merge volume     1 4
+##
+## mesh 
+volume 1 4                                    size 1.8
+curve 36 scheme dualbias fine size 0.3 coarse size 1.8 
+curve 34 scheme dualbias fine size 0.3 coarse size 1.8 
+curve 35 scheme dualbias fine size 0.3 coarse size 1.8 
+curve 16 scheme     bias fine size 0.3 coarse size 1.8 start vertex 11
+curve 31 scheme     bias fine size 0.3 coarse size 1.8 start vertex 20
+curve 21 scheme     bias fine size 0.3 coarse size 1.8 start vertex 11
+curve 33 scheme     bias fine size 0.3 coarse size 1.8 start vertex 20
+curve 22 scheme     bias fine size 0.3 coarse size 1.8 start vertex 12
+curve 18 scheme     bias fine size 0.3 coarse size 1.8 start vertex 12
+curve 40 scheme     bias fine size 0.3 coarse size 1.8 start vertex 20
+curve 41 scheme     bias fine size 0.3 coarse size 1.8 start vertex 21
+curve 42 scheme     bias fine size 0.3 coarse size 1.8 start vertex 19
+mesh volume 1 4 
+#
+##
+#group "badhex"  equals quality hex  in volume  all   jacobian high 0.0
+##
+# export mesh in distinct pieces
+reset genesis
+#
+# bc
+sideset 4 surface 14 
+sideset 4 name "fluence" 
+sideset 2 surface 24 25 27 28
+sideset 2 name "neumann" 
+sideset 3 surface 23 16 29
+sideset 3 name "cauchy" 
+##
+# volume
+block 1 volume 1 
+block 1 name "normal"  
+block 2 volume 4
+block 2 name "nano"  
+volume all scale 0.001
+export mesh "phantomMesh.e" overwrite

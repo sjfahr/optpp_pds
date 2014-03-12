@@ -1,0 +1,8 @@
+plot(x(2:60),ys,'b')
+hold
+plot(x(2:60),SHELLS(2:60),'b')
+set(gca,'Box','off')
+ylim([0,.65])
+ylabel('RMS Difference (^oC)')
+axes('YAxisLocation','right' ,'YLim',[0,3.09], 'XTick',[],'Color', 'none')
+ylabel ('Relative Error')
