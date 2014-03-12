@@ -21,10 +21,9 @@
 #$ -pe 2way 1040 
 #$ -q normal
 #$ -o Parametric.o$JOB_ID
-#$ -l h_rt=02:55:00
+#$ -l h_rt=03:55:00
 #$ -V
 #$ -cwd
-#$ -hold_jid 2984566
 #   <------ You MUST Specify a Project String ----->
 #$ -A UTMDACC-DIP
 #  combine stdout stderr              
