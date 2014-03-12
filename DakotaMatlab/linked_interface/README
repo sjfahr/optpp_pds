@@ -1,0 +1,351 @@
+configure dakota w/ matlab using:
+
+  ./configure --without-graphics --prefix=/opt/apps/DAKOTA/5.2 --enable-debug --with-blas=/opt/apps/EPD/epd-7.3-1-rh5-x86_64/lib/libmkl_rt.so --with-lapack=/opt/apps/EPD/epd-7.3-1-rh5-x86_64/lib/libmkl_rt.so --without-ampl --without-acro --without-pecos --enable-teuchos-debug --with-matlab=/opt/MATLAB/R2012a/ --with-boost=/opt/apps/boost/boost_1_44_0/
+
+
+matlab linking requires a patch to the makefile
+
+SCRGP2$ git diff src/Makefile
+diff --git a/src/Makefile b/src/Makefile
+index 1f7911b..caaf482 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -480,7 +480,7 @@ LTLIBOBJS =
+ MAKEINFO = ${SHELL} /home/fuentes/SUDO/DAKOTA/5.2/Dakota/missing --run makeinfo
+ MATLAB_INCL = -I/opt/MATLAB/R2012a//extern/include
+ MATLAB_LDFLAGS =
+-MATLAB_LIBS = -L/opt/MATLAB/R2012a//bin/glnxa64 -leng -lmx -lut
++MATLAB_LIBS = -Wl,-rpath,/opt/MATLAB/R2012a/bin/glnxa64 -Wl,-rpath-link,/opt/MATLAB/R2012a/bin/glnxa64 -L/opt/MATLAB/R2012a/bin/glnxa64 -leng -lmx
+ MAYBE_ACRO =
+ MAYBE_DDACE = DDACE
+ MAYBE_DOT =
+
+----------------------------------------------------------------------
+
+example run from this directory
+
+SCRGP2$ echo $LD_LIBRARY_PATH
+/opt/apps/cuda/4.2//cuda/lib64:/opt/apps/EPD/epd-7.3-1-rh5-x86_64/lib/
+SCRGP2$ dakota dakota_rosenbrock_matlab.in 
+Running MPI executable in serial mode.
+DAKOTA version 5.2 released 11/30/2011.
+Subversion revision 873 built Jan  8 2013 23:05:25.
+Constructing Single Method Strategy...
+Writing new restart file dakota.rst
+Matlab engine initialized for direct function evaluation.
+methodName = nond_polynomial_chaos
+gradientType = none
+hessianType = none
+
+>>>>> Running Single Method Strategy.
+
+>>>>> Running nond_polynomial_chaos iterator.
+
+>>>>> Building global_orthogonal_polynomial approximations.
+
+Number of Gauss points per variable: { 5 3 }
+Total number of integration points: 15
+
+------------------------------
+Begin Function Evaluation    1
+------------------------------
+Parameters for function evaluation 1:
+                     -1.8123596919e+00 x1
+                     -1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 1:
+Active set vector = { 1 }
+                      2.3445112399e+03 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation    2
+------------------------------
+Parameters for function evaluation 2:
+                     -1.0769386202e+00 x1
+                     -1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 2:
+Active set vector = { 1 }
+                      7.3817642658e+02 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation    3
+------------------------------
+Parameters for function evaluation 3:
+                      0.0000000000e+00 x1
+                     -1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 3:
+Active set vector = { 1 }
+                      2.4100000000e+02 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation    4
+------------------------------
+Parameters for function evaluation 4:
+                      1.0769386202e+00 x1
+                     -1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 4:
+Active set vector = { 1 }
+                      7.3386867210e+02 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation    5
+------------------------------
+Parameters for function evaluation 5:
+                      1.8123596919e+00 x1
+                     -1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 5:
+Active set vector = { 1 }
+                      2.3372618011e+03 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation    6
+------------------------------
+Parameters for function evaluation 6:
+                     -1.8123596919e+00 x1
+                      0.0000000000e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 6:
+Active set vector = { 1 }
+                      1.0868003873e+03 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation    7
+------------------------------
+Parameters for function evaluation 7:
+                     -1.0769386202e+00 x1
+                      0.0000000000e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 7:
+Active set vector = { 1 }
+                      1.3882653384e+02 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation    8
+------------------------------
+Parameters for function evaluation 8:
+                      0.0000000000e+00 x1
+                      0.0000000000e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 8:
+Active set vector = { 1 }
+                      1.0000000000e+00 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation    9
+------------------------------
+Parameters for function evaluation 9:
+                      1.0769386202e+00 x1
+                      0.0000000000e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 9:
+Active set vector = { 1 }
+                      1.3451877936e+02 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation   10
+------------------------------
+Parameters for function evaluation 10:
+                      1.8123596919e+00 x1
+                      0.0000000000e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 10:
+Active set vector = { 1 }
+                      1.0795509485e+03 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation   11
+------------------------------
+Parameters for function evaluation 11:
+                     -1.8123596919e+00 x1
+                      1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 11:
+Active set vector = { 1 }
+                      3.0908953472e+02 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation   12
+------------------------------
+Parameters for function evaluation 12:
+                     -1.0769386202e+00 x1
+                      1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 12:
+Active set vector = { 1 }
+                      1.9476641097e+01 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation   13
+------------------------------
+Parameters for function evaluation 13:
+                      0.0000000000e+00 x1
+                      1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 13:
+Active set vector = { 1 }
+                      2.4100000000e+02 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation   14
+------------------------------
+Parameters for function evaluation 14:
+                      1.0769386202e+00 x1
+                      1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 14:
+Active set vector = { 1 }
+                      1.5168886616e+01 response_fn_1
+
+
+
+------------------------------
+Begin Function Evaluation   15
+------------------------------
+Parameters for function evaluation 15:
+                      1.8123596919e+00 x1
+                      1.5491933385e+00 x2
+
+Direct function: invoking matlab 
+
+Active response data for function evaluation 15:
+Active set vector = { 1 }
+                      3.0184009596e+02 response_fn_1
+
+
+Constructing global approximations with no anchor, 15 DACE samples, and 0 reused points.
+Orthogonal polynomial approximation order = { 4 2 } using tensor-product expansion of 15 terms
+
+<<<<< global_orthogonal_polynomial approximation builds completed.
+
+NonD lhs Samples = 10000 Seed (user-specified) = 12347
+Beginning Approximate Fn Evaluations...
+<<<<< Function evaluation summary: 15 total (15 new, 0 duplicate)
+-------------------------------------------------------------------
+Polynomial Chaos coefficients for response_fn_1:
+        coefficient   u1   u2
+        ----------- ---- ----
+   4.5566666667e+02   P0   P0
+  -4.0000000000e+00   P1   P0
+   9.1695238095e+02   P2   P0
+  -9.9475983006e-14   P3   P0
+   3.6571428571e+02   P4   P0
+  -5.3333333333e+02   P0   P1
+  -3.9968028887e-14   P1   P1
+  -1.0666666667e+03   P2   P1
+  -3.3573144265e-13   P3   P1
+   1.2829737273e-12   P4   P1
+   2.6666666667e+02   P0   P2
+   2.2648549702e-13   P1   P2
+   4.8849813084e-13   P2   P2
+   2.8754776338e-13   P3   P2
+  -2.8477220582e-13   P4   P2
+-------------------------------------------------------------------
+Statistics derived analytically from polynomial expansion:
+
+Moment-based statistics for each response function:
+                            Mean           Std Dev          Skewness          Kurtosis
+response_fn_1
+  expansion:    4.5566666667e+02  6.0656024184e+02
+  numerical:    4.5566666667e+02  6.0656024184e+02  1.9633285271e+00  3.3633861456e+00
+
+Local sensitivities for each response function evaluated at uncertain variable means:
+response_fn_1:
+ [ -2.0000000000e+00  2.4055757386e-13 ] 
+
+Global sensitivity indices for each response function:
+response_fn_1 Sobol indices:
+                                  Main             Total
+                      4.9746891383e-01  7.0363551328e-01 x1
+                      2.9636448672e-01  5.0253108617e-01 x2
+                           Interaction
+                      2.0616659946e-01 x1 x2 
+
+Statistics based on 10000 samples performed on polynomial expansion:
+
+Probability Density Function (PDF) histograms for each response function:
+PDF for response_fn_1:
+          Bin Lower          Bin Upper      Density Value
+          ---------          ---------      -------------
+   6.8311107124e-03   1.0000000000e-01   2.0393073423e-02
+   1.0000000000e-01   1.0000000000e+00   1.3000000000e-02
+   1.0000000000e+00   5.0000000000e+01   4.7000000000e-03
+   5.0000000000e+01   1.0000000000e+02   1.9680000000e-03
+   1.0000000000e+02   5.0000000000e+02   9.2150000000e-04
+   5.0000000000e+02   1.0000000000e+03   2.8300000000e-04
+   1.0000000000e+03   3.5755437782e+03   5.7308286215e-05
+
+Level mappings for each response function:
+Cumulative Distribution Function (CDF) for response_fn_1:
+     Response Level  Probability Level  Reliability Index  General Rel Index
+     --------------  -----------------  -----------------  -----------------
+   1.0000000000e-01   1.9000000000e-03
+   1.0000000000e+00   1.3600000000e-02
+   5.0000000000e+01   2.4390000000e-01
+   1.0000000000e+02   3.4230000000e-01
+   5.0000000000e+02   7.1090000000e-01
+   1.0000000000e+03   8.5240000000e-01
+-------------------------------------------------------------------
+
+<<<<< Iterator nond_polynomial_chaos completed.
+<<<<< Single Method Strategy completed.
+Matlab engine terminated.
+DAKOTA execution time in seconds:
+  Total CPU        =       0.16
