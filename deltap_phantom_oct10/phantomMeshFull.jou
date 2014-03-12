@@ -1,0 +1,42 @@
+##cubit -nographics -batch -input phantomMesh.jou
+reset
+set developer on
+
+# create two cylinders to represent the phantom domain and apply 
+# proper BC
+#       
+create cylinder radius 13.75 height 70 # units in mm
+webcut volume 1 with plane xplane 
+webcut volume 1 2  with plane yplane 
+# 35mm - 23 mm
+webcut volume 1 2 3 4 with plane zplane offset 12 # units in mm
+#
+# merge geometry
+imprint volume   1 2 3 4 5 6 7 8
+merge volume     1 2 3 4 5 6 7 8
+##
+## mesh 
+volume 1 2 3 4 5 6 7 8 size 1.1
+mesh volume 1 2 3 4 5 6 7 8 
+#
+##
+group "badhex"  equals quality hex  in volume  all   jacobian high 0.0
+##
+# export mesh in distinct pieces
+reset genesis
+##
+## bc
+sideset 4 surface 14 26 20 28
+sideset 4 name "fluence" 
+#sideset 2 surface 24 25 27 28
+#sideset 2 name "neumann" 
+sideset 3 surface 33 43 51 57 16 24 18 30 39 45 53 63
+sideset 3 name "cauchy" 
+##
+# volume
+block 1 volume 1 2 3 4
+block 1 name "normal"  
+block 2 volume 5 6 7 8
+block 2 name "nano"  
+volume all scale 0.001
+export mesh "phantomMeshFull.e" overwrite

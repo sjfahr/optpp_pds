@@ -1,0 +1,147 @@
+% 1) Uses CSI processing to generate t2star, ppm, freq, amp, amp0 maps (Originally by Brian Taylor)
+% 2) Generates temperature map using ppm data
+% 3) Calculates mean temperature in user-specified ROI
+% Written by Jonathan S. Lin 11/2011
+
+% Note: Consider running these commands before using the script so that
+% variables with the same name do not contain any data from previous data
+% sets
+% "Clear all" - clears all variables from the workspace
+% "Close all" - closes all figures currently open
+
+% Reads in dicom file names automatically
+[filename pathname] = uigetfile('*'); % Select Dicom file in desired directory so whole directory can be read in
+tmp_dir_name = dir(pathname); % Generates directory name
+file_names = strvcat(tmp_dir_name(3:size(tmp_dir_name,1)).name); % Generates file names for every file in that directory
+nimages = size(file_names,1); % # of files in that directory
+
+% Reads in dicom files - the actual data, not just the filenames
+disp(['Loading Images'])
+for i=1:nimages
+   [tmp1 tmp2]=readseriesDCM([i i],pathname); % Reads in only 1 image
+   img(:,:,i) = tmp1; % Stores image data 
+   te(i)=tmp2.EchoTime; % Stores echo time  
+end
+disp(['Done!'])
+
+% Resorts img and te arrays if files read out of order
+initial = 6 + strfind(file_names(1,:),'.MRDC.'); % initial = where the file endings #'s start
+[r c] = size(file_names); % c = where file ending #'s end
+endings = file_names(:,(initial:c));
+endnumbers = str2num(endings);
+[endnumbers I] = sortrows(endnumbers); % Gets I array to correct te, img
+te=te(I); % Resort te array
+img = img(:,:,I); % Resort img array
+
+dat=cplximg(double(img)); % Combines interleaved real/imaginary images into complex images
+te_dat = te(1:2:nimages);  % Transfer every other echo time so they correspond with cplximg index
+es=te_dat(2)-te_dat(1); % Calculate echo spacing
+if es > 0.5
+    es = es*1e-3; % Scale from microseconds to seconds if es value too large
+end
+
+% Crop photo so that only area around mouse is processed
+figure; imagesc(mag(dat(:,:,1))); axis image; axis off; colormap gray % Displays image for area selection
+roi0=getrect; % Select rectangular ROI around mouse
+dat_crop=double(imcrop2(dat(:,:,1:size(dat,3)),roi0)); % Crops photo
+
+% Calculate Size of image arrays
+ny=size(dat_crop,1);
+nx=size(dat_crop,2);
+necho=tmp2.NumberOfEchoes; % # of echoes per acquisition
+nacq=size(dat_crop,3)/necho; % # of acquisitions
+
+% Reshape image and echo time arrays to group them by acquisitions
+dat2=reshape(dat_crop, [ny nx necho nacq] );
+te_dat2=reshape(te_dat, [necho nacq]);
+
+% Create arrays for CSI data maps
+t2star=zeros(ny,nx,nacq);
+ppm=zeros(ny,nx,nacq);
+freq=zeros(ny,nx,nacq);
+amp=zeros(ny,nx,nacq);
+amp0=zeros(ny,nx,nacq);
+gB0=3.0*42.58; % Precessional frequency
+thresh = 50; % Threshold for deciding whether to process that pixel
+
+warning off
+% CSI processing pixel by pixel - All echoes in 1 acquisition used to create 1 t2star, 1 ppm, 1 freq, 1 amp, 1 amp0 map
+disp(['Processing Acquisition '])
+for z=1:nacq
+    for x=1:nx
+        for y=1:ny
+            if abs(dat2(y,x,1,z))>thresh
+                fid=squeeze(dat2(y,x,:,z));
+                [p q]=stmcb(fid,0,1);
+                
+                t2star(y,x,z)=-1./real(log(roots(q))/es)/1000;
+                ppm(y,x,z)=imag(log(roots(q))/2/pi/(es)/gB0);
+                freq(y,x,z)=imag(log(roots(q)))/(es)/gB0/2/pi;
+                amp(y,x,z)=p(1)/q(1);
+                amp0(y,x,z)=amp(y,x) .* exp(2.*pi.*freq(y,x,z).*i.*.001.*(te(1)).*gB0+.001*(te(1))./t2star(y,x,z));
+            end
+        end
+    end
+end
+disp(['Done!'])
+warning on
+
+
+
+% Generates temperature map based on ppm data
+for calc=1:nacq-1
+   deltaT(:,:,calc)=( ppm(:,:,calc+1)-ppm(:,:,1) )/.01; % alpha = -0.01ppm/C per Dr. Taylor's results
+end
+
+% Code for viewing temperature map quickly - for future reference
+% for view=1:size(deltaT,3), imagesc(deltaT(:,:,view)); axis image; axis off; caxis([-5 50]); pause(0.1); end
+
+% Generates avi file of temperature map
+fig=figure;
+aviobj = avifile('deltaT_Mouse1_Day2.avi')
+aviobj.fps = 2;
+for view=1:size(deltaT,3)
+   imagesc(deltaT(:,:,view)); axis image, axis off, caxis([-5 30])
+   F = getframe(fig);
+   aviobj = addframe(aviobj, F);
+end
+close(fig)
+aviobj=close(aviobj);
+
+% Select an ROI and eliminate external pixels 
+[max_values hottest_image_index]=max(sum(sum(deltaT,1),2)); % Determines "hottest" image
+figure; imagesc(deltaT(:,:,hottest_image_index)); axis image; axis off; caxis([-5 30]) % Displays hottest image
+mask = roipoly(); mask = double(mask); % Select ROI of desired area to calculate mean temp
+for t = 1:size(deltaT,3)
+    deltaT_masked(:,:,t) = deltaT(:,:,t).*mask; % Eliminates all pixels except those in ROI
+    imagesc( deltaT_masked(:,:,t) ); axis image; axis off; caxis([-5 30]) % Displays ROI temperature map
+end
+
+% Extracts temperature data from ROI 
+pixnum = size( find(deltaT_masked(:,:,1)),1 ); % # of pixels in ROI
+data = zeros(pixnum,size(deltaT_masked,3)); % Array for storing ROI temperature data bc ROI non-rectangular
+c = 1;
+for t = 1:size(deltaT_masked,3)
+    for y = 1:size(deltaT,1)
+        for x = 1:size(deltaT,2)
+            if (deltaT_masked(y,x,t) > 0)
+                if (c > pixnum)
+                    c = 1;
+                end
+                data(c,t) = deltaT_masked(y,x,t);
+                c = c+1;
+            end
+        end
+    end
+end
+
+% Plots mean temperature data for ROI
+time_s = [1:size(deltaT_masked,3)]*5;
+meanT = mean(data,1); % Compute mean temperature
+figure; plot(time_s,meanT,'r-',time_s,meanT,'bo') % Plot temp vs. time
+ylabel('Temperature change (degrees C)'); xlabel('Time (s)')
+title('Mouse 1, Day 2  - Mean Temp  vs. Time')
+
+% Saves variables, and writes mean ROI temp data to excel file
+xlswrite('Mouse1_Day2_meanT.xls',[time_s' meanT'])
+save('Mouse1_Day2_deltaT_data.mat','meanT','time_s','deltaT','t2star','ppm','freq','amp','amp0','dat2','te_dat2','img','te')

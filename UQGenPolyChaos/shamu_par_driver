@@ -1,0 +1,14 @@
+#!/bin/bash
+# simple wrapper 
+num=$(echo $1 | awk -F. '{print $NF}')
+echo setting up $num from work dir $PWD
+echo "#!/bin/bash"                                                                     >  exe.qsub
+echo "#$ -pe mpich 8"                                                                  >> exe.qsub
+echo "#$ -N pce.$num"                                                                  >> exe.qsub
+echo "#$ -j y"                                                                         >> exe.qsub
+echo "#$ -o \$JOB_NAME.o\$JOB_ID"                                                      >> exe.qsub
+echo "#$ -cwd "                                                                        >> exe.qsub
+echo "#$ -S /bin/bash"                                                                 >> exe.qsub
+echo "#$ -V"                                                                           >> exe.qsub
+echo "mpirun_rsh -np \$NSLOTS -hostfile \$TMP/machines python $PWD/../../gPCWFS.py" --run_fem $1 >> exe.qsub
+echo 0.0 >  $2 

@@ -1,0 +1,38 @@
+to run inverse problem type 
+
+
+dakota dakota_hopspack.in > hopspack.log & 
+tail -f hopspack.log
+
+for each function evaluation
+should see files of the form 
+
+hopspack.in.*
+hopspack.out.*
+hopspack.*.log
+fem_data.*.e
+
+
+begin to appear in the hopspack work directory
+
+adjust "initial_point", "upper_bounds", and "lower_bounds" on parameter uncertainty 
+in dakota_hopspack.in file as needed...
+
+
+keep an eye on disk usage in a separate screen just in case....
+
+
+moonen$ while [ 1 ] ; do df ; sleep 5 ; done
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda1            144183992  48924496  87935336  36% /
+none                   6158800       284   6158516   1% /dev
+none                   6163312       984   6162328   1% /dev/shm
+none                   6163312       384   6162928   1% /var/run
+none                   6163312         0   6163312   0% /var/lock
+none                   6163312         0   6163312   0% /lib/init/rw
+/dev/sda5            336535712  59002528 260438120  19% /home
+/dev/sdb2            466302616 313677820 128937936  71% /data
+venus:/FUS4          3065866240 909862912 2156003328  30% /FUS4
+venus:/FUS           818109440  60288000 757821440   8% /FUS
+//dcpavfs1a.mdanderson.edu/users/CJMacLellan
+                     2141716480 1949821420 191895060  92% /windows/cjmaclellan

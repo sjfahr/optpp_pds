@@ -1,0 +1,5 @@
+#!/bin/bash
+# simple wrapper 
+# redirect from /dev/null to save system file system
+mpirun -n 2 python ../deltapModeling.py $1 $2 < /dev/null >  $2.log
+#gzip -f $2.log

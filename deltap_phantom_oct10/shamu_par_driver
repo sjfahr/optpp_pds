@@ -1,0 +1,20 @@
+#!/bin/bash
+# simple wrapper 
+num=$(echo $1 | awk -F. '{print $NF}')
+echo setting up $num from work dir $PWD
+echo "#!/bin/bash"                                                                     >  $1.qsub
+echo "#$ -pe mpich 8"                                                                  >> $1.qsub
+echo "#$ -N hopspack.$num"                                                             >> $1.qsub
+echo "#$ -j y"                                                                         >> $1.qsub
+echo "#$ -o \$JOB_NAME.o\$JOB_ID"                                                      >> $1.qsub
+echo "#$ -wd /share/work/fuentes/deltap_phantom_oct10/hopspack"                        >> $1.qsub
+echo "#$ -S /bin/bash"                                                                 >> $1.qsub
+echo "#$ -V"                                                                           >> $1.qsub
+echo "mpirun_rsh -np \$NSLOTS -hostfile \$TMP/machines python ../deltapModeling.py" $1 $2 >> $1.qsub
+qsub $1.qsub
+# sleep until file available
+while [ ! -e "$2" ]
+do
+  echo waiting for $2 
+  sleep 5
+done
