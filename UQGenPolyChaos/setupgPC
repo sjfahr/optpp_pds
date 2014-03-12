@@ -1,0 +1,90 @@
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --w_0_healthy  --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --w_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --w_0_healthy  --w_1_coag 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --mu_a_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --mu_a_healthy --mu_a_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --mu_s_healthy --mu_s_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini --pre_run=ranger_setup_driver --k_0_healthy 
+
+
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog1_0
+for workdir in dog1_[1234567]; do python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=$workdir ; done
+
+
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog1.ini            --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog2.ini            --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog3.ini            --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_dog4.ini            --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog2_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog3_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=dog4_0
+
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --anfact_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy  --w_1_coag 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --mu_a_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --mu_a_healthy --mu_a_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --mu_s_healthy --mu_s_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --k_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex18Mar2009.ini --pre_run=ranger_setup_driver --w_0_healthy  --mu_a_healthy --mu_s_healthy 
+
+
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_1
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_2
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_3
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_4
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_5
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_6
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_7
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_8
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_9
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_10
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_11
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_12
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_13
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_14
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090318_751642_treat_15
+
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex01Dec2011.ini  --pre_run=ranger_setup_driver --w_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex10Jan2011.ini  --pre_run=ranger_setup_driver --w_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex02Apr2009.ini  --pre_run=ranger_setup_driver --w_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex17Dec2010.ini  --pre_run=ranger_setup_driver --w_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_biotex25May2012.ini  --pre_run=ranger_setup_driver --w_0_healthy 
+
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_111201_hippo_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_090402_melanoma_met_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_120110_breast_met_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_101217_lung_met_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=biotex_120525_brain_0
+
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --mu_a_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --mu_a_healthy --mu_a_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --mu_s_healthy --mu_s_coag
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --k_0_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --k_0_healthy  --mu_a_healthy --mu_s_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --anfact_healthy 
+python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --config_ini=control_phantom_nov07.ini --pre_run=ranger_setup_driver --anfact_healthy --mu_a_healthy --mu_s_healthy 
+
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_0
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_1
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_2
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_3
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_4
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_5
+python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=phantom_nov07_6
+for workdir in phantom_nov07_[789] phantom_nov07_1[0123]; do python irodsMetaData.py --root_dir=/corralZ/home/fuentes/UQGenPolyChaos --data_dir=$workdir ; done
+
+imeta qu -C setup like %w_0_healthy%
+imeta qu -C options/mu_a_healthy '=' True
+imeta qu -C options/w_0_healthy '=' True
+imeta qu -C options/mu_a_coag '=' True
+
+for workdir in phantom_nov07_[789] phantom_nov07_1[0123]; do echo python convertexodus.py $PWD/$workdir ; done
+for workdir in dog1_[1234567]; do echo python convertexodus.py $PWD/$workdir ; done

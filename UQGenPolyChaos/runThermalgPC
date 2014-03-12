@@ -1,0 +1,124 @@
+python gPCWFS.py --execution=qsub --run_queue=dog1_0
+python gPCWFS.py --execution=qsub --run_queue=dog4_0
+python gPCWFS.py --execution=qsub --run_queue=human0_0 
+python gPCWFS.py --execution=qsub --run_queue=dog1_2
+python gPCWFS.py --execution=qsub --run_queue=human0_2 
+
+
+python gPCWFS.py --execution=qsub --run_queue=dog4_2
+python gPCWFS.py --execution=qsub --run_queue=dog1_1
+python gPCWFS.py --execution=qsub --run_queue=human0_1 
+python gPCWFS.py --execution=qsub --run_queue=agar0_0 
+python gPCWFS.py --execution=qsub --run_queue=dog4_1
+
+python gPCWFS.py --execution=qsub --run_queue=human0_3 
+python gPCWFS.py --execution=qsub --run_queue=dog1_3
+python gPCWFS.py --execution=qsub --run_queue=agar0_1 
+
+python gPCWFS.py --execution=qsub --run_queue=dog2_0
+python gPCWFS.py --execution=qsub --run_queue=dog2_1
+python gPCWFS.py --execution=qsub --run_queue=dog3_0
+python gPCWFS.py --execution=qsub --run_queue=dog3_1
+
+python gPCWFS.py --execution=qsub --run_queue=dog2_2
+python gPCWFS.py --execution=qsub --run_queue=dog2_3
+python gPCWFS.py --execution=qsub --run_queue=dog3_2
+python gPCWFS.py --execution=qsub --run_queue=dog3_3
+
+python gPCWFS.py --execution=qsub --run_queue=dog4_3
+
+
+qsub -v WORKDIR=dog1_5 realization.qsub
+
+qsub -v WORKDIR=dog1_0 launcher.sge
+qsub -v WORKDIR=dog4_0 launcher.sge
+qsub -v WORKDIR=human0_0 launcher.sge
+qsub -v WORKDIR=dog1_2 launcher.sge
+qsub -v WORKDIR=human0_2 launcher.sge
+qsub -v WORKDIR=dog4_2 launcher.sge
+
+
+
+qsub -v WORKDIR=human0_1 launcher.sge
+qsub -v WORKDIR=dog1_1 launcher.sge
+qsub -v WORKDIR=dog4_1 launcher.sge
+qsub -v WORKDIR=dog2_0 launcher.sge
+qsub -v WORKDIR=dog2_1 launcher.sge
+qsub -v WORKDIR=dog3_0 launcher.sge
+qsub -v WORKDIR=dog3_1 launcher.sge
+qsub -v WORKDIR=agar0_0 launcher.sge
+
+qsub -v WORKDIR=dog1_3 launcher.sge
+qsub -v WORKDIR=dog2_2 launcher.sge
+qsub -v WORKDIR=dog2_3 launcher.sge
+qsub -v WORKDIR=dog3_2 launcher.sge
+qsub -v WORKDIR=dog3_3 launcher.sge
+qsub -v WORKDIR=dog4_3 launcher.sge
+qsub -v WORKDIR=human0_3 launcher.sge
+qsub -v WORKDIR=agar0_1 launcher.sge
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+python gPCWFS.py --execution=qsub --run_queue=dog1_4
+python gPCWFS.py --execution=qsub --run_queue=dog1_5
+python gPCWFS.py --execution=qsub --run_queue=dog2_4
+python gPCWFS.py --execution=qsub --run_queue=dog2_5
+python gPCWFS.py --execution=qsub --run_queue=dog3_4
+python gPCWFS.py --execution=qsub --run_queue=dog3_5
+python gPCWFS.py --execution=qsub --run_queue=dog4_4
+python gPCWFS.py --execution=qsub --run_queue=dog4_5
+python gPCWFS.py --execution=qsub --run_queue=human0_4 
+python gPCWFS.py --execution=qsub --run_queue=human0_5 
+python gPCWFS.py --execution=qsub --run_queue=agar0_2 
+
+python gPCWFS.py --execution=qsub --run_queue=dog1_6
+python gPCWFS.py --execution=qsub --run_queue=dog1_7
+python gPCWFS.py --execution=qsub --run_queue=dog2_6
+
+python gPCWFS.py --execution=qsub --run_queue=dog2_7
+python gPCWFS.py --execution=qsub --run_queue=dog3_6
+python gPCWFS.py --execution=qsub --run_queue=dog3_7
+
+python gPCWFS.py --execution=qsub --run_queue=dog4_6
+python gPCWFS.py --execution=qsub --run_queue=dog4_7
+
+python gPCWFS.py --execution=qsub --run_queue=human0_6 
+python gPCWFS.py --execution=qsub --run_queue=human0_7 
+python gPCWFS.py --execution=qsub --run_queue=agar0_3 
+
+
+qsub -v WORKDIR=dog1_4 launcher.sge
+qsub -v WORKDIR=dog1_5 launcher.sge
+qsub -v WORKDIR=dog2_4 launcher.sge
+qsub -v WORKDIR=dog2_5 launcher.sge
+qsub -v WORKDIR=dog3_4 launcher.sge
+qsub -v WORKDIR=dog3_5 launcher.sge
+qsub -v WORKDIR=dog4_4 launcher.sge
+qsub -v WORKDIR=dog4_5 launcher.sge
+qsub -v WORKDIR=human0_4 launcher.sge
+qsub -v WORKDIR=human0_5 launcher.sge
+qsub -v WORKDIR=agar0_2 launcher.sge
+
+qsub -v WORKDIR=dog1_6 launcher.sge
+qsub -v WORKDIR=dog1_7 launcher.sge
+qsub -v WORKDIR=dog2_6 launcher.sge
+qsub -v WORKDIR=dog2_7 launcher.sge
+qsub -v WORKDIR=dog3_6 launcher.sge
+qsub -v WORKDIR=dog3_7 launcher.sge
+qsub -v WORKDIR=dog4_6 launcher.sge
+qsub -v WORKDIR=dog4_7 launcher.sge
+qsub -v WORKDIR=human0_6 launcher.sge
+qsub -v WORKDIR=human0_7 launcher.sge
+qsub -v WORKDIR=agar0_3 launcher.sge

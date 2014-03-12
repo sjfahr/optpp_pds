@@ -1,0 +1,41 @@
+## DAKOTA INPUT FILE 
+#
+# execute as:
+#       $(DAKOTA_PATH)/bin/dakota dakota_param_8d.in
+#
+
+strategy,
+	single_method
+	  graphics,tabular_graphics_data
+
+method,
+	multidim_parameter_study		
+	  partitions = 1 1 1 1 1 1 1 1			
+	  output verbose
+
+model,
+	single
+
+variables,
+	continuous_design = 8
+      	  lower_bounds      =  50.  500.  .59   4.   70.  500.  .59   4. 
+	  upper_bounds      =  150. 800.  .61   6.   250. 800.  .61   6.		 	   	 	
+	  descriptors       = 'mu_a_healthy' 'mu_s_healthy' 'k_0_healthy' 'w_0_healthy' 'mu_a_tumor' 'mu_s_tumor' 'k_0_tumor' 'w_0_tumor'		        	 
+
+# should run on 6 procs total
+# dakota is run in SERIAL but each forked function evaluation will run in parallel
+# asynchronous evaluation_concurrency = 3 will allow all 3 function evals at the same time
+# fork w/ mpirun -n 2  will run 2 procs per function eval
+interface,
+	fork 
+	  analysis_driver = 'mpirun -n 2 python /data/fuentes/mdacc/uqModelStudy/deltapModeling.py'
+	  parameters_file = 'params.in'
+	  results_file = 'results.out'
+	  asynchronous evaluation_concurrency = 3
+	  file_save file_tag
+
+responses,
+	num_objective_functions = 1             
+	no_gradients				
+	no_hessians
+

@@ -1,0 +1,20 @@
+#!/bin/bash                           
+# Which account to be charged cpu time
+#$ -A UTMDACC-DIP                     
+#  combine stdout stderr              
+#$ -j y                               
+#  jobname                            
+#$ -N dbg                              
+#  inherit submission env             
+#$ -V                                 
+# The job is located in the current   
+# working directory.                  
+#$ -cwd                             
+
+#$ -o $JOB_NAME.o$JOB_ID            
+#$ -q development                   
+#$ -pe 8way 16
+#$ -l h_rt=00:20:00                 
+set -x                              
+echo $PE_HOSTFILE |xargs cat
+ibrun python deltapModeling.py params.in.467 results.out.467 -idb

@@ -1,0 +1,23 @@
+#!/bin/bash                           
+# Which account to be charged cpu time
+#$ -A UTMDACC-DIP   	              
+#  combine stdout stderr             
+#$ -j y                           	
+#  jobname                         
+#$ -N assemble             	
+#  inherit submission env            
+#$ -V                             	
+# The job is located in the current  
+# working directory.              	
+#$ -cwd                           	
+
+#$ -o $JOB_NAME.o$JOB_ID        	
+#$ -q development                      	
+#$ -pe 8way 32                   	
+#$ -l h_rt=02:00:00               	
+#$ -hold_jid 2556250
+#$ -M samuel.fahrenholtz@gmail.com
+#$ -m be
+set -x
+echo $PE_HOSTFILE |xargs cat
+ibrun python $DDDAS_SRC/Examples/TreatmentPlanning/gPCWFS.py --assemble_stats=dog1_6
