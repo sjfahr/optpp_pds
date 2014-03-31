@@ -5,7 +5,7 @@ import ConfigParser
 resultfileList = [
 './workdir/Study0035/0530/',
 './workdir/Study0030/0495/',
-'./workdir/Study0023/0433/',
+##'./workdir/Study0023/0433/',
 './workdir/Study0030/0497/',
 './workdir/Study0030/0491/',
 './workdir/Study0030/0496/',
@@ -31,9 +31,9 @@ resultfileList = [
 './workdir/Study0021/0415/',
 ]
 
-resultfileList = [
-'./workdir/Study0035/0530/',
-]
+#resultfileList = [
+#'./workdir/Study0035/0530/',
+#]
 
 outputDirectory = '/tmp/outputs/dakota/%04d'
 
@@ -47,7 +47,7 @@ with file('datasummary.tex' , 'w') as texHandle:
     # write header
     fileHandle.write("iddata,mu_eff,obj\n")
     # loop over files and extract optimal value
-    opttype = 'bestfit'
+    opttype = 'heating'
     for filenamebase in resultfileList:
       # get latex command
       config = ConfigParser.SafeConfigParser({})
@@ -83,7 +83,7 @@ with file('datasummary.tex' , 'w') as texHandle:
       dicevalue = DiceTxtFileParse(dicefilename)
   
       # format latex ouput
-      outputformat                   = config.get('latex',opttype)
-      texFormat = outputformat % (minobjval,dicevalue)
-      print texFormat 
-      texHandle.write("%s\n" %(texFormat))
+      #outputformat                   = config.get('latex',opttype)
+      #texFormat = outputformat % (minobjval,dicevalue)
+      #print texFormat 
+      #texHandle.write("%s\n" %(texFormat))
