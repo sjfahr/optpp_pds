@@ -324,8 +324,9 @@ laserTip  1.0      4180           0.5985        500         14000       0.88
 """
 # Convenience Routine
 def GetMinJobID(FileNameTemplate):
-    MinID     = 1  
-    MinObjVal = 1.e99
+    MinID      = 1  
+    MinObjVal  = 1.e99
+    MinDiceVal = 1.e99
     # get a list of all output files in the directory 
     DirectoryLocation = FileNameTemplate.split('/')
     FileTypeID = DirectoryLocation.pop() 
@@ -334,10 +335,11 @@ def GetMinJobID(FileNameTemplate):
     for dakotaoutfile in DirectoryOutList:
       obj_fn_data = numpy.loadtxt('%s/%s'  % (DirectoryLocation ,dakotaoutfile ) )
       #print '%s/%s'  % (DirectoryLocation, dakotaoutfile), obj_fn_data 
-      if(obj_fn_data < MinObjVal ): 
-        MinObjVal = obj_fn_data
+      if(obj_fn_data[0] < MinObjVal ): 
+        MinObjVal  = obj_fn_data[0]
+        MinDiceVal = obj_fn_data[1]
         MinID     = int(dakotaoutfile.split(".").pop()) 
-    return (MinID,MinObjVal)
+    return (MinID,MinObjVal,MinDiceVal )
 
 # Convenience Routine
 def DiceTxtFileParse(DiceInputFilename):
@@ -1303,10 +1305,11 @@ def ParseInput(paramfilename,VisualizeOutput):
   inisetupfile  = "/".join(locatemrti)+"/setup.ini"
   config = ConfigParser.SafeConfigParser({})
   config.read(inisetupfile)
-  fem_params['lambdacode']       = eval(config.get('power','lambdacode'))
+  if (not MatlabDriver):
+       fem_params['lambdacode']       = eval(config.get('power','lambdacode'))
   fem_params['segment_file']     = config.get('exec','segment_file')
   fem_params['target_landmarks'] = config.get('exec','target_landmarks')
-  #fem_params['powerhistory'] = config.get('power','history')
+  #fem_params['powerhistory']     = config.get('power','history')
   fulltimeinterval               = eval(config.get('mrti','fulltime') )
   cooltimeinterval               = eval(config.get('mrti','cooling')  )
   heattimeinterval               = eval(config.get('mrti','heating')  )
@@ -1396,14 +1399,13 @@ if (options.param_file != None):
   fem_params = ParseInput(options.param_file,options.vis_out)
 
   if(MatlabDriver):
+    print fem_params
     import scipy.io as scipyio
     # write out for debug
-    MatlabDataDictionary  = fem_params
-    MatlabDataDictionary['patientID'] = options.param_file.split('/')[2]
-    MatlabDataDictionary['UID']       = options.param_file.split('/')[3]
-    MatlabDataDictionary['vtkNumber'] = 4312
-    scipyio.savemat( '%s.mat' % options.param_file, MatlabDataDictionary )
-
+    fem_params['patientID'] = options.param_file.split('/')[2]
+    fem_params['UID']       = options.param_file.split('/')[3]
+    #scipyio.savemat( '%s.mat' % options.param_file, MatlabDataDictionary )
+    scipyio.savemat( './TmpDataInput.mat' , fem_params )
     # FIXME setup any needed paths
     # FIXME this nees to have a clean matlab env for dakmatlab
     # FIXME then setup ONCE
@@ -1436,8 +1438,8 @@ if (options.param_file != None):
 elif (options.accum_history ):
   resultfileList = [
   './workdir/Study0035/0530/',
-  './workdir/Study0023/0433/',
-  './workdir/Study0023/0428/',
+  #'./workdir/Study0023/0433/',
+  #'./workdir/Study0023/0428/',
   ##'./workdir/Study0023/0425/',
   './workdir/Study0030/0495/',
   './workdir/Study0030/0497/',
@@ -1447,11 +1449,11 @@ elif (options.accum_history ):
   './workdir/Study0030/0490/',
   './workdir/Study0017/0378/',
   ##'./workdir/Study0018/0388/',
-  './workdir/Study0018/0402/',
-  './workdir/Study0018/0389/',
-  './workdir/Study0018/0385/',
-  './workdir/Study0029/0476/',
-  './workdir/Study0029/0477/',
+  #'./workdir/Study0018/0402/',
+  #'./workdir/Study0018/0389/',
+  #'./workdir/Study0018/0385/',
+  #'./workdir/Study0029/0476/',
+  #'./workdir/Study0029/0477/',
   './workdir/Study0025/0438/',
   './workdir/Study0025/0435/',
   './workdir/Study0025/0440/',
@@ -1459,8 +1461,8 @@ elif (options.accum_history ):
   './workdir/Study0028/0466/',
   './workdir/Study0028/0468/',
   './workdir/Study0028/0471/',
-  './workdir/Study0052/0725/',
-  './workdir/Study0052/0720/',
+  #'./workdir/Study0052/0725/',
+  #'./workdir/Study0052/0720/',
   './workdir/Study0026/0447/',
   './workdir/Study0026/0457/',
   './workdir/Study0026/0455/',
@@ -1488,9 +1490,9 @@ elif (options.accum_history ):
   texHandle  = open('datasummary.tex' , 'w') 
   fileHandle = open('datasummary.txt' , 'w') 
   # write header
-  fileHandle.write("iddata,idmin,mu_eff,alpha,robin,gamma,dice,obj\n")
+  fileHandle.write("iddata,idmin,mu_eff,alpha,robin,dice,obj\n")
   # loop over files and extract optimal value
-  opttype = 'bestfit'
+  opttype = 'bestfit1'
   for filenamebase in resultfileList:
     # get latex command
     config = ConfigParser.SafeConfigParser({})
@@ -1498,8 +1500,8 @@ elif (options.accum_history ):
     config.read(inisetupfile)
   
     # get min value
-    (idmin,minobjval) = GetMinJobID( '%s/opt/optpp_pds.%s' % (filenamebase,opttype))
-    print (idmin,minobjval) 
+    (idmin,minobjval,dicevalue ) = GetMinJobID( '%s/opt/optpp_pds.%s' % (filenamebase,opttype))
+    print (idmin,minobjval,dicevalue ) 
     
     dataid = int(filenamebase.split('/')[3])
     # count the file lines
@@ -1509,16 +1511,11 @@ elif (options.accum_history ):
     # get arrhenius dice value
     heattimeinterval               = eval(config.get('mrti','heating')  )
     SEMDataDirectory               = outputDirectory % int(filenamebase.split('/')[-2]) 
-    dicefilename = "%s/dice.%s.%04d.txt" % (SEMDataDirectory,opttype,heattimeinterval[1])
-    print dicefilename 
-    dicevalue = DiceTxtFileParse(dicefilename)
-  
     #dataarray = numpy.loadtxt(filename,skiprows=1,usecols=(0,1,2,3,4,6)
-    fileHandle.write("%05d,%05d,%s,%s,%s,%s,%12.5e,%12.5e\n" %( dataid, idmin     ,
+    fileHandle.write("%05d,%05d,%s,%s,%s,%12.5e,%12.5e\n" %( dataid, idmin     ,
                                                                     simvariable['mu_eff_healthy'],
                                                                     simvariable['alpha_healthy'],
                                                                     simvariable['robin_coeff'],
-                                                                    simvariable['gamma_healthy'],
                                                                     dicevalue,
                                                                     minobjval))
     # format latex ouput
