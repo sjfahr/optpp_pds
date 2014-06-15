@@ -335,10 +335,12 @@ def GetMinJobID(FileNameTemplate):
     for dakotaoutfile in DirectoryOutList:
       obj_fn_data = numpy.loadtxt('%s/%s'  % (DirectoryLocation ,dakotaoutfile ) )
       #print '%s/%s'  % (DirectoryLocation, dakotaoutfile), obj_fn_data 
-      if(obj_fn_data[0] < MinObjVal ): 
-        MinObjVal  = obj_fn_data[0]
-        MinDiceVal = obj_fn_data[1]
-        MinID     = int(dakotaoutfile.split(".").pop()) 
+      # FIXME: find the best one, ignore errors
+      if( obj_fn_data.size > 1 ):
+       if(obj_fn_data[0] < MinObjVal ): 
+         MinObjVal  = obj_fn_data[0]
+         MinDiceVal = obj_fn_data[1]
+         MinID     = int(dakotaoutfile.split(".").pop()) 
     return (MinID,MinObjVal,MinDiceVal )
 
 # Convenience Routine
@@ -1384,8 +1386,8 @@ parser.add_option( "--vis_out",
                   action="store_true", dest="vis_out", default=False,
                   help="visualise output", metavar="bool")
 parser.add_option( "--accum_history", 
-                  action="store_true", dest="accum_history", default=False,
-                  help="accumulate output", metavar="bool")
+                  action="store", dest="accum_history", default=None,
+                  help="accumulate output from opttype", metavar="bool")
 parser.add_option( "--run_min", 
                   action="store", dest="run_min", default=None,
                   help="re-run the optimum", metavar="FILE")
@@ -1492,7 +1494,7 @@ elif (options.accum_history ):
   # write header
   fileHandle.write("idstudy,iddata,idmin,mu_eff,alpha,robin,dice,obj\n")
   # loop over files and extract optimal value
-  opttype = 'bestfit1'
+  opttype = options.accum_history 
   for filenamebase in resultfileList:
     # get latex command
     config = ConfigParser.SafeConfigParser({})
@@ -1533,8 +1535,8 @@ elif (options.run_min != None):
 
   templatefilename = options.run_min
   # get min value
-  (idmin,minobjval) = GetMinJobID( templatefilename )
-  print (idmin,minobjval) 
+  (idmin,minobjval,dicevalue) = GetMinJobID( templatefilename )
+  print (idmin,minobjval,dicevalue) 
 
   # build execution command
   runcmd = "vglrun python ./brainsearch.py --param_file  %s.in.%d %s.out.%d --vis_out" % (templatefilename,idmin,templatefilename,idmin)
