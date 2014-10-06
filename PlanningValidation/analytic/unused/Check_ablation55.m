@@ -50,7 +50,7 @@ for ii = 1:n_patients
     % This section prepares the varied parameters into a .mat file for the
     % thermal code to run. It needs to be there so that the paths are OK.
     % Sample:  'python ./brainsearch.py --param_file '
-    load( strcat ( path_base, '/optpp_pds.', opttype, '.in.1.mat') );
+    load( strcat ( path_base, '/optpp_pds.', opttype, '.in.2.mat') );
 
     
     %params_iter = load(   'TmpDataInput.mat' ); % Read in one dakota.in file to find the constant parameters
@@ -77,7 +77,7 @@ for ii = 1:n_patients
         inputdatavars.cv.mu_eff_healthy = num2str( mu_eff (jj) );
         
         %[metric, thermal_model, MRTI_crop] = fast_temperature_obj_fxn33 ( params_iter );
-        [metric, ~, thermal_model,MRTI_crop] = fast_temperature_obj ( inputdatavars, 10 );
+        [metric, ~, thermal_model,MRTI_crop] = temperature_obj_fxn ( inputdatavars, 10 );
         % Column 2 of 'total' is based on conservation of energy (only cares
         % about summation of temperatures in the FOV)
         base_level=ones(size(thermal_model,1),size(thermal_model,2))*37;
