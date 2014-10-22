@@ -1,4 +1,4 @@
-function [opt, LOOCV] = master_LOOCV ( opttype, data_filename, dice_thresholds, mu_thresholds, Matlab_flag);
+function [opt, LOOCV, fig_labels] = master_LOOCV ( opttype, data_filename, dice_thresholds, mu_thresholds, Matlab_flag);
 
 datasummary = dlmread(data_filename,',',1,0);
 datasummary(any(isnan(datasummary), 2), 7) = 1;
@@ -19,7 +19,6 @@ Study_paths(toss_index_phantom,:)=[];
 datasummary(toss_index_phantom,:)=[];
 
 % variable initialization
-
 if isempty(dice_thresholds) ==1
     
     opt.labels = 'opt';
@@ -58,7 +57,7 @@ end
 
 clear ii jj
 
-% Permute the toss variables.
+% Initialize Variables.
 total_toss = cell(length_mu_groups, length_dice_thresholds);
 opt.mu_eff.values = total_toss;
 opt.mu_eff.stats  = total_toss;
@@ -73,10 +72,13 @@ opt.labels        = total_toss;
 LOOCV.dice.values = total_toss;
 LOOCV.dice.stats  = total_toss;
 LOOCV.dice.hh     = total_toss;
-LOOCV.run         = total_toss;
+LOOCV.run1        = zeros(size(total_toss,1),size(total_toss,2));
+LOOCV.run2        = zeros(size(total_toss,1),size(total_toss,2));
 LOOCV.labels      = total_toss;
 LOOCV.paths       = total_toss;
 LOOCV.toss_index  = total_toss;
+fig_labels.mu_groups = cell(size(total_toss,1),1);
+fig_labels.DSC    = zeros(size(total_toss,2),1);
 
 alpha = total_toss;
 best_iter = total_toss;
@@ -84,21 +86,26 @@ kk=1;
 for ii = 1:length_mu_groups
     for jj = 1:length_dice_thresholds
         
-        if isempty(mu_thresholds) ==1
+        if isempty(mu_thresholds) ==1   % Identify if there is only one mu_eff group
             total_toss{ii,jj} = toss_dice{jj};
             opt.labels{ii,jj} = strcat(['mu_eff all    dice ='], num2str(dice_thresholds(jj)) );
             
-        else
+        else    % There is >= 1 mu_groups
             total_toss{ii,jj} = unique([ toss_mu{ii}; toss_dice{jj}]);
-            if ii ==1
-                opt.labels{ii,jj} = strcat(['mu_eff <'], num2str(mu_thresholds(ii)), ['   dice ='], num2str(dice_thresholds(jj)) );
-            elseif ii == length_mu_groups
-                opt.labels{ii,jj} = strcat(['mu_eff >'], num2str(mu_thresholds(ii-1)), ['   dice ='], num2str(dice_thresholds(jj)) );
-            else
-                opt.labels{ii,jj} = strcat(['mu_eff ='], num2str(mu_thresholds(ii-1)), [' to '], num2str(mu_thresholds(ii)), ['   dice ='], num2str(dice_thresholds(jj)) );
+            if ii ==1    % The first mu_group
+                opt.labels{ii,jj} = strcat(['mu_eff <'], num2str(mu_thresholds(ii)), ['   dice >'], num2str(dice_thresholds(jj)) );
+                fig_labels.mu_groups{ii} = strcat(['mu_eff <'], num2str(mu_thresholds(ii)));
+            elseif ii == length_mu_groups   % The last mu_group
+                opt.labels{ii,jj} = strcat(['mu_eff >'], num2str(mu_thresholds(ii-1)), ['   dice >'], num2str(dice_thresholds(jj)) );
+                fig_labels.mu_groups{ii} = strcat(['mu_eff >'], num2str(mu_thresholds(ii-1)));
+            else   % Any mu_group that is not first or last (the in-between ones)
+                opt.labels{ii,jj} = strcat(['mu_eff ='], num2str(mu_thresholds(ii-1)), [' to '], num2str(mu_thresholds(ii)), ['   dice >'], num2str(dice_thresholds(jj)) );
+                fig_labels.mu_groups{ii} = strcat(['mu_eff ='], num2str(mu_thresholds(ii-1)), [' to '], num2str(mu_thresholds(ii)));
             end
             
         end
+        
+        fig_labels.DSC(jj) = dice_thresholds(jj); 
         
         LOOCV.labels{ii,jj} = opt.labels{ii,jj};
         
@@ -118,8 +125,35 @@ for ii = 1:length_mu_groups
                     opt.dice.stats{ii,jj} = opt.dice.stats{ii,jj-1};
                     kk=kk+1;
                     LOOCV.dice.hh{ii,jj}=LOOCV.dice.hh{ii,jj-1};
-                    LOOCV.run{ii,jj} = LOOCV.run{ii,jj-1};
+                    LOOCV.run1(ii,jj) = LOOCV.run1(ii,jj-1)+1;
+                    LOOCV.run2(ii,jj) = LOOCV.run2(ii,jj-1);
                     LOOCV.dice.stats{ii,jj} = LOOCV.dice.stats{ii,jj-1};
+                    LOOCV.dice.values{ii,jj} = LOOCV.dice.values{ii,jj-1};
+                    
+                else
+                    opt.mu_eff.values{ii,jj} = datasummary(:,4);
+                    opt.mu_eff.values{ii,jj} (total_toss{ii,jj})=[];
+                    
+                    alpha{ii,jj} = datasummary(:,5);
+                    alpha{ii,jj} (total_toss{ii,jj}) = [];
+                    
+                    best_iter{ii,jj} = datasummary(:,3);
+                    best_iter{ii,jj} (total_toss{ii,jj})=[];
+                    
+                    opt.dice.values{ii,jj} = datasummary(:,7);
+                    opt.dice.values{ii,jj}(total_toss{ii,jj}) = [];
+                    
+                    opt.dice.stats{ii,jj} = Descriptive_statistics(opt.dice.values{ii,jj});
+                    opt.dice.stats{ii,jj} = Descriptive_statistics(opt.mu_eff.values{ii,jj});
+                    
+                    disp(opt.labels{ii,jj});
+                    disp(strcat( num2str(kk), [' of '], num2str(length_mu_groups .* length_dice_thresholds), [' groups']));
+                    kk = kk+1;
+                    [ LOOCV.dice.hh{ii,jj}, LOOCV.dice.values{ii,jj}] = LOOCV_t_test_DiceTemp( LOOCV.paths{ii,jj}, opt.mu_eff.values{ii,jj}, alpha{ii,jj}, best_iter{ii,jj}, opttype, Matlab_flag);
+                    LOOCV.run1(ii,jj) = 2;
+                    LOOCV.run2(ii,jj) = 1;
+                    LOOCV.dice.stats{ii,jj} = Descriptive_statistics_LOOCV( LOOCV.dice.values{ii,jj});
+                    
                 end
             else
                 
@@ -142,7 +176,8 @@ for ii = 1:length_mu_groups
                 disp(strcat( num2str(kk), [' of '], num2str(length_mu_groups .* length_dice_thresholds), [' groups']));
                 kk = kk+1;
                 [ LOOCV.dice.hh{ii,jj}, LOOCV.dice.values{ii,jj}] = LOOCV_t_test_DiceTemp( LOOCV.paths{ii,jj}, opt.mu_eff.values{ii,jj}, alpha{ii,jj}, best_iter{ii,jj}, opttype, Matlab_flag);
-                LOOCV.run{ii,jj} = 2;
+                LOOCV.run1(ii,jj) = 2;
+                LOOCV.run2(ii,jj) = 1;
                 LOOCV.dice.stats{ii,jj} = Descriptive_statistics_LOOCV( LOOCV.dice.values{ii,jj});
             end
             
@@ -150,9 +185,11 @@ for ii = 1:length_mu_groups
             kk = kk+1;
             if length(total_toss{ii,jj}) == length(Study_paths) -1
                 
-                LOOCV.run{ii,jj} = 1;
+                LOOCV.run1(ii,jj) = 1;
+                LOOCV.run2(ii,jj) = 0;
             else
-                LOOCV.run{ii,jj} = 0;
+                LOOCV.run1(ii,jj) = 0;
+                LOOCV.run2(ii,jj) = 0;
             end
         end
         
