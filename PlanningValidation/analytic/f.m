@@ -22,7 +22,9 @@ metric(1) = L2norm;
 %metric(isnan(metric)) = 0;
 metric(2) = 1/(dice + 1E-7);
 metric(3) = dice;
-metric(4) = 1-dice;
+metric(4) = -dice;
+metric(5) = nthroot(metric(1),4)/500 + metric(4).*500;
+%metric(5) = metric(1) + metric(2);
 %metric = 1 -dice;
 
 file_base = strcat( './workdir/',inputdatavars.patientID,'/',inputdatavars.UID,'/opt/optpp_pds.',inputdatavars.opttype);
@@ -31,6 +33,7 @@ fprintf(fout, '%s\n', num2str(metric(1)) );
 fprintf(fout, '%s\n', num2str(metric(2)) );
 fprintf(fout, '%s\n', num2str(metric(3)) );
 fprintf(fout, '%s\n', num2str(metric(4)) );
+fprintf(fout, '%s\n', num2str(metric(5)) );
 fclose(fout);
 
 save ( strcat( file_base,'.in.',num2str(inputdatavars.fileID), '.mat'), 'inputdatavars');
