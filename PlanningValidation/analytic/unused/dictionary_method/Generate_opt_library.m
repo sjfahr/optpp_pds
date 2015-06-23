@@ -12,7 +12,11 @@ ww = inputdatavars.cv.w_0;
 if choice ==1   % Mu
     %mu_eff(1) = 0.008;
     % mu_eff(2:101) = linspace(101,200,100);
-    mu_eff=[200 300 400 500 600 700];
+    %mu_eff=linspace(101,200,1);
+    %mu_eff=linspace(101,200,10);
+    %mu_eff=linspace(101,200,100);
+    mu_eff = 200;
+    %mu_eff=linspace(101,1100,1000);
     %mu_eff(2:1001) = linspace(1,1000,1000);
     %mu_eff=180;
     %mu_eff(2:301) = linspace(1,300,300);

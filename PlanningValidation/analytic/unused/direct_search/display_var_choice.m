@@ -85,6 +85,7 @@ var_opt = cell2mat( total(:,8));
 % From mu_eff_data, find the matching study's(ies') mu_eff value(s)
 if choice ==4
     for ii = patient_ix
+        cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
         path_base = strcat ( 'workdir/',Study_paths{ii,1}, '/', Study_paths{ii,2}, '/opt');
         load( strcat ( path_base, '/optpp_pds.', opttype, '.in.1.mat') );
         
@@ -99,9 +100,36 @@ if choice ==4
         x_lim(end) % FOV limits
         y_lim(end)
         
-        figure; imagesc(tmap_model, [30 100]); colorbar; set(findobj('type','axes'),'fontsize',14);
-        figure; imagesc(MRTI_crop, [30 100]); colorbar; set(findobj('type','axes'),'fontsize',14);
-        figure; imagesc(intersection(:,:,7)); title( Study_paths{ii,2} ); colorbar; set(findobj('type','axes'),'fontsize',14);
+        cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
+        cd (Study_paths{ii,2});
+        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(tmap_model, [30 100]);
+        set(findobj('type','axes'),'fontsize',15);
+        xlabel('Pixel number in ROI (Unity)')
+        ylabel('Pixel number in ROI (Unity)')
+        h=colorbar;
+        set(findobj('type','axes'),'fontsize',15);
+        ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
+        set(findobj('type','axes'),'fontsize',15);
+        
+        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [30 100]);
+        set(findobj('type','axes'),'fontsize',15);
+        xlabel('Pixel number in ROI (Unity)')
+        ylabel('Pixel number in ROI (Unity)')
+        h=colorbar;
+        set(findobj('type','axes'),'fontsize',15);
+        ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
+        set(findobj('type','axes'),'fontsize',15);
+        
+        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(intersection(:,:,7));
+        set(findobj('type','axes'),'fontsize',15);
+        xlabel('Pixel number in ROI (Unity)')
+        ylabel('Pixel number in ROI (Unity)')
+        h=colorbar;
+        set(findobj('type','axes'),'fontsize',15);
+        ylabel(h,'Intersection label (Unity)');
+        set(findobj('type','axes'),'fontsize',15);
+        
+        %title( Study_paths{ii,2} ); colorbar; set(findobj('type','axes'),'fontsize',14);
         
         aa = cell2mat( total(:,8));
         index=find( (aa(:,2)>-1)==1);
@@ -130,9 +158,20 @@ if choice ==4
         %end
         clear kk
         
-        figure; contourf(Xx,Yy,obj_fxn);caxis([0 0.9]); colorbar; title( Study_paths{ii,2} );
-        xlabel('mu_{eff}   [ m^{-1} ]'); ylabel('perf [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
+        %figure;
+        %figure('units','normalized','position',[.1 .3 .3 .6]);
+        figure('units','normalized','position',[.1 .3 .22 .52]);
+        contourf(Xx,Yy,obj_fxn);caxis([0 0.9]);
+        h = colorbar;
+        set(findobj('type','axes'),'fontsize',15);
+        ylabel(h,'DSC (Unity)');
+        %set(h, 'FontSize', 15);
+        %         tt=title( Study_paths{ii,2} );
+        %         set(tt, 'FontSize', 15);
+        set(findobj('type','axes'),'fontsize',15);
+        xlabel('\mu_{eff}   [ m^{-1} ]'); ylabel('\rho [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
         var_opt(ii,:)
+        Study_paths{ii,2}
         %[distXq, distYq] = meshgrid (x_lim, y_lim);
 %         figure; contourf(distXq,distYq,intersection(:,:,7), [0 1 2 3]); colorbar; title( Study_paths{ii,2} );
 %         xlabel('Distance   [ m ]'); ylabel('Distance [ m ]'); set(findobj('type','axes'),'fontsize',15);

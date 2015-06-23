@@ -56,7 +56,7 @@ cd (path22);
 
 for ii = 1:2
     total{ii,3} = zeros(l_n_sources,3);
-    total{ii,4} = zeros( l_n_sources,15);
+    total{ii,4} = zeros(l_n_sources,15);
     total{ii,5} = total{ii,4};
     total{ii,6} = total{ii,4};
     total{ii,7} = total{ii,4};
@@ -96,4 +96,41 @@ cd ../../../MATLAB/Tests/in_silico/
 save ('in_silico_test.mat','total');
 cd (path22);
 
+clear ii jj
+for ii = 1:l_n_sources
+    figure;imagesc(total{1,2}(:,:,ii),[37,max(max(total{1,2}(:,:,1)))])
+    set(findobj('type','axes'),'fontsize',14);
+    xlabel('Pixel number in ROI (Unity)')
+    ylabel('Pixel number in ROI (Unity)')
+    h = colorbar;
+    set(findobj('type','axes'),'fontsize',14);
+    ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
+end
+clear ii h
+for ii = 1:l_n_sources-1
+    figure;imagesc(total{1,2}(:,:,10)-total{1,2}(:,:,ii))
+    set(findobj('type','axes'),'fontsize',14);
+    xlabel('Pixel number in ROI (Unity)')
+    ylabel('Pixel number in ROI (Unity)')
+    h = colorbar;
+    set(findobj('type','axes'),'fontsize',14);
+    ylabel(h,strcat('Temperature difference (',sprintf('%cC', char(176)),')'));
+end
+clear ii h
+aa=total{1,3}(1:end-1,:);
+figure; [AX,H1,H2] = plotyy(log10(aa(:,1)),log10(aa(:,2)),log10(aa(:,1)),log10(abs(aa(:,3))));
+set(findobj('type','axes'),'fontsize',14);
+set(H1,'linestyle','--','marker','x'); set(H2,'linestyle','-.','marker','o');
+set([H1;H2],'MarkerSize',12);
+xlabel('Log_{10} (M Sources) (Unity)')
+ylabel(AX(1),'Log_{10} (L_2 norm) (Unity)')
+ylabel(AX(2),'Log_{10} [abs(Max Diff)] (Unity)')
 
+aa=total{2,3}(1:end-1,:);
+figure; [AX,H1,H2] = plotyy(log10(aa(:,1)),log10(aa(:,2)),log10(aa(:,1)),log10(abs(aa(:,3))));
+set(findobj('type','axes'),'fontsize',14);
+set(H1,'linestyle','--','marker','x'); set(H2,'linestyle','-.','marker','o');
+set([H1;H2],'MarkerSize',12);
+xlabel('Log_{10} (M Sources) (Unity)')
+ylabel(AX(1),'Log_{10} (L_2 norm) (Unity)')
+ylabel(AX(2), strcat('Log_{10} [abs(Max Diff)] [Log_{10} (',sprintf('%cC', char(176)),')]'))

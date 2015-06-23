@@ -164,7 +164,7 @@ else
                 hd(ii,kk) = HausdorffDist( mod_list, MRTI_list{kk});
             end
         end
-        
+        [Temp] = Human_GPU_choice_sym_1D (power_log,spacing,scaling,mod_point,source,w_perf,k_cond,g_anisotropy,mu_eff,probe_u,robin_co,c_blood,choice)
         % L2
         temperature_diff = model_crop(:,:,ii) - MRTI_crop;
         total(ii,3) = norm ( temperature_diff , 1 ) ; % L1 norm

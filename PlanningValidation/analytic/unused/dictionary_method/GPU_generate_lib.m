@@ -25,7 +25,8 @@ input_path = cell(1,2);
 input_path{1,1} = Study_paths{1,1};
 input_path{1,2} = Study_paths{1,2};
 [ all_opt_fig, no_pwr_fig,sim_dim, summary ] = Generate_opt_library ( max_phys_sz, choice, input_path, opttype );
-
+toc
+keyboard
 cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/direct_search/libraries
 
 if choice == 1

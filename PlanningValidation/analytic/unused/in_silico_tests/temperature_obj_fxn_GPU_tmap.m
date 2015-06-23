@@ -125,7 +125,9 @@ source.laser = [source.laser z_dim];
 spacing.x = spacing.x/scaling.x;
 spacing.y = spacing.y/scaling.y;
 spacing.z = spacing.z/(scaling.z * dom.z_subslice);
-[tmap_unique] = Human_GPU ( power_log,spacing,scaling,mod_point,source,w_perf,k_cond,g_anisotropy,mu,probe_u,robin_co,c_blood);
+choice = 4;
+[tmap_unique] = Human_GPU_choice_sym ( power_log,spacing,scaling,mod_point,source,w_perf,k_cond,g_anisotropy,mu,probe_u,robin_co,c_blood,choice);
+                                 
 
 
 %[tmap_unique]=Bioheat1D_SSS( power_log,dom,source,w_perf,k_cond,g_anisotropy,mu_a,mu_s,probe_u,robin_co,c_blood);

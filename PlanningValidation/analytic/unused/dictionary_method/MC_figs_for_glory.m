@@ -45,11 +45,15 @@ if toss_choice == 1
     
     %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0378'))==1); %Strongly suggest exclusion %  good to keep (median)
     
-    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0476'))==1); %Not positive;; % Strongly suggest exclusion  % good to exclude (median)  
+    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0476'))==1); %Not positive;; % Strongly suggest exclusion  % good to exclude (median)
     
- % for STM 2015 con   %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0435'))==1); % Not positive % very probably suggest exclusion: susceptibility artifact; new  % good to exclude (median); 
+    % for STM 2015 con   %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0435'))==1); % Not positive % very probably suggest exclusion: susceptibility artifact; new  % good to exclude (median);
     
- %for STM 2015 con   %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0440'))==1); % very probably suggest exclusion: susceptibility artifact;new  % good to exclude (median)
+    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0435'))==1); % Not positive % very probably suggest exclusion: susceptibility artifact; new  % good to exclude (median);
+    
+    %for STM 2015 con   %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0440'))==1); % very probably suggest exclusion: susceptibility artifact;new  % good to exclude (median)
+    
+    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0440'))==1); % very probably suggest exclusion: susceptibility artifact;new  % good to exclude (median)
     
     %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0436'))==1); %good to keep (ParaView)  % good to keep (median)
     
@@ -359,6 +363,12 @@ else
     DSC=Descriptive_statistics_LOOCV(aa(:,1))
     
 end
+
+
+cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
+invprctile(aa(:,1),[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+invprctile(LOOCV_median_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 
 
 

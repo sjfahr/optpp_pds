@@ -36,8 +36,11 @@ elseif choice == 3
     
 elseif choice == 4
     
-    %load ('all_opt_perf_mu_400_short.mat' );
-    load ('opt_perf_mu_400_long.mat');
+    if quick_choice ==1
+        load ('all_opt_perf_mu_400_short.mat' );
+    else
+        load ('opt_perf_mu_400_long.mat');
+    end
     
 elseif choice == 5
     
@@ -187,8 +190,8 @@ elseif choice == 3
     
 elseif choice == 4
    % ('GPU_dict_perf_mu_global_400')
-    save ('GPU_dict_perf_mu_global_400','total','summary','-v7.3');
-    %save ('GPU_dict_perf_mu_global_400_all_metric','total','summary','-v7.3');
+    %save ('GPU_dict_perf_mu_global_400','total','summary','-v7.3');
+    save ('GPU_dict_perf_mu_global_400_all_metric','total','summary','-v7.3');
     
 elseif choice == 5
     

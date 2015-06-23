@@ -37,7 +37,7 @@ for ii = 1:1000;
     
     %t_math1 (ii)  = mathematicaSSS2(r_var(ii),mua,mus,anfact);
     %t_math2 (ii)  = mathematicaSSS3(r_var(ii),mua,mus,anfact);
-    t_math2 (ii)  = mathematicaSSS_symbolicToolbox(u0,ua,k_cond,w_perf,Power,r_var(ii),mua,mus,r1,r2,anfact,cblood);
+    %t_math2 (ii)  = mathematicaSSS_symbolicToolbox(u0,ua,k_cond,w_perf,Power,r_var(ii),mua,mus,r1,r2,anfact,cblood);
 
 end
 toc
