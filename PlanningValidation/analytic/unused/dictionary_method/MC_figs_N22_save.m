@@ -28,10 +28,7 @@ elseif choice == 3   % cond
     
 elseif choice ==4
     
-    %load ('GPU_dict_perf_mu_global_400');
-    %load ('GPU_dict_perf_mu_global_400_all_metric');
-    %load ('GPU_dict_perf_mu_global_SuperShort_all_metric');
-    load ('GPU_dict_perf_mu_global_400_all_metricRedo');
+    load ('GPU_dict_perf_mu_global_400');
 elseif choice ==5  % random
     
     load ('GPU_dict_perf_mu_rand.mat');
@@ -52,13 +49,13 @@ if toss_choice == 1
     
     % for STM 2015 con   %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0435'))==1); % Not positive % very probably suggest exclusion: susceptibility artifact; new  % good to exclude (median);
     
-    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0435'))==1); % Not positive % very probably suggest exclusion: susceptibility artifact; new  % good to exclude (median);
+    %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0435'))==1); % Not positive % very probably suggest exclusion: susceptibility artifact; new  % good to exclude (median);
     
     %for STM 2015 con   %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0440'))==1); % very probably suggest exclusion: susceptibility artifact;new  % good to exclude (median)
     
-    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0440'))==1); % very probably suggest exclusion: susceptibility artifact;new  % good to exclude (median)
+    %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0440'))==1); % very probably suggest exclusion: susceptibility artifact;new  % good to exclude (median)
     
-    %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0436'))==1); %good to keep (ParaView)  % good to keep (median)
+    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0436'))==1); %good to keep (ParaView)  % good to keep (median)
     
     ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0466'))==1); % Very probably suggest exclusion % good to exclude (median)
     
@@ -66,16 +63,16 @@ if toss_choice == 1
     
     ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0471'))==1); % Strongly suggest exclusion % good to exclude (median)
     
-    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0447'))==1); % Not positive% Very probably suggest exclusion % good to exclude (median)  
+    %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0447'))==1); % Not positive% Very probably suggest exclusion % good to exclude (median)  
     
     %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0417'))==1); %Very probably suggest exclusion % good to keep (median)
     
     ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0409'))==1); % Absolutely should be excluded % good to exclude (median)
     
-    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0415'))==1); % Not positive% Absolutely should be excluded % good to exclude (median) 
+    %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0415'))==1); % Not positive% Absolutely should be excluded % good to exclude % Include for N=22 (median) 
     total(ix,:) = [];
     
-    % ix=find(~cellfun(@isempty,regexp(total(:,1),'0457'))==1);
+    ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0457'))==1);
     % total(ix,:) = [];
 end
 
@@ -127,9 +124,7 @@ if choice ==5 ||choice==4
     obj_fxn = Xx;
     for jj=1:length(index)
         ii =index(jj);
-        %dice = squeeze(total{ii,3});
-        dice = squeeze(total{ii,3}(:,7));
-        %dice = squeeze(total{ii,4}(:,7));
+        dice = squeeze(total{ii,3});
         if metric_choice ==1
             %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),total{ii,3}(:,7),paraYq,paraXq);
             [Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),dice,paraYq,paraXq);
@@ -153,7 +148,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    %print(fig,'mean_global','-dpng');
+    print(fig,'mean_global','-dpng');
     
     opt_median = median(obj_fxn,3);
     fig=figure('units','normalized','position',[.1 .3 .22 .52]);
@@ -163,7 +158,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    %print(fig,'median_global','-dpng');
+    print(fig,'median_global','-dpng');
     
     opt_std = std(obj_fxn,0,3);
     fig=figure('units','normalized','position',[.1 .3 .22 .52]);
@@ -173,7 +168,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    %print(fig,'std_global','-dpng');
+    print(fig,'std_global','-dpng');
     
     opt_pass=obj_fxn;        
     opt_pass(opt_pass< 0.7)=0;
@@ -187,7 +182,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('Datasets > 0.7 (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    %print(fig,'pass_global','-dpng');
+    print(fig,'pass_global','-dpng');
     cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
     
     clear ii jj
@@ -319,9 +314,6 @@ if choice ==5 ||choice==4
     naive_ix = find( total{ii,2}(:,1) == 180 & total{ii,2}(:,2)==6);
     eyeball_ix =  find( total{ii,2}(:,1) == 212 & total{ii,2}(:,2)==10.25);
     eyeball_ix22 =  find( total{ii,2}(:,1) == 250 & total{ii,2}(:,2)==12);
-%     naive_ix = 1;
-%     eyeball_ix = 3;
-%     eyeball_ix22 = 3;
     for jj = 1:length(index)
         ii=index(jj);        
         mean_spot = find( total{ii,2}(:,1) == mu_array(LOOCV_mean_pre(ii,2)) & total{ii,2}(:,2)==w_array(LOOCV_mean_pre(ii,3)));
@@ -372,7 +364,11 @@ if choice ==5 ||choice==4
     best_eyeball_stats = Descriptive_statistics_LOOCV(best_eyeball_norm);
     eyeball_stat22=Descriptive_statistics_LOOCV(eyeball_norm22);
     
-    survival_plot_onlySS_choice_MC_save (LOOCV_median_post, naive_pass, aa(:,1), 1);
+    
+    cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation/analytic/unused/in_silico_tests
+    mm = load('Fuentes14Nov2014.mat');
+    nn = load('N22_SS_gradSearch.mat');
+    survival_plot_only_N22 (LOOCV_median_post, naive_pass, aa(:,1), 1,mm.LOOCV.dice.values{1},nn.LOOCV.dice.values{1});
 %     prc_LOOCV60 = Descriptive_statistics_LOOCV(prc_LOOCV(:,1));
 %     prc_LOOCV70 = Descriptive_statistics_LOOCV(prc_LOOCV(:,2));
 %     prc_LOOCV80 = Descriptive_statistics_LOOCV(prc_LOOCV(:,3));

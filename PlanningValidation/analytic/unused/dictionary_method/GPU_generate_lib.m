@@ -26,7 +26,7 @@ input_path{1,1} = Study_paths{1,1};
 input_path{1,2} = Study_paths{1,2};
 [ all_opt_fig, no_pwr_fig,sim_dim, summary ] = Generate_opt_library ( max_phys_sz, choice, input_path, opttype );
 toc
-keyboard
+%keyboard
 cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/direct_search/libraries
 
 if choice == 1
@@ -44,8 +44,8 @@ elseif choice == 3
     
 elseif choice ==4
     
-    %save ('all_opt_perf_mu_400_short.mat', 'all_opt_fig','no_pwr_fig','sim_dim','summary','-v7.3');
-    save ('opt_perf_mu_400_long.mat', 'all_opt_fig','no_pwr_fig','sim_dim','summary','-v7.3');
+    %save ('all_opt_perf_mu_400_SuperShort.mat', 'all_opt_fig','no_pwr_fig','sim_dim','summary','-v7.3');
+    save ('opt_perf_mu_400_long_diss.mat', 'all_opt_fig','no_pwr_fig','sim_dim','summary','-v7.3');
     
 elseif choice ==5
     

@@ -8,7 +8,7 @@ path22 = getenv ( 'PATH22' );
 % cd ../../../MATLAB/Tests/direct_search/
 cd ../../../MATLAB/Tests/direct_search/libraries
 
-choice=4;
+choice=1;
 toss_choice = 1;
 metric_choice = 1;  % This is only relevant if choice == 5. 1 is DSC, 2 is L2
 if choice == 1   % mu

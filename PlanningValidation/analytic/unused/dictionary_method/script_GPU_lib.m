@@ -1,4 +1,4 @@
-choice = 1;
+choice = 4;
 quick_choice=2;
 
 GPU_generate_lib(choice);

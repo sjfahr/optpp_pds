@@ -23,8 +23,8 @@ cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/direct_search/libraries
 
 if choice == 1
     
-    %load ('all_opt_mu.mat' );
-    load ('all_opt_mu_small.mat' );
+    load ('all_opt_mu.mat' );
+    %load ('all_opt_mu_small.mat' );
     
 elseif choice == 2
     
@@ -35,12 +35,12 @@ elseif choice == 3
     load ('all_opt_cond.mat' );
     
 elseif choice == 4
-    
-    if quick_choice ==1
-        load ('all_opt_perf_mu_400_short.mat' );
-    else
+    %load('all_opt_perf_mu_400_SuperShort.mat');
+%     if quick_choice ==1
+%         load ('all_opt_perf_mu_400_short.mat' );
+%     else
         load ('opt_perf_mu_400_long.mat');
-    end
+%     end
     
 elseif choice == 5
     
@@ -178,6 +178,7 @@ cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/direct_search/libraries
 
 if choice == 1
     
+    %save ('GPU_dict_mu_small.mat','total','summary','-v7.3');
     save ('GPU_dict_mu.mat','total','summary','-v7.3');
     
 elseif choice == 2
@@ -191,12 +192,16 @@ elseif choice == 3
 elseif choice == 4
    % ('GPU_dict_perf_mu_global_400')
     %save ('GPU_dict_perf_mu_global_400','total','summary','-v7.3');
-    save ('GPU_dict_perf_mu_global_400_all_metric','total','summary','-v7.3');
+    %save ('GPU_dict_perf_mu_global_400_all_metricRedo','total','summary','-v7.3');
+    %save ('GPU_dict_perf_mu_global_400_all_metric','total','summary','-v7.3');
+    %save ('GPU_dict_perf_mu_global_SuperShort_all_metric','total','summary','-v7.3');
+    save ('opt_perf_mu_400_long_diss','total','summary','-v7.3');
+    
     
 elseif choice == 5
     
     save ('GPU_dict_perf_mu_rand','total','summary','-v7.3');
     
 end
- 
+cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 end
