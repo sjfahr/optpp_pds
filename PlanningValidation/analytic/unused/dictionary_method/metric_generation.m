@@ -37,11 +37,11 @@ elseif choice == 3
 elseif choice == 4
     %load('all_opt_perf_mu_400_SuperShort.mat');
 %     if quick_choice ==1
-%         load ('all_opt_perf_mu_400_short.mat' );
+         %load ('all_opt_perf_mu_400_short.mat' );
 %     else
-        load ('opt_perf_mu_400_long.mat');
+        %load ('opt_perf_mu_400_long_diss.mat');
 %     end
-    
+    load ('opt_perf_mu_400_long');
 elseif choice == 5
     
     load ('rand_opt_perf_mu.mat' );
@@ -106,6 +106,7 @@ total{1,10}   = 'Optimal temp and 57 C MI';
 total{1,11}   = 'Optimal false pixel count for 57 C';
 
 for ii = 2:(num_studies+1)
+%for ii = 6
     % Display run information
     disp('Start ')
     disp(strcat (num2str(ii-1),' of ', num2str(num_studies)))
@@ -190,12 +191,12 @@ elseif choice == 3
     save ('GPU_dict_cond.mat','total','summary','-v7.3');
     
 elseif choice == 4
-   % ('GPU_dict_perf_mu_global_400')
+    %save ('GPU_dict_perf_mu_global_400_2','total','summary','-v7.3');
     %save ('GPU_dict_perf_mu_global_400','total','summary','-v7.3');
     %save ('GPU_dict_perf_mu_global_400_all_metricRedo','total','summary','-v7.3');
-    %save ('GPU_dict_perf_mu_global_400_all_metric','total','summary','-v7.3');
-    %save ('GPU_dict_perf_mu_global_SuperShort_all_metric','total','summary','-v7.3');
-    save ('opt_perf_mu_400_long_diss','total','summary','-v7.3');
+    save ('GPU_dict_perf_mu_global_400_all_metric_2','total','summary','-v7.3');
+    %save ('GPU_dict_perf_mu_global_SuperShort_onlyDice','total','summary','-v7.3');
+    %save ('opt_perf_mu_400_long_diss','total','summary','-v7.3');
     
     
 elseif choice == 5

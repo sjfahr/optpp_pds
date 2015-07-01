@@ -28,10 +28,10 @@ elseif choice == 3   % cond
     
 elseif choice ==4
     
-    %load ('GPU_dict_perf_mu_global_400');
+    load ('GPU_dict_perf_mu_global_400');
     %load ('GPU_dict_perf_mu_global_400_all_metric');
     %load ('GPU_dict_perf_mu_global_SuperShort_all_metric');
-    load ('GPU_dict_perf_mu_global_400_all_metricRedo');
+    %load ('GPU_dict_perf_mu_global_400_all_metricRedo');
 elseif choice ==5  % random
     
     load ('GPU_dict_perf_mu_rand.mat');
@@ -127,8 +127,8 @@ if choice ==5 ||choice==4
     obj_fxn = Xx;
     for jj=1:length(index)
         ii =index(jj);
-        %dice = squeeze(total{ii,3});
-        dice = squeeze(total{ii,3}(:,7));
+        dice = squeeze(total{ii,3});
+        %dice = squeeze(total{ii,3}(:,7));
         %dice = squeeze(total{ii,4}(:,7));
         if metric_choice ==1
             %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),total{ii,3}(:,7),paraYq,paraXq);
@@ -400,8 +400,8 @@ end
 
 
 cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
-invprctile(aa(:,1),[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
-invprctile(LOOCV_median_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+% invprctile(aa(:,1),[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+% invprctile(LOOCV_median_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
 cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 
 

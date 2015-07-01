@@ -28,7 +28,11 @@ elseif choice == 3   % cond
     
 elseif choice ==4
     
-    load ('GPU_dict_perf_mu_global_400');
+    load ('GPU_dict_perf_mu_global_400'); 
+    %load ('GPU_dict_perf_mu_global_400_all_metricRedo');
+    %load ('GPU_dict_perf_mu_global_400_all_metric');
+    %load ('GPU_dict_perf_mu_global_400_all_metric_2');
+    %load ('opt_perf_mu_400_long_diss');
 elseif choice ==5  % random
     
     load ('GPU_dict_perf_mu_rand.mat');
@@ -125,6 +129,7 @@ if choice ==5 ||choice==4
     for jj=1:length(index)
         ii =index(jj);
         dice = squeeze(total{ii,3});
+        %dice = squeeze(total{ii,3}(:,7));
         if metric_choice ==1
             %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),total{ii,3}(:,7),paraYq,paraXq);
             [Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),dice,paraYq,paraXq);

@@ -1,7 +1,7 @@
 choice = 4;
 quick_choice=2;
 
-GPU_generate_lib(choice);
+%GPU_generate_lib(choice);
 
 metric_generation(choice, quick_choice);
 
