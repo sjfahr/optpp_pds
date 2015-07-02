@@ -31,10 +31,10 @@ VOI.z = double( inputdatavars.voi(5:6));
 % elseif sum( inputdatavars.UID == '0389' ) ==4%
 %     VOI.x = VOI.x + 2;
 %     VOI.y = VOI.y + 2;
-% elseif sum( inputdatavars.UID == '0385' ) ==4%
+if sum( inputdatavars.UID == '0385' ) ==4%
 %     VOI.x = VOI.x + 1;
 %     VOI.y = VOI.y - 1;
-%     inputdatavars.maxheatid = 109;
+     inputdatavars.maxheatid = 109;
 % elseif sum( inputdatavars.UID == '0476' ) ==4%
 %     VOI.x = VOI.x + 5;
 %     VOI.y = VOI.y - 5;
@@ -82,7 +82,7 @@ VOI.z = double( inputdatavars.voi(5:6));
 % elseif sum( inputdatavars.UID == '0415' ) ==4%
 %     VOI.x = VOI.x + 1;
 %     VOI.y = VOI.y + 1;
-% end
+end
 
 MRTI = readVTK_one_time('temperature', inputdatavars.maxheatid);   % This 'vtkNumber' should b
 cd (patient_opt_path);

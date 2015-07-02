@@ -28,10 +28,10 @@ elseif choice == 3   % cond
     
 elseif choice ==4
     
-    load ('GPU_dict_perf_mu_global_400'); 
+    %load ('GPU_dict_perf_mu_global_400'); 
     %load ('GPU_dict_perf_mu_global_400_all_metricRedo');
     %load ('GPU_dict_perf_mu_global_400_all_metric');
-    %load ('GPU_dict_perf_mu_global_400_all_metric_2');
+    load ('GPU_dict_perf_mu_global_400_all_metric_3');
     %load ('opt_perf_mu_400_long_diss');
 elseif choice ==5  % random
     
@@ -50,6 +50,10 @@ if toss_choice == 1
     %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0378'))==1); %Strongly suggest exclusion %  good to keep (median)
     
     ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0476'))==1); %Not positive;; % Strongly suggest exclusion  % good to exclude (median)
+    
+%     ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0385'))==1); %temporary hack to check if registration is what needs to change
+%     
+%     ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0495'))==1); %temporary hack to check if registration is what needs to change
     
     % for STM 2015 con   %ix(end+1)=find(~cellfun(@isempty,regexp(total(:,1),'0435'))==1); % Not positive % very probably suggest exclusion: susceptibility artifact; new  % good to exclude (median);
     
@@ -128,8 +132,8 @@ if choice ==5 ||choice==4
     obj_fxn = Xx;
     for jj=1:length(index)
         ii =index(jj);
-        dice = squeeze(total{ii,3});
-        %dice = squeeze(total{ii,3}(:,7));
+        %dice = squeeze(total{ii,3});
+        dice = total{ii,3}(:,7);
         if metric_choice ==1
             %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),total{ii,3}(:,7),paraYq,paraXq);
             [Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),dice,paraYq,paraXq);
@@ -316,18 +320,30 @@ if choice ==5 ||choice==4
 %         LOOCV_median_post(ii) = total{ii,3}(II_median(ii));
 %         LOOCV_pass_post(ii) = total{ii,3}(II_pass(ii));
         
-        LOOCV_mean_post(ii) = total{ii,3}(mean_spot);
-        LOOCV_median_post(ii) = total{ii,3}(median_spot);
-        LOOCV_pass_post(ii) = total{ii,3}(pass_spot);
-        naive_pass(ii) = total{ii,3}(naive_ix);
-        best_eyeball_norm(ii)= total{ii,3}(eyeball_ix);
-        eyeball_norm22(ii) = total{ii,3}(eyeball_ix22);
+%         LOOCV_mean_post(ii) = total{ii,3}(mean_spot);
+%         LOOCV_median_post(ii) = total{ii,3}(median_spot);
+%         LOOCV_pass_post(ii) = total{ii,3}(pass_spot);
+%         naive_pass(ii) = total{ii,3}(naive_ix);
+%         best_eyeball_norm(ii)= total{ii,3}(eyeball_ix);
+%         eyeball_norm22(ii) = total{ii,3}(eyeball_ix22);
+        
+        LOOCV_mean_post(ii) = total{ii,3}(mean_spot,7);
+        LOOCV_median_post(ii) = total{ii,3}(median_spot,7);
+        LOOCV_pass_post(ii) = total{ii,3}(pass_spot,7);
+        naive_pass(ii) = total{ii,3}(naive_ix,7);
+        best_eyeball_norm(ii)= total{ii,3}(eyeball_ix,7);
+        eyeball_norm22(ii) = total{ii,3}(eyeball_ix22,7);
         
         for kk = 1:size(obj_fxn_prc,3)
+%             prc_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_ix2(ii,kk)));
+%             prc_LOOCV(ii,kk) = total{ii,3}(prc_runs(ii,kk));
+%             prc_top_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_top_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_top_ix2(ii,kk)));
+%             prc_top_LOOCV(ii,kk) = total{ii,3}(prc_top_runs(ii,kk));
+            
             prc_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_ix2(ii,kk)));
-            prc_LOOCV(ii,kk) = total{ii,3}(prc_runs(ii,kk));
+            prc_LOOCV(ii,kk) = total{ii,3}(prc_runs(ii,kk),7);
             prc_top_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_top_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_top_ix2(ii,kk)));
-            prc_top_LOOCV(ii,kk) = total{ii,3}(prc_top_runs(ii,kk));
+            prc_top_LOOCV(ii,kk) = total{ii,3}(prc_top_runs(ii,kk),7);
             
         end
         
@@ -370,10 +386,10 @@ else
 end
 
 
-cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
-invprctile(aa(:,1),[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
-invprctile(LOOCV_median_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
-cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+% cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
+% invprctile(aa(:,1),[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+% invprctile(LOOCV_median_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+% cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 
 
 

@@ -40,7 +40,9 @@ elseif choice == 3
     
 elseif choice == 4
     cd ../../../MATLAB/Tests/direct_search/libraries
-    load ('GPU_dict_perf_mu_global_400');
+    %load ('GPU_dict_perf_mu_global_400');
+    load('GPU_dict_perf_mu_global_400_all_metric_2')
+    
     
 end
 total(1,:)=[];
@@ -150,7 +152,8 @@ if choice ==4
         %     figure;imagesc(bb); xlabel('perf');ylabel('mu');
         %         for jj=1:length(index)
         %             kk =index(jj);
-        dice = squeeze(total{ii,3});
+        %dice = squeeze(total{ii,3});
+        dice = total{ii,3}(:,7);
         
         %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{kk,2}(:,1),total{kk,2}(:,2),dice,paraYq,paraXq);
         [Xx, Yy, obj_fxn]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),dice,paraYq,paraXq);

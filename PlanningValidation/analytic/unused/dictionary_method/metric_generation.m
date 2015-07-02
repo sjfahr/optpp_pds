@@ -105,8 +105,8 @@ total{1,9}    = 'Optimal HD for 57 C';
 total{1,10}   = 'Optimal temp and 57 C MI';
 total{1,11}   = 'Optimal false pixel count for 57 C';
 
-for ii = 2:(num_studies+1)
-%for ii = 6
+%for ii = 2:(num_studies+1)
+for ii = 11
     % Display run information
     disp('Start ')
     disp(strcat (num2str(ii-1),' of ', num2str(num_studies)))
@@ -194,7 +194,8 @@ elseif choice == 4
     %save ('GPU_dict_perf_mu_global_400_2','total','summary','-v7.3');
     %save ('GPU_dict_perf_mu_global_400','total','summary','-v7.3');
     %save ('GPU_dict_perf_mu_global_400_all_metricRedo','total','summary','-v7.3');
-    save ('GPU_dict_perf_mu_global_400_all_metric_2','total','summary','-v7.3');
+    %save ('GPU_dict_perf_mu_global_400_all_metric_2','total','summary','-v7.3');
+    save ('troubleshoot0385_newPower','total','summary','-v7.3');
     %save ('GPU_dict_perf_mu_global_SuperShort_onlyDice','total','summary','-v7.3');
     %save ('opt_perf_mu_400_long_diss','total','summary','-v7.3');
     
