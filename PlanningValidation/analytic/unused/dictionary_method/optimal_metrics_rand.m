@@ -20,6 +20,10 @@ if quick_choice ==1
     total{ii,8}(2:3) = total{ii,2}(index,1:2);   % record value that produces optimal Dice
     total{ii,8}(4) = index; % record index that produces optimal Dice
     
+    %Record optimal Arrhenius Dose
+    total{ii,13} = zeros(1,4);
+    
+    
 %     % Record optimal 57 C Hausdorff distance information
 %     total{ii,9} = zeros(1,4);
 %     [total{ii,9}(1) , index] = min (total{ii,4}(:,7)); % record optimal Hausdorff Distance
@@ -81,6 +85,13 @@ else
     [total{ii,11}(1,1) , index] = min (total{ii,6}(:,7,3));  % False pixel number for 57 C isotherm
     total{ii,11}(1,2:3) = total{ii,2}(index,1:2); % record value that produces number of false pixels
     total{ii,11}(1,4) = index;
+    
+    % Record optimal Arrhenius-Henriques DSC
+    total{ii,13} = zeros(1,4);
+    [total{ii,13}(1) , index] = max (total{ii,12}(:,7));  % record optimal Dice
+    total{ii,13}(2:3) = total{ii,2}(index,1:2);   % record value that produces optimal Dice
+    total{ii,13}(4) = index; % record index that produces optimal Dice
+    
     
 end
 

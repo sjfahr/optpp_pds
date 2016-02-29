@@ -37,7 +37,7 @@ elseif choice ==3           % k_cond
     k_cond=[zeros(Numruns,1) k_cond'];
     w_perf=[0 w_perf];
     
-elseif choice ==4           % w_perf + mu
+elseif choice ==4 || choice ==6          % w_perf + mu
     Numruns = length(w_perf);
     mu_eff = [zeros(Numruns,1) mu_eff];
     w_perf = [zeros(Numruns,1) w_perf];
@@ -226,7 +226,7 @@ elseif choice ==3 %k_cond
         end
     end
     
-elseif or(choice ==4 , choice ==5) %w_perf + mu
+elseif choice ==4 || choice ==5 || choice==6 %w_perf + mu
     
     for ii = 1:Numruns
         if mod (ii,500) == 0

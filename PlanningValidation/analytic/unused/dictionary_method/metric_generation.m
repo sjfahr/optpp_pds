@@ -37,7 +37,7 @@ elseif choice == 3
 elseif choice == 4
     %load('all_opt_perf_mu_400_SuperShort.mat');
 %     if quick_choice ==1
-         %load ('all_opt_perf_mu_400_short.mat' );
+       %  load ('all_opt_perf_mu_400_short.mat' );
 %     else
         %load ('opt_perf_mu_400_long_diss.mat');
 %     end
@@ -104,9 +104,11 @@ total{1,8}    = 'Optimal DSC for 57 C';
 total{1,9}    = 'Optimal HD for 57 C';
 total{1,10}   = 'Optimal temp and 57 C MI';
 total{1,11}   = 'Optimal false pixel count for 57 C';
+total{1,12}   = 'DSC Arrhenius-Henriques dose';
+total{1,13}   = 'Optimal DSC for Arrhenius-Henriques dose';
 
-%for ii = 2:(num_studies+1)
-for ii = 11
+for ii = 2:(num_studies+1)
+%for ii = 11
     % Display run information
     disp('Start ')
     disp(strcat (num2str(ii-1),' of ', num2str(num_studies)))
@@ -117,13 +119,13 @@ for ii = 11
     % Load and organize MRTI
     path_base = strcat ( 'workdir/',Study_paths{ii-1,1}, '/', Study_paths{ii-1,2}, '/opt');
     load( strcat ( path_base, '/optpp_pds.', opttype, '.in.1.mat') );
-    [MRTI_crop, MRTI_isotherm, MRTI_list,n_MRTI] = organize_MRTI( inputdatavars );
+    [MRTI_crop, MRTI_isotherm, MRTI_list,n_MRTI,dose] = organize_MRTI( inputdatavars);
     
     % Generate model data
     [model_crop] = organize_model( inputdatavars, all_opt_fig, no_pwr_fig,sim_dim, choice );
     
     if choice == 5|| choice==4
-        [ total{ii,2}, total{ii,3}, total{ii,4}, total{ii,5}, total{ii,6} ] = metric_calculator_rand ( MRTI_crop, MRTI_isotherm, MRTI_list,n_MRTI,model_crop,inputdatavars,summary,quick_choice );
+        [ total{ii,2}, total{ii,3}, total{ii,4}, total{ii,5}, total{ii,6}, total{ii,12} ] = metric_calculator_rand ( MRTI_crop, MRTI_isotherm, MRTI_list,n_MRTI,model_crop,inputdatavars,summary,quick_choice,dose );
         [total] = optimal_metrics_rand(total,ii,quick_choice);
     else        
         [ total{ii,2}, total{ii,3}, total{ii,4}, total{ii,5}, total{ii,6} ] = metric_calculator ( MRTI_crop, MRTI_isotherm, MRTI_list,n_MRTI,model_crop,inputdatavars,summary );
@@ -195,9 +197,11 @@ elseif choice == 4
     %save ('GPU_dict_perf_mu_global_400','total','summary','-v7.3');
     %save ('GPU_dict_perf_mu_global_400_all_metricRedo','total','summary','-v7.3');
     %save ('GPU_dict_perf_mu_global_400_all_metric_2','total','summary','-v7.3');
-    save ('troubleshoot0385_newPower','total','summary','-v7.3');
+    %save ('troubleshoot0385_newPower','total','summary','-v7.3');
+    %save ('troubleshoot0385_ArrDose22','total','summary','-v7.3');
     %save ('GPU_dict_perf_mu_global_SuperShort_onlyDice','total','summary','-v7.3');
     %save ('opt_perf_mu_400_long_diss','total','summary','-v7.3');
+    save ('long_diss_ArrDose22','total','summary','-v7.3');
     
     
 elseif choice == 5

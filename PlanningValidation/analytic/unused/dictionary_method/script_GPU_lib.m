@@ -1,7 +1,10 @@
-choice = 4;
-quick_choice=2;
+close all
+clear
+clc
+choice = 4; %Dataset selection
+quick_choice=2; %shortened processing
 
-%GPU_generate_lib(choice);
+GPU_generate_lib(choice);
 
 metric_generation(choice, quick_choice);
 

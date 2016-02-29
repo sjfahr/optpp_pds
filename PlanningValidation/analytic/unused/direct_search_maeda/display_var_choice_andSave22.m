@@ -112,7 +112,7 @@ if choice ==4
         
         cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
         cd (Study_paths{ii,2});
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(tmap_model, [30 100]);
+        fig=figure('units','normalized','position',[.1 .3 .264 .624]); imagesc(tmap_model, [30 100]);
         set(findobj('type','axes'),'fontsize',15);
         xlabel('Pixel number in ROI (Unity)')
         ylabel('Pixel number in ROI (Unity)')
@@ -120,8 +120,9 @@ if choice ==4
         set(findobj('type','axes'),'fontsize',15);
         ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
         set(findobj('type','axes'),'fontsize',15);
+        print(fig,strcat('model'),'-dpng');
         
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [30 100]);
+        fig=figure('units','normalized','position',[.1 .3 .264 .624]); imagesc(MRTI_crop, [30 100]);
         set(findobj('type','axes'),'fontsize',15);
         xlabel('Pixel number in ROI (Unity)')
         ylabel('Pixel number in ROI (Unity)')
@@ -129,8 +130,9 @@ if choice ==4
         set(findobj('type','axes'),'fontsize',15);
         ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
         set(findobj('type','axes'),'fontsize',15);
+        print(fig,strcat('MRTI'),'-dpng');
         
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(intersection(:,:,7));
+        fig=figure('units','normalized','position',[.1 .3 .264 .624]); imagesc(intersection(:,:,7));
         set(findobj('type','axes'),'fontsize',15);
         xlabel('Pixel number in ROI (Unity)')
         ylabel('Pixel number in ROI (Unity)')
@@ -138,6 +140,7 @@ if choice ==4
         set(findobj('type','axes'),'fontsize',15);
         ylabel(h,'Intersection label (Unity)');
         set(findobj('type','axes'),'fontsize',15);
+        print(fig,strcat('label'),'-dpng');
         
         %title( Study_paths{ii,2} ); colorbar; set(findobj('type','axes'),'fontsize',14);
         
@@ -171,7 +174,7 @@ if choice ==4
         
         %figure;
         %figure('units','normalized','position',[.1 .3 .3 .6]);
-        figure('units','normalized','position',[.1 .3 .22 .52]);
+        fig=figure('units','normalized','position',[.1 .3 .264 .624]);
         contourf(Xx,Yy,obj_fxn);caxis([0 0.9]);
         h = colorbar;
         set(findobj('type','axes'),'fontsize',15);
@@ -181,6 +184,10 @@ if choice ==4
         %         set(tt, 'FontSize', 15);
         set(findobj('type','axes'),'fontsize',15);
         xlabel('\mu_{eff}   [ m^{-1} ]'); ylabel('\omega [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
+        hold on
+        scatter(var_opt(ii,2),var_opt(ii,3),150,'MarkerFaceColor','b','MarkerEdgeColor','g',...
+            'LineWidth',2);
+        print(fig,strcat('opt_map'),'-dpng');
         var_opt(ii,:)
         Study_paths{ii,2}
         %[distXq, distYq] = meshgrid (x_lim, y_lim);
@@ -210,7 +217,7 @@ elseif choice ==6
         
         cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
         cd (Study_paths{ii,2});
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(tmap_model, [30 100]);
+        fig=figure('units','normalized','position',[.1 .3 .264 .624]); imagesc(tmap_model, [30 100]);
         set(findobj('type','axes'),'fontsize',15);
         xlabel('Pixel number in ROI (Unity)')
         ylabel('Pixel number in ROI (Unity)')
@@ -218,28 +225,21 @@ elseif choice ==6
         set(findobj('type','axes'),'fontsize',15);
         ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
         set(findobj('type','axes'),'fontsize',15);
+        print(fig,strcat('model_tmap_',Study_paths{ii,2},'_ArrD'),'-dpng');
         
-        if choice == 4
-            figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [30 100]);
-            set(findobj('type','axes'),'fontsize',15);
-            xlabel('Pixel number in ROI (Unity)')
-            ylabel('Pixel number in ROI (Unity)')
-            h=colorbar;
-            set(findobj('type','axes'),'fontsize',15);
-            ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
-            set(findobj('type','axes'),'fontsize',15);
-        elseif choice ==6
-            figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [0 1]);
-            set(findobj('type','axes'),'fontsize',15);
-            xlabel('Pixel number in ROI (Unity)')
-            ylabel('Pixel number in ROI (Unity)')
-            h=colorbar;
-            set(findobj('type','axes'),'fontsize',15);
-            ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
-            set(findobj('type','axes'),'fontsize',15);
-        end
+        fig=figure('units','normalized','position',[.1 .3 .264 .624]); imagesc(MRTI_crop, [0 1]);
+        set(findobj('type','axes'),'fontsize',15);
+        xlabel('Pixel number in ROI (Unity)')
+        ylabel('Pixel number in ROI (Unity)')
+        h=colorbar;
+        set(findobj('type','axes'),'fontsize',15);
+        ylabel(h,'Arrhenius dose label; Live or Dead');
+        set(findobj('type','axes'),'fontsize',15);
+        print(fig,strcat('MRTI_ArrD'),'-dpng');
+        %print(fig,strcat('model_tmap_',Study_paths{ii,2},'_ArrD'),'-dpng');
+
         
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(intersection(:,:,7));
+        figure('units','normalized','position',[.1 .3 .264 .624]); imagesc(intersection(:,:,7));
         set(findobj('type','axes'),'fontsize',15);
         xlabel('Pixel number in ROI (Unity)')
         ylabel('Pixel number in ROI (Unity)')
@@ -247,6 +247,7 @@ elseif choice ==6
         set(findobj('type','axes'),'fontsize',15);
         ylabel(h,'Intersection label (Unity)');
         set(findobj('type','axes'),'fontsize',15);
+        print(fig,strcat('label_',Study_paths{ii,2},'_ArrD'),'-dpng');
         
         %title( Study_paths{ii,2} ); colorbar; set(findobj('type','axes'),'fontsize',14);
         
@@ -294,7 +295,7 @@ elseif choice ==6
         hold on
         scatter(var_opt(ii,2),var_opt(ii,3),150,'MarkerFaceColor','b','MarkerEdgeColor','g',...
             'LineWidth',2);
-        %print(fig,strcat('global_opt_',Study_paths{ii,2},'_choice22'),'-dpng');
+        print(fig,strcat('global_opt_',Study_paths{ii,2},'_ArrD'),'-dpng');
         var_opt(ii,:)
         Study_paths{ii,2}
         %[distXq, distYq] = meshgrid (x_lim, y_lim);

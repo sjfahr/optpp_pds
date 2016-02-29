@@ -1,7 +1,7 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run. The metric is based on temperature (not dose and isotherms).
 
-function [MRTI_crop, MRTI_isotherm, MRTI_list, n_MRTI] = organize_MRTI ( inputdatavars );
+function [MRTI_crop, MRTI_isotherm, MRTI_list, n_MRTI,dose] = organize_MRTI ( inputdatavars );
 % Record the working directory
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
@@ -84,9 +84,16 @@ if sum( inputdatavars.UID == '0385' ) ==4%
 %     VOI.y = VOI.y + 1;
 end
 
+
 MRTI = readVTK_one_time('temperature', inputdatavars.maxheatid);   % This 'vtkNumber' should b
+MRTI2 = readVTK('temperature',inputdatavars.timeinterval(2));
 cd (patient_opt_path);
 
+MRTI2 ( 1:(VOI.y(1)-1), :, : ) = 0;  % The -1 and +1 make sure the VOI indices aren't cut
+MRTI2 ( (VOI.y(2)+1):end, :, : )  = 0;
+MRTI2 ( :, 1:(VOI.x(1)-1), : ) = 0;
+MRTI2 ( :,(VOI.x(2)+1):end, : ) = 0;
+MRTI_crop2 = MRTI2( (VOI.y(1) ):(VOI.y(2) ) , (VOI.x(1) ):(VOI.x(2) ), : ); % Set the cropped region
 % Crop the MRTI using the VOI.
 % This is the VOI.x and VOI.y swapped for ParaView
 MRTI ( 1:(VOI.y(1)-1), :, : ) = 0;  % The -1 and +1 make sure the VOI indices aren't cut
@@ -98,6 +105,10 @@ MRTI_crop = MRTI( (VOI.y(1) ):(VOI.y(2) ) , (VOI.x(1) ):(VOI.x(2) ) ); % Set the
 %MRTI_crop = permute( MRTI_crop, [2 1 3]);
 
 cd (path22);
+[dose] = tDose2(MRTI_crop2,inputdatavars.mrtideltat,'Henriques');
+dose = dose(:,:,end);
+dose(dose>=1)=1;
+dose(dose<1)=0;
 
 MRTI_isotherm = zeros( size(MRTI_crop,1), size(MRTI_crop,2) ,15);
 n_MRTI = zeros(15,1);
@@ -111,5 +122,6 @@ for kk=1:15
     n_MRTI(kk) =  sum( sum( MRTI_isotherm(:,:,kk)  ));
 end
 clear kk
+
 
 end

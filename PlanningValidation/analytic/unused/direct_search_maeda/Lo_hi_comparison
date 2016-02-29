@@ -1,0 +1,6 @@
+cd /FUS4/data2/sjfahrenholtz/MATLAB/Tests/direct_search
+load GPU_global_search.mat
+
+cd /FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+index_lo = find( (datasummary(:,4)<700)==1);
+index_hi = find( (datasummary(:,4)>700)==1);

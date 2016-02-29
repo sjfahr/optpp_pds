@@ -1,5 +1,5 @@
 % This script finds the best mu_eff for the different studies.
-function display_var_choice (choice, patient_ix);
+function display_var_choice_ArrD_andSave (choice, patient_ix);
 %choice = 1; % 1 = mu; 2 = perf; 3 = cond;
 tic
 close all
@@ -40,22 +40,12 @@ elseif choice == 3
     
 elseif choice == 4
     cd ../../../MATLAB/Tests/direct_search/libraries
-    %load ('GPU_dict_perf_mu_global_400');
-    load('GPU_dict_perf_mu_global_400_all_metric_2')
-    
-elseif choice == 6
-    cd ../../../MATLAB/Tests/direct_search/libraries
-    %load ('GPU_dict_perf_mu_global_400');
-    load ('long_diss_ArrDose22');
+    load ('GPU_dict_perf_mu_global_400');
     
 end
 total(1,:)=[];
 cd (path22);
-if choice == 4
 var_opt = cell2mat( total(:,8));
-elseif choice == 6
- var_opt = cell2mat( total(:,13));   
-end
 % indexC = strfind(opt.paths,'Study0035');
 % toss_index_phantom = find(not(cellfun('isempty',indexC)));
 % opt.paths(toss_index_phantom,:)=[];
@@ -112,7 +102,7 @@ if choice ==4
         
         cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
         cd (Study_paths{ii,2});
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(tmap_model, [30 100]);
+        fig=figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(tmap_model, [30 100]);
         set(findobj('type','axes'),'fontsize',15);
         xlabel('Pixel number in ROI (Unity)')
         ylabel('Pixel number in ROI (Unity)')
@@ -120,8 +110,9 @@ if choice ==4
         set(findobj('type','axes'),'fontsize',15);
         ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
         set(findobj('type','axes'),'fontsize',15);
+        print(fig,'model','-dpng');
         
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [30 100]);
+        fig=figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [30 100]);
         set(findobj('type','axes'),'fontsize',15);
         xlabel('Pixel number in ROI (Unity)')
         ylabel('Pixel number in ROI (Unity)')
@@ -129,8 +120,9 @@ if choice ==4
         set(findobj('type','axes'),'fontsize',15);
         ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
         set(findobj('type','axes'),'fontsize',15);
+        print(fig,'MRTI','-dpng');
         
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(intersection(:,:,7));
+        fig=figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(intersection(:,:,7));
         set(findobj('type','axes'),'fontsize',15);
         xlabel('Pixel number in ROI (Unity)')
         ylabel('Pixel number in ROI (Unity)')
@@ -138,6 +130,7 @@ if choice ==4
         set(findobj('type','axes'),'fontsize',15);
         ylabel(h,'Intersection label (Unity)');
         set(findobj('type','axes'),'fontsize',15);
+        print(fig,'label','-dpng');
         
         %title( Study_paths{ii,2} ); colorbar; set(findobj('type','axes'),'fontsize',14);
         
@@ -160,8 +153,7 @@ if choice ==4
         %     figure;imagesc(bb); xlabel('perf');ylabel('mu');
         %         for jj=1:length(index)
         %             kk =index(jj);
-        %dice = squeeze(total{ii,3});
-        dice = total{ii,3}(:,7);
+        dice = squeeze(total{ii,3});
         
         %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{kk,2}(:,1),total{kk,2}(:,2),dice,paraYq,paraXq);
         [Xx, Yy, obj_fxn]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),dice,paraYq,paraXq);
@@ -171,117 +163,7 @@ if choice ==4
         
         %figure;
         %figure('units','normalized','position',[.1 .3 .3 .6]);
-        figure('units','normalized','position',[.1 .3 .22 .52]);
-        contourf(Xx,Yy,obj_fxn);caxis([0 0.9]);
-        h = colorbar;
-        set(findobj('type','axes'),'fontsize',15);
-        ylabel(h,'DSC (Unity)');
-        %set(h, 'FontSize', 15);
-        %         tt=title( Study_paths{ii,2} );
-        %         set(tt, 'FontSize', 15);
-        set(findobj('type','axes'),'fontsize',15);
-        xlabel('\mu_{eff}   [ m^{-1} ]'); ylabel('\omega [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
-        var_opt(ii,:)
-        Study_paths{ii,2}
-        %[distXq, distYq] = meshgrid (x_lim, y_lim);
-%         figure; contourf(distXq,distYq,intersection(:,:,7), [0 1 2 3]); colorbar; title( Study_paths{ii,2} );
-%         xlabel('Distance   [ m ]'); ylabel('Distance [ m ]'); set(findobj('type','axes'),'fontsize',15);
-        keyboard
-        close all
-    end
-    
-elseif choice ==6
-    var_opt=cell2mat( total(:,13));
-    for ii = patient_ix
-        cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
-        path_base = strcat ( 'workdir/',Study_paths{ii,1}, '/', Study_paths{ii,2}, '/opt');
-        load( strcat ( path_base, '/optpp_pds.', opttype, '.in.1.mat') );
-        
-        [ tmap_model, MRTI_crop, intersection ] = display_obj_fxn_GPU_choice ( inputdatavars, 50, var_opt(ii,2) , var_opt(ii,3), summary.k_cond, choice );
-        
-        inputdatavars.voi = double( inputdatavars.voi);
-        x_diff = abs(inputdatavars.voi(2) - inputdatavars.voi(1));
-        x_lim = 0: inputdatavars.spacing(1): x_diff*inputdatavars.spacing(1);
-        y_diff = abs(inputdatavars.voi(4) -inputdatavars.voi(3));
-        y_lim = 0: inputdatavars.spacing(2): y_diff*inputdatavars.spacing(2);
-        
-        x_lim(end) % FOV limits
-        y_lim(end)
-        
-        cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
-        cd (Study_paths{ii,2});
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(tmap_model, [30 100]);
-        set(findobj('type','axes'),'fontsize',15);
-        xlabel('Pixel number in ROI (Unity)')
-        ylabel('Pixel number in ROI (Unity)')
-        h=colorbar;
-        set(findobj('type','axes'),'fontsize',15);
-        ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
-        set(findobj('type','axes'),'fontsize',15);
-        
-        if choice == 4
-            figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [30 100]);
-            set(findobj('type','axes'),'fontsize',15);
-            xlabel('Pixel number in ROI (Unity)')
-            ylabel('Pixel number in ROI (Unity)')
-            h=colorbar;
-            set(findobj('type','axes'),'fontsize',15);
-            ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
-            set(findobj('type','axes'),'fontsize',15);
-        elseif choice ==6
-            figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [0 1]);
-            set(findobj('type','axes'),'fontsize',15);
-            xlabel('Pixel number in ROI (Unity)')
-            ylabel('Pixel number in ROI (Unity)')
-            h=colorbar;
-            set(findobj('type','axes'),'fontsize',15);
-            ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
-            set(findobj('type','axes'),'fontsize',15);
-        end
-        
-        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(intersection(:,:,7));
-        set(findobj('type','axes'),'fontsize',15);
-        xlabel('Pixel number in ROI (Unity)')
-        ylabel('Pixel number in ROI (Unity)')
-        h=colorbar;
-        set(findobj('type','axes'),'fontsize',15);
-        ylabel(h,'Intersection label (Unity)');
-        set(findobj('type','axes'),'fontsize',15);
-        
-        %title( Study_paths{ii,2} ); colorbar; set(findobj('type','axes'),'fontsize',14);
-        
-        aa = cell2mat( total(:,13));
-        index=find( (aa(:,2)>-1)==1);
-        w_array = unique( summary.w_perf);
-        mu_array = unique( summary.mu);
-        [paraXq, paraYq] = meshgrid ( w_array, mu_array);
-        
-        %     bb=hist2(total{ii,2}(:,1),total{ii,2}(:,2),200);
-        %     figure;imagesc(bb); xlabel('perf');ylabel('mu');
-        grid_sz = size (paraXq);
-        Xx = zeros(grid_sz(1), grid_sz(2), length(index));
-        Yy = Xx;
-        obj_fxn = Xx;
-        
-        [paraXq, paraYq] = meshgrid ( w_array, mu_array);
-        
-        %     bb=hist2(total{ii,2}(:,1),total{ii,2}(:,2),200);
-        %     figure;imagesc(bb); xlabel('perf');ylabel('mu');
-        %         for jj=1:length(index)
-        %             kk =index(jj);
-        %dice = squeeze(total{ii,3});
-        dice = total{ii,12}(:,7);
-        
-        %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{kk,2}(:,1),total{kk,2}(:,2),dice,paraYq,paraXq);
-        [Xx, Yy, obj_fxn]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),dice,paraYq,paraXq);
-        
-        %end
-        clear kk
-        
-        %figure;
-        %figure('units','normalized','position',[.1 .3 .3 .6]);
-        %figure('units','normalized','position',[.1 .3 .22 .52]);
-        fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+        fig=figure('units','normalized','position',[.1 .3 .22 .52]);
         contourf(Xx,Yy,obj_fxn);caxis([0 0.9]);
         h = colorbar;
         set(findobj('type','axes'),'fontsize',15);
@@ -294,16 +176,15 @@ elseif choice ==6
         hold on
         scatter(var_opt(ii,2),var_opt(ii,3),150,'MarkerFaceColor','b','MarkerEdgeColor','g',...
             'LineWidth',2);
-        %print(fig,strcat('global_opt_',Study_paths{ii,2},'_choice22'),'-dpng');
+        print(fig,'opt_map','-dpng');
         var_opt(ii,:)
         Study_paths{ii,2}
         %[distXq, distYq] = meshgrid (x_lim, y_lim);
 %         figure; contourf(distXq,distYq,intersection(:,:,7), [0 1 2 3]); colorbar; title( Study_paths{ii,2} );
 %         xlabel('Distance   [ m ]'); ylabel('Distance [ m ]'); set(findobj('type','axes'),'fontsize',15);
-        keyboard
+        %keyboard
         close all
     end
-    
     
 else
     

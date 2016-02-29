@@ -28,10 +28,11 @@ elseif choice == 3   % cond
     
 elseif choice ==4
     
-    load ('GPU_dict_perf_mu_global_400');
+    %load ('GPU_dict_perf_mu_global_400');
     %load ('GPU_dict_perf_mu_global_400_all_metric');
     %load ('GPU_dict_perf_mu_global_SuperShort_all_metric');
     %load ('GPU_dict_perf_mu_global_400_all_metricRedo');
+    load ('GPU_dict_perf_mu_global_400_all_metric_3');
 elseif choice ==5  % random
     
     load ('GPU_dict_perf_mu_rand.mat');
@@ -127,8 +128,8 @@ if choice ==5 ||choice==4
     obj_fxn = Xx;
     for jj=1:length(index)
         ii =index(jj);
-        dice = squeeze(total{ii,3});
-        %dice = squeeze(total{ii,3}(:,7));
+        %dice = squeeze(total{ii,3});
+        dice = total{ii,3}(:,7);
         %dice = squeeze(total{ii,4}(:,7));
         if metric_choice ==1
             %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),total{ii,3}(:,7),paraYq,paraXq);
@@ -153,7 +154,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    %print(fig,'mean_global','-dpng');
+    print(fig,'mean_global','-dpng');
     
     opt_median = median(obj_fxn,3);
     fig=figure('units','normalized','position',[.1 .3 .22 .52]);
@@ -163,7 +164,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    %print(fig,'median_global','-dpng');
+    print(fig,'median_global','-dpng');
     
     opt_std = std(obj_fxn,0,3);
     fig=figure('units','normalized','position',[.1 .3 .22 .52]);
@@ -173,7 +174,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    %print(fig,'std_global','-dpng');
+    print(fig,'std_global','-dpng');
     
     opt_pass=obj_fxn;        
     opt_pass(opt_pass< 0.7)=0;
@@ -187,7 +188,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('Datasets > 0.7 (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    %print(fig,'pass_global','-dpng');
+    print(fig,'pass_global','-dpng');
     cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
     
     clear ii jj
@@ -345,17 +346,26 @@ if choice ==5 ||choice==4
 %         LOOCV_median_post(ii) = total{ii,3}(II_median(ii));
 %         LOOCV_pass_post(ii) = total{ii,3}(II_pass(ii));
         
-        LOOCV_mean_post(ii) = total{ii,3}(mean_spot);
-        LOOCV_median_post(ii) = total{ii,3}(median_spot);
-        LOOCV_pass_post(ii) = total{ii,3}(pass_spot);
-        naive_pass(ii) = total{ii,3}(naive_ix);
-        best_eyeball_norm(ii)= total{ii,3}(eyeball_ix);
-        eyeball_norm22(ii) = total{ii,3}(eyeball_ix22);
+%         LOOCV_mean_post(ii) = total{ii,3}(mean_spot);
+%         LOOCV_median_post(ii) = total{ii,3}(median_spot);
+%         LOOCV_pass_post(ii) = total{ii,3}(pass_spot);
+%         naive_pass(ii) = total{ii,3}(naive_ix);
+%         best_eyeball_norm(ii)= total{ii,3}(eyeball_ix);
+%         eyeball_norm22(ii) = total{ii,3}(eyeball_ix22);
+        
+        LOOCV_mean_post(ii) = total{ii,3}(mean_spot,7);
+        LOOCV_median_post(ii) = total{ii,3}(median_spot,7);
+        LOOCV_pass_post(ii) = total{ii,3}(pass_spot,7);
+        naive_pass(ii) = total{ii,3}(naive_ix,7);
+        best_eyeball_norm(ii)= total{ii,3}(eyeball_ix,7);
+        eyeball_norm22(ii) = total{ii,3}(eyeball_ix22,7);
         
         for kk = 1:size(obj_fxn_prc,3)
             prc_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_ix2(ii,kk)));
-            prc_LOOCV(ii,kk) = total{ii,3}(prc_runs(ii,kk));
+            %prc_LOOCV(ii,kk) = total{ii,3}(prc_runs(ii,kk));
+            prc_LOOCV(ii,kk) = total{ii,3}(prc_runs(ii,kk),7);
             prc_top_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_top_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_top_ix2(ii,kk)));
+            %prc_top_LOOCV(ii,kk) = total{ii,3}(prc_top_runs(ii,kk));
             prc_top_LOOCV(ii,kk) = total{ii,3}(prc_top_runs(ii,kk));
             
         end
@@ -399,10 +409,10 @@ else
 end
 
 
-cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
+% cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
 % invprctile(aa(:,1),[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
 % invprctile(LOOCV_median_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
-cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+% cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 
 
 

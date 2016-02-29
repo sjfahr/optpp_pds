@@ -118,19 +118,40 @@ for ii = 1:l_n_sources-1
 end
 clear ii h
 aa=total{1,3}(1:end-1,:);
-figure; [AX,H1,H2] = plotyy(log10(aa(:,1)),log10(aa(:,2)),log10(aa(:,1)),log10(abs(aa(:,3))));
-set(findobj('type','axes'),'fontsize',14);
+fig=figure('units','normalized','position',[.1 .3 .18 .45]);
+[AX,H1,H2] = plotyy(log10(aa(:,1)),log10(aa(:,2)),log10(aa(:,1)),log10(abs(aa(:,3))));
+set(findobj('type','axes'),'fontsize',15);
 set(H1,'linestyle','--','marker','x'); set(H2,'linestyle','-.','marker','o');
-set([H1;H2],'MarkerSize',12);
+set([H1;H2],'MarkerSize',15);
 xlabel('Log_{10} (M Sources) (Unity)')
 ylabel(AX(1),'Log_{10} (L_2 norm) (Unity)')
-ylabel(AX(2),'Log_{10} [abs(Max Diff)] (Unity)')
+ylabel(AX(2),strcat('Log_{10} [abs(Max Diff)] [Log_{10} (',sprintf('%cC', char(176)),')]'))
+print(fig,'mu200c','-dpng');
 
 aa=total{2,3}(1:end-1,:);
-figure; [AX,H1,H2] = plotyy(log10(aa(:,1)),log10(aa(:,2)),log10(aa(:,1)),log10(abs(aa(:,3))));
-set(findobj('type','axes'),'fontsize',14);
+fig=figure('units','normalized','position',[.1 .3 .18 .45]);
+%fig=figure('units','normalized','position',[.1 .3 .22 .55]);
+[AX,H1,H2] = plotyy(log10(aa(:,1)),log10(aa(:,2)),log10(aa(:,1)),log10(abs(aa(:,3))));
+set(findobj('type','axes'),'fontsize',15);
 set(H1,'linestyle','--','marker','x'); set(H2,'linestyle','-.','marker','o');
-set([H1;H2],'MarkerSize',12);
+set([H1;H2],'MarkerSize',15);
 xlabel('Log_{10} (M Sources) (Unity)')
 ylabel(AX(1),'Log_{10} (L_2 norm) (Unity)')
 ylabel(AX(2), strcat('Log_{10} [abs(Max Diff)] [Log_{10} (',sprintf('%cC', char(176)),')]'))
+print(fig,'mu2000c','-dpng');
+
+for ii =1:2
+    for jj = 1:10
+        
+        tmap_iter = total{ii,2}(:,:,jj);
+        tmap_gold = total{ii,2}(:,:,end);
+        t_diff = tmap_gold - tmap_iter;
+        
+        total{ii,3}(jj,1)= n_sources(jj);
+        total{ii,3}(jj,2)= ( norm ( t_diff , 2 ) )^2; % L2 norm
+        total{ii,3}(jj,3)= max(max( total{ii,2}(:,:,jj)  ) ) - max( tmap_gold(:));  %
+        total{ii,3}(jj,4)= ( norm ( t_diff , inf) )^2; %L_inf norm
+        
+        
+    end
+end

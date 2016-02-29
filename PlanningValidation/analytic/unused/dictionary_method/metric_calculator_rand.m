@@ -1,13 +1,14 @@
 % This is the updated Bioheat_script that should be used with DF's DAKOTA
 % run. The metric is based on temperature (not dose and isotherms).
 
-function [total, dice, hd, mutual_threshold, false_pix] = metric_calculator_rand ( MRTI_crop, MRTI_isotherm, MRTI_list,n_MRTI,model_crop,inputdatavars,summary,quick_choice );
+function [total, dice, hd, mutual_threshold, false_pix,d_dice] = metric_calculator_rand ( MRTI_crop, MRTI_isotherm, MRTI_list,n_MRTI,model_crop,inputdatavars,summary,quick_choice,dose );
 
 
 % isotherms = 51:65
 n_length = size(model_crop,3);
 
 dice = zeros(n_length,15);
+d_dice = zeros(n_length,15);
 hd = dice;
 mutual_threshold = dice;
 false_pix = zeros(n_length,15,3);
@@ -49,6 +50,7 @@ total(:,2) = summary.w_perf;
 
 MRTI_crop = MRTI_crop';
 MRTI_isotherm = permute(MRTI_isotherm, [2 1 3]);
+dose=dose';
 
 base_level= size(MRTI_crop,1).*size(MRTI_crop,2).*37;
 
@@ -116,6 +118,13 @@ if quick_choice ==1
     n_intersection = sum( sum( intersection));
     dice = 2 .* n_intersection ./ (n_model + n_MRTI(7));
     
+    d_n_MRTI = sum(sum( dose));
+    d_intersection = model_iso + dose;
+    d_intersection( d_intersection <=1) = 0;
+    d_intersection( d_intersection >1)=1;
+    d_n_intersection = sum( sum( d_intersection));
+    d_dice = 2.* d_n_intersection ./ (n_model + d_n_MRTI);
+    
     clear MRTI_iso_rep
     
     MRTI_crop_rep = repmat( MRTI_crop, [1 1 n_length]);
@@ -136,6 +145,8 @@ if quick_choice ==1
         
         % max temp
         total(ii,8) = max(max( model_crop(:,:,ii) ));
+        
+      
     end
 
     
@@ -154,6 +165,15 @@ else
             intersection = intersection > 1;
             n_intersection = sum( sum( intersection ));
             dice(ii,kk) = 2 * n_intersection / ( n_model + n_MRTI(kk) );  % DSC
+            
+            %Arrhenius-Henriques dose
+            d_intersection = model_deg_threshold + dose;
+            d_intersection( d_intersection <=1) = 0;
+            d_intersection( d_intersection >1)=1;
+            d_n_MRTI = sum(sum( dose));
+            d_n_intersection = sum( sum( d_intersection));
+            d_dice(ii,kk)= 2.* d_n_intersection ./ (n_model + d_n_MRTI);
+            
             mutual_threshold(ii,kk) = mi( model_deg_threshold, MRTI_isotherm(:,:,kk)); % MI for label map
             false_pix (ii,kk,1) = n_MRTI(kk) - n_intersection;  % False negative
             false_pix (ii,kk,2) = n_model - n_intersection; % False positive
@@ -182,8 +202,10 @@ else
         % max temp
         total(ii,8) = max(max( model_crop(:,:,ii) ));
         
+
         
     end
+
 end
 toc
 end

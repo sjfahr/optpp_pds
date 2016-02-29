@@ -31,8 +31,9 @@ elseif choice ==4
     %load ('GPU_dict_perf_mu_global_400'); 
     %load ('GPU_dict_perf_mu_global_400_all_metricRedo');
     %load ('GPU_dict_perf_mu_global_400_all_metric');
-    load ('GPU_dict_perf_mu_global_400_all_metric_3');
+    %load ('GPU_dict_perf_mu_global_400_all_metric_3');
     %load ('opt_perf_mu_400_long_diss');
+    load ('long_diss_ArrDose');
 elseif choice ==5  % random
     
     load ('GPU_dict_perf_mu_rand.mat');
@@ -359,7 +360,7 @@ if choice ==5 ||choice==4
     best_eyeball_stats = Descriptive_statistics_LOOCV(best_eyeball_norm);
     eyeball_stat22=Descriptive_statistics_LOOCV(eyeball_norm22);
     
-    survival_plot_onlySS_choice_MC (LOOCV_median_post, naive_pass, aa(:,1), 1);
+    survival_plot_onlySS_choice_MC (LOOCV_mean_post, naive_pass, aa(:,1), 1);
 %     prc_LOOCV60 = Descriptive_statistics_LOOCV(prc_LOOCV(:,1));
 %     prc_LOOCV70 = Descriptive_statistics_LOOCV(prc_LOOCV(:,2));
 %     prc_LOOCV80 = Descriptive_statistics_LOOCV(prc_LOOCV(:,3));

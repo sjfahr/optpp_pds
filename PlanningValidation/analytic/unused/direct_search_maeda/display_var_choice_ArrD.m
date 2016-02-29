@@ -1,5 +1,5 @@
 % This script finds the best mu_eff for the different studies.
-function display_var_choice (choice, patient_ix);
+function display_var_choice_ArrD (choice, patient_ix);
 %choice = 1; % 1 = mu; 2 = perf; 3 = cond;
 tic
 close all
@@ -51,11 +51,7 @@ elseif choice == 6
 end
 total(1,:)=[];
 cd (path22);
-if choice == 4
 var_opt = cell2mat( total(:,8));
-elseif choice == 6
- var_opt = cell2mat( total(:,13));   
-end
 % indexC = strfind(opt.paths,'Study0035');
 % toss_index_phantom = find(not(cellfun('isempty',indexC)));
 % opt.paths(toss_index_phantom,:)=[];
@@ -219,25 +215,14 @@ elseif choice ==6
         ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
         set(findobj('type','axes'),'fontsize',15);
         
-        if choice == 4
-            figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [30 100]);
-            set(findobj('type','axes'),'fontsize',15);
-            xlabel('Pixel number in ROI (Unity)')
-            ylabel('Pixel number in ROI (Unity)')
-            h=colorbar;
-            set(findobj('type','axes'),'fontsize',15);
-            ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
-            set(findobj('type','axes'),'fontsize',15);
-        elseif choice ==6
-            figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [0 1]);
-            set(findobj('type','axes'),'fontsize',15);
-            xlabel('Pixel number in ROI (Unity)')
-            ylabel('Pixel number in ROI (Unity)')
-            h=colorbar;
-            set(findobj('type','axes'),'fontsize',15);
-            ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
-            set(findobj('type','axes'),'fontsize',15);
-        end
+        figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(MRTI_crop, [30 100]);
+        set(findobj('type','axes'),'fontsize',15);
+        xlabel('Pixel number in ROI (Unity)')
+        ylabel('Pixel number in ROI (Unity)')
+        h=colorbar;
+        set(findobj('type','axes'),'fontsize',15);
+        ylabel(h,strcat('Temperature (',sprintf('%cC', char(176)),')'));
+        set(findobj('type','axes'),'fontsize',15);
         
         figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(intersection(:,:,7));
         set(findobj('type','axes'),'fontsize',15);
@@ -280,8 +265,7 @@ elseif choice ==6
         
         %figure;
         %figure('units','normalized','position',[.1 .3 .3 .6]);
-        %figure('units','normalized','position',[.1 .3 .22 .52]);
-        fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+        figure('units','normalized','position',[.1 .3 .22 .52]);
         contourf(Xx,Yy,obj_fxn);caxis([0 0.9]);
         h = colorbar;
         set(findobj('type','axes'),'fontsize',15);
@@ -291,10 +275,6 @@ elseif choice ==6
         %         set(tt, 'FontSize', 15);
         set(findobj('type','axes'),'fontsize',15);
         xlabel('\mu_{eff}   [ m^{-1} ]'); ylabel('\omega [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
-        hold on
-        scatter(var_opt(ii,2),var_opt(ii,3),150,'MarkerFaceColor','b','MarkerEdgeColor','g',...
-            'LineWidth',2);
-        %print(fig,strcat('global_opt_',Study_paths{ii,2},'_choice22'),'-dpng');
         var_opt(ii,:)
         Study_paths{ii,2}
         %[distXq, distYq] = meshgrid (x_lim, y_lim);
