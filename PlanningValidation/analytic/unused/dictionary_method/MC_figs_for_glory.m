@@ -33,7 +33,9 @@ elseif choice ==4
     %load ('GPU_dict_perf_mu_global_400_all_metric');
     %load ('GPU_dict_perf_mu_global_400_all_metric_3');
     %load ('opt_perf_mu_400_long_diss');
-    load ('long_diss_ArrDose');
+    load ('long_diss_ArrDose'); %orig and good
+    %load ('long_diss_ArrDose22'); % found in MC_figs_for_glory_IsoT_N20_save.m and bad
+    
 elseif choice ==5  % random
     
     load ('GPU_dict_perf_mu_rand.mat');

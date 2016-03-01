@@ -5,6 +5,7 @@ tic
 close all
 % Identify the studies to be examined.
 cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+%cd /FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 data_filename = 'datasummaryL2_10sourceNewton50.txt';  % Name the datasummary file
 
 setenv ( 'PATH22' , pwd);
@@ -96,6 +97,7 @@ end
 if choice ==4
     for ii = patient_ix
         cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+        %cd /FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
         path_base = strcat ( 'workdir/',Study_paths{ii,1}, '/', Study_paths{ii,2}, '/opt');
         load( strcat ( path_base, '/optpp_pds.', opttype, '.in.1.mat') );
         
@@ -110,7 +112,8 @@ if choice ==4
         x_lim(end) % FOV limits
         y_lim(end)
         
-        cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
+        cd /FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
+        %cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
         cd (Study_paths{ii,2});
         figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(tmap_model, [30 100]);
         set(findobj('type','axes'),'fontsize',15);
@@ -193,6 +196,7 @@ if choice ==4
 elseif choice ==6
     var_opt=cell2mat( total(:,13));
     for ii = patient_ix
+        %cd /FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
         cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
         path_base = strcat ( 'workdir/',Study_paths{ii,1}, '/', Study_paths{ii,2}, '/opt');
         load( strcat ( path_base, '/optpp_pds.', opttype, '.in.1.mat') );
@@ -208,7 +212,8 @@ elseif choice ==6
         x_lim(end) % FOV limits
         y_lim(end)
         
-        cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
+        %cd /FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance
+        cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
         cd (Study_paths{ii,2});
         figure('units','normalized','position',[.1 .3 .22 .52]); imagesc(tmap_model, [30 100]);
         set(findobj('type','axes'),'fontsize',15);
