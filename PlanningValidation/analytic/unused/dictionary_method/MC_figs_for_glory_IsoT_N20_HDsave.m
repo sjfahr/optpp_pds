@@ -134,7 +134,7 @@ if choice ==5 ||choice==4
     for jj=1:length(index)
         ii =index(jj);
         %dice = squeeze(total{ii,3});
-        dice = total{ii,3}(:,7);
+        dice = total{ii,4}(:,7);
         %dice = total{ii,12}(:,7);
         if metric_choice ==1
             %[Xx(:,:,jj), Yy(:,:,jj), obj_fxn(:,:,jj)]=griddata(total{ii,2}(:,1),total{ii,2}(:,2),total{ii,3}(:,7),paraYq,paraXq);
@@ -150,24 +150,26 @@ if choice ==5 ||choice==4
     end
     clear ii jj
     
-    cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT
+    cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT_HD
     opt_mean = mean(obj_fxn,3);
+    opt_mean(opt_mean>0.008)=0.008;
     fig=figure('units','normalized','position',[.1 .3 .264 .624]);
-    contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
+    contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0.004 0.008]); colorbar; %title(['Global Mean DSC']);
     h = colorbar;
     set(findobj('type','axes'),'fontsize',15);
-    ylabel(h,strcat('DSC (Unity)'));
+    ylabel(h,strcat('Hausdorf Distance (m)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
-    print(fig,'mean_global20','-dpng');
+    print(fig,'mean_globalHD20','-dpng');
     
     opt_median = median(obj_fxn,3);
+    opt_median(opt_median>0.008)=0.008;
     fig=figure('units','normalized','position',[.1 .3 .264 .624]);
-    contourf(Xx(:,:,1),Yy(:,:,1),opt_median);caxis([0 0.9]); colorbar; %title(['Global Median DSC']);
+    contourf(Xx(:,:,1),Yy(:,:,1),opt_median);caxis([0.004 0.008]); colorbar; %title(['Global Median DSC']);
     xlabel('mu_{eff}   [ m^{-1} ]'); ylabel('perf [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
     h = colorbar;
     set(findobj('type','axes'),'fontsize',15);
-    ylabel(h,strcat('DSC (Unity)'));
+    ylabel(h,strcat('Hausdorf Distance (m)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
     print(fig,'median_global20','-dpng');
@@ -179,8 +181,9 @@ if choice ==5 ||choice==4
     print(fig,'median_global_naive20','-dpng');
     
     opt_std = std(obj_fxn,0,3);
+    opt_std(opt_std>0.004)=0.004;
     fig=figure('units','normalized','position',[.1 .3 .264 .624]);
-    contourf(Xx(:,:,1),Yy(:,:,1),opt_std); caxis([0 0.2]); colorbar; %title(['Global St. Dev. of DSC']);
+    contourf(Xx(:,:,1),Yy(:,:,1),opt_std); caxis([0.001 0.004]); colorbar; %title(['Global St. Dev. of DSC']);
     xlabel('mu_{eff}   [ m^{-1} ]'); ylabel('perf [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
     h = colorbar;
     set(findobj('type','axes'),'fontsize',15);
@@ -481,7 +484,7 @@ invprctile(naive_pass,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
 cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 
 %Optimal points
-cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT
+cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT_HD
 aafit=aa(:,2:3);
 aafit([1 3],:)=[]; % Throw out the outliers
 fig=figure('units','normalized','position',[.1 .3 .264 .624]);
@@ -522,16 +525,16 @@ print(fig,'global_LOOCV_choice20','-dpng');
 
 % Mean map with naive point
 fig=figure('units','normalized','position',[.1 .3 .264 .624]);
-contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
+contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0.004 0.008]); colorbar; %title(['Global Mean DSC']);
 h = colorbar;
 set(findobj('type','axes'),'fontsize',15);
-ylabel(h,strcat('DSC (Unity)'));
+ylabel(h,strcat('Hausdorf Distance (m)'));
 xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
 hold on
 naive_spot=[180 6];
 scatter( naive_spot(1),naive_spot(2) ,400,'d','markerfacecolor','b','markeredgecolor','g',...
     'LineWidth',2);
 hold off
-print(fig,'mean_global_naive20','-dpng');
+print(fig,'mean_global_naiveHD20','-dpng');
 
 cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
