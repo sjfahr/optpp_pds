@@ -33,7 +33,7 @@ total{2,1}{2} = 2000;
 xx= inputdatavars.voi(2)-inputdatavars.voi(1)+1;
 yy= inputdatavars.voi(4)-inputdatavars.voi(3)+1;
 l_n_sources = length(n_sources);
-
+inputdatavars.powerhistory = '[[36, 42, 49, 142, 160],[0.0, 3.0, 0.0, 15 0.0]]';
 for ii = 1:2
     mu = total{ii,1}{2};
     temp_fields = zeros(yy,xx,l_n_sources);
@@ -93,7 +93,7 @@ for ii = 1:2
 end
 
 cd ../../../MATLAB/Tests/in_silico/
-save ('in_silico_test.mat','total');
+save ('in_silico_test15W.mat','total');
 cd (path22);
 
 clear ii jj
