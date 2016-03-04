@@ -62,7 +62,8 @@ xlim( [0.4 1]);
 xlabel('DSC (Unity)');
 ylabel('Number of passing datasets (Unity)');
 set(findobj('type','axes'),'fontsize',15);
-print(fig,'opt_survivalN22','-dpng');
+file_str = strcat('opt_survivalN',num2str(num_cohort));
+print(fig,file_str,'-dpng');
 
 
 %         xlabel('\mu_{eff}   [ m^{-1} ]'); ylabel('\rho [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
@@ -78,7 +79,8 @@ xlim( [0.4 1]);
 xlabel('DSC (Unity)');
 ylabel('Number of passing datasets (Unity)');
 set(findobj('type','axes'),'fontsize',15);
-print(fig,'LOOCV_survivalN22','-dpng');
+file_str = strcat('LOOCV_survivalN',num2str(num_cohort));
+print(fig,file_str,'-dpng');
 
 %legend( h1, 'Optimization', ['Literature ', num2str(naive_tag(1)),' m^{-1}' ]) ;
 %legend('-DynamicLegend', 'Location','southwest');hold off;

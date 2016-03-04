@@ -438,6 +438,7 @@ if choice ==5 ||choice==4
     best_eyeball_stats = Descriptive_statistics_LOOCV(best_eyeball_norm);
     eyeball_stat20=Descriptive_statistics_LOOCV(eyeball_norm20);
     no_global_LOOCV_stats = Descriptive_statistics_LOOCV(no_global_LOOCV);
+    Optimized_stats = Descriptive_statistics_LOOCV(aa(:,1));
     
     survival_plot_onlySS_choice_MC_IsoT_save (LOOCV_mean_post, naive_pass, aa(:,1), 1,20);
 %    survival_plot_compareAll ( naive, SSgrad, FEM, SSglobal )
