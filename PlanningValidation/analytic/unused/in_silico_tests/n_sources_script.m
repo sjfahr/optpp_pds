@@ -1,7 +1,7 @@
 clear
 close all
 clc
-
+tic
 setenv ( 'PATH22' , pwd);
 path22 = getenv ( 'PATH22' );
 
@@ -23,7 +23,7 @@ total = cell(2,7);
 mat_string = ['workdir/',Study_paths{1,1},'/',Study_paths{1,2},'/opt/optpp_pds.',opttype,'.in.1.mat'];
 load (mat_string);
 
-n_sources = [1e+0 1e+1 1.5e+1 2.5e+1 5e+1 7.5e+1 1e+2 1e+3 1e+4 1e+5];
+n_sources = [1e+0 1e+1 1.5e+1 2.5e+1 5e+1 7.5e+1 1e+2 2e+2 1e+3 1e+4 1e+5];
 %n_sources = [1e+0 1.2e+1 1e+1 1e+2];
 total{1,1}{1} = [Study_paths{1,1},'/',Study_paths{1,2}];
 total{2,1}{1} = [Study_paths{1,1},'/',Study_paths{1,2}];
@@ -51,7 +51,7 @@ for ii = 1:2
 end
 clear ii jj
 cd ../../../MATLAB/Tests/in_silico/
-save ('in_silico_test.mat','total');
+save ('in_silico_test22.mat','total');
 cd (path22);
 
 for ii = 1:2

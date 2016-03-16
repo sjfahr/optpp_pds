@@ -54,14 +54,15 @@ clear kk
 % legend('-DynamicLegend', 'Location','southwest');hold off;
 path_str = strcat('/mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N',num2str(num_cohort),'_IsoT');
 cd (path_str);
-fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+%fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+fig=figure('position',[400 150 1200 900]);
 hold all;
 [h1] = plot (thresholds, [passes_opt pass_naive_opt],'LineWidth',5);
-set(findobj('type','axes'),'fontsize',15);
+set(findobj('type','axes'),'fontsize',17);
 xlim( [0.4 1]);
 xlabel('DSC (Unity)');
 ylabel('Number of passing datasets (Unity)');
-set(findobj('type','axes'),'fontsize',15);
+set(findobj('type','axes'),'fontsize',17);
 file_str = strcat('opt_survivalN',num2str(num_cohort));
 print(fig,file_str,'-dpng');
 
@@ -71,14 +72,15 @@ print(fig,file_str,'-dpng');
 %         var_opt(ii,:)
 %         Study_paths{ii,2}
 
-fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+%fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+fig=figure('position',[400 150 1200 900]);
 hold all;
 [h1] = plot (thresholds, [passes_LOOCV pass_naive_opt],'LineWidth',5);
-set(findobj('type','axes'),'fontsize',15);
+set(findobj('type','axes'),'fontsize',17);
 xlim( [0.4 1]);
 xlabel('DSC (Unity)');
 ylabel('Number of passing datasets (Unity)');
-set(findobj('type','axes'),'fontsize',15);
+set(findobj('type','axes'),'fontsize',17);
 file_str = strcat('LOOCV_survivalN',num2str(num_cohort));
 print(fig,file_str,'-dpng');
 

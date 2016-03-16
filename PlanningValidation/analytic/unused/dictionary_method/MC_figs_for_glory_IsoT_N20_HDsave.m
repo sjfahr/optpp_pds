@@ -85,7 +85,8 @@ if toss_choice == 1
     % total(ix,:) = [];
 end
 
-aa = cell2mat( total(:,8)); %This sets it seek the best 
+% aa = cell2mat( total(:,8)); %This sets it seek the best 
+aa = cell2mat( total(:,9)); %This sets it seek the best 
 
 if choice == 1   % mu
     
@@ -153,7 +154,8 @@ if choice ==5 ||choice==4
     cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT_HD
     opt_mean = mean(obj_fxn,3);
     opt_mean(opt_mean>0.008)=0.008;
-    fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    fig=figure('position',[400 150 1200 900]);
     contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0.004 0.008]); colorbar; %title(['Global Mean DSC']);
     h = colorbar;
     set(findobj('type','axes'),'fontsize',15);
@@ -164,7 +166,8 @@ if choice ==5 ||choice==4
     
     opt_median = median(obj_fxn,3);
     opt_median(opt_median>0.008)=0.008;
-    fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    fig=figure('position',[400 150 1200 900]);
     contourf(Xx(:,:,1),Yy(:,:,1),opt_median);caxis([0.004 0.008]); colorbar; %title(['Global Median DSC']);
     xlabel('mu_{eff}   [ m^{-1} ]'); ylabel('perf [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
     h = colorbar;
@@ -182,7 +185,8 @@ if choice ==5 ||choice==4
     
     opt_std = std(obj_fxn,0,3);
     opt_std(opt_std>0.004)=0.004;
-    fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    fig=figure('position',[400 150 1200 900]);
     contourf(Xx(:,:,1),Yy(:,:,1),opt_std); caxis([0.001 0.004]); colorbar; %title(['Global St. Dev. of DSC']);
     xlabel('mu_{eff}   [ m^{-1} ]'); ylabel('perf [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
     h = colorbar;
@@ -203,7 +207,8 @@ if choice ==5 ||choice==4
     opt_pass(opt_pass>=0.7)=1;
     opt_pass_sum = sum(opt_pass,3);
     max_pass = max(opt_pass_sum(:));
-    fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    fig=figure('position',[400 150 1200 900]);
     contourf(Xx(:,:,1),Yy(:,:,1),opt_pass_sum,[0 2 4 6 8 10 12 14 16 max_pass] );%colorbar; title(['Map of passing datasets']);
     h = colorbar;
     set(findobj('type','axes'),'fontsize',15);
@@ -302,17 +307,17 @@ if choice ==5 ||choice==4
 %         figure; contourf(Xx(:,:,1),Yy(:,:,1),obj_fxn_iter_pass );colorbar; title(['Map of passing datasets']);
 %         xlabel('mu_{eff}   [ m^{-1} ]'); ylabel('perf [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
         
-        obj_fxn_iter_pass( obj_fxn_iter_pass < rep_max-1) = 0;
-        obj_fxn_iter_pass( obj_fxn_iter_pass >=rep_max-1) = 1;
-        rep_iter_pass = repmat( obj_fxn_iter_pass, [1 1 size(obj_fxn_iter,3)]);
-        obj_fxn_top_pass = obj_fxn_iter .* rep_iter_pass;
-        
-        obj_fxn_top_prc = prctile(obj_fxn_top_pass,[20 30 40 50 60 70 80 90],3);
-        for kk=1:size(obj_fxn_top_prc,3)
-            prc_top_iter = obj_fxn_top_prc(:,:,kk);
-            [prc_top_max(ii,kk), II_top_prc(ii,kk)] = max( prc_top_iter(:));
-            [prc_top_ix1(ii,kk), prc_top_ix2(ii,kk)]=ind2sub( size(prc_top_iter),II_top_prc(ii,kk));
-        end
+%         obj_fxn_iter_pass( obj_fxn_iter_pass < rep_max-1) = 0;
+%         obj_fxn_iter_pass( obj_fxn_iter_pass >=rep_max-1) = 1;
+%         rep_iter_pass = repmat( obj_fxn_iter_pass, [1 1 size(obj_fxn_iter,3)]);
+%         obj_fxn_top_pass = obj_fxn_iter .* rep_iter_pass;
+%         
+%         obj_fxn_top_prc = prctile(obj_fxn_top_pass,[20 30 40 50 60 70 80 90],3);
+%         for kk=1:size(obj_fxn_top_prc,3)
+%             prc_top_iter = obj_fxn_top_prc(:,:,kk);
+%             [prc_top_max(ii,kk), II_top_prc(ii,kk)] = max( prc_top_iter(:));
+%             [prc_top_ix1(ii,kk), prc_top_ix2(ii,kk)]=ind2sub( size(prc_top_iter),II_top_prc(ii,kk));
+%         end
         
         
         LOOCV_mean = mean(obj_fxn_iter,3);
@@ -330,13 +335,13 @@ if choice ==5 ||choice==4
             [prc_ix1(ii,kk), prc_ix2(ii,kk)]=ind2sub( size(prc_iter),II_prc(ii,kk));
         end
         
-        [mean_max(ii), II_mean(ii)] = max( LOOCV_mean(:));
+        [mean_max(ii), II_mean(ii)] = min( LOOCV_mean(:));  % minimize for best HD
         [mean_ix1(ii), mean_ix2(ii)] = ind2sub( size(LOOCV_mean), II_mean(ii) );
         
-        [median_max(ii), II_median(ii)] = max( LOOCV_median(:));
+        [median_max(ii), II_median(ii)] = min( LOOCV_median(:)); % minimize for best HD
         [median_ix1(ii), median_ix2(ii)] = ind2sub( size(LOOCV_median), II_median(ii) );
         
-        [pass_max(ii), II_pass(ii)] = max( LOOCV_pass(:));
+        [pass_max(ii), II_pass(ii)] = max( LOOCV_pass(:));  % I don't know of a threshold pass distance
         [pass_ix1(ii), pass_ix2(ii)] = ind2sub( size(LOOCV_pass), II_pass(ii) );
         
         no_global_ix1(ii) = find( mu_list == no_global_mu(ii));
@@ -408,26 +413,26 @@ if choice ==5 ||choice==4
 %         eyeball_norm20(ii) = total{ii,12}(eyeball_ix20,7);
 %         no_global_LOOCV(ii) = total{ii,12}(no_global_spot(ii),7);
 
-        LOOCV_mean_post(ii) = total{ii,3}(mean_spot(ii),7);
-        LOOCV_median_post(ii) = total{ii,3}(median_spot,7);
-        LOOCV_pass_post(ii) = total{ii,3}(pass_spot,7);
-        naive_pass(ii) = total{ii,3}(naive_ix,7);
-        best_eyeball_norm(ii)= total{ii,3}(eyeball_ix,7);
-        eyeball_norm20(ii) = total{ii,3}(eyeball_ix20,7);
-        no_global_LOOCV(ii) = total{ii,3}(no_global_spot(ii),7);
+        LOOCV_mean_post(ii) = total{ii,4}(mean_spot(ii),7);
+        LOOCV_median_post(ii) = total{ii,4}(median_spot,7);
+        LOOCV_pass_post(ii) = total{ii,4}(pass_spot,7);
+        naive_pass(ii) = total{ii,4}(naive_ix,7);
+        best_eyeball_norm(ii)= total{ii,4}(eyeball_ix,7);
+        eyeball_norm20(ii) = total{ii,4}(eyeball_ix20,7);
+        no_global_LOOCV(ii) = total{ii,4}(no_global_spot(ii),7);
         
-        for kk = 1:size(obj_fxn_prc,3)
+%         for kk = 1:size(obj_fxn_prc,3)
+% %             prc_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_ix2(ii,kk)));
+% %             prc_LOOCV(ii,kk) = total{ii,3}(prc_runs(ii,kk));
+% %             prc_top_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_top_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_top_ix2(ii,kk)));
+% %             prc_top_LOOCV(ii,kk) = total{ii,3}(prc_top_runs(ii,kk));
+%             
 %             prc_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_ix2(ii,kk)));
-%             prc_LOOCV(ii,kk) = total{ii,3}(prc_runs(ii,kk));
+%             prc_LOOCV(ii,kk) = total{ii,2}(prc_runs(ii,kk),7);
 %             prc_top_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_top_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_top_ix2(ii,kk)));
-%             prc_top_LOOCV(ii,kk) = total{ii,3}(prc_top_runs(ii,kk));
-            
-            prc_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_ix2(ii,kk)));
-            prc_LOOCV(ii,kk) = total{ii,2}(prc_runs(ii,kk),7);
-            prc_top_runs(ii,kk) = find( total{ii,2}(:,1) == mu_array(prc_top_ix1(ii,kk)) & total{ii,2}(:,2)==w_array(prc_top_ix2(ii,kk)));
-            prc_top_LOOCV(ii,kk) = total{ii,2}(prc_top_runs(ii,kk),7);
-            
-        end
+%             prc_top_LOOCV(ii,kk) = total{ii,2}(prc_top_runs(ii,kk),7);
+%             
+%         end
         
         
     end
@@ -442,7 +447,7 @@ if choice ==5 ||choice==4
     eyeball_stat20=Descriptive_statistics_LOOCV(eyeball_norm20);
     no_global_LOOCV_stats = Descriptive_statistics_LOOCV(no_global_LOOCV);
     
-    survival_plot_onlySS_choice_MC_IsoT_save (LOOCV_mean_post, naive_pass, aa(:,1), 1,20);
+    %survival_plot_onlySS_choice_MC_IsoT_save (LOOCV_mean_post, naive_pass, aa(:,1), 1,20);
 %    survival_plot_compareAll ( naive, SSgrad, FEM, SSglobal )
 %     prc_LOOCV60 = Descriptive_statistics_LOOCV(prc_LOOCV(:,1));
 %     prc_LOOCV70 = Descriptive_statistics_LOOCV(prc_LOOCV(:,2));
@@ -479,36 +484,49 @@ end
 
 cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
 % invprctile(aa(:,1),[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
-invprctile(LOOCV_mean_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
-invprctile(naive_pass,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+% invprctile(LOOCV_mean_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+% invprctile(naive_pass,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
+prctile(LOOCV_mean_post,[0 25 50 75 100])
+prctile(aa(:,1),[0 25 50 75 100])
+prctile(naive_pass,[0 25 50 75 100])
 cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 
 %Optimal points
 cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT_HD
 aafit=aa(:,2:3);
-aafit([1 3],:)=[]; % Throw out the outliers
-fig=figure('units','normalized','position',[.1 .3 .264 .624]);
-contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
+%aafit([1 3],:)=[]; % Throw out the outliers
+%fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+fig=figure('position',[400 150 1200 900]);
+contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0.004 0.008]); colorbar; %title(['Global Mean DSC']);
 h = colorbar;
 set(findobj('type','axes'),'fontsize',15);
-ylabel(h,strcat('DSC (Unity)'));
+ylabel(h,strcat('Hausdorf Distance (m)'));
+%set(findobj('type','axes'),'fontsize',15);
 xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
+
+% 
+% contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
+% h = colorbar;
+% set(findobj('type','axes'),'fontsize',15);
+% ylabel(h,strcat('DSC (Unity)'));
+% xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
 hold on
 scatter(aafit(:,1),aafit(:,2),150,'MarkerFaceColor','b','MarkerEdgeColor','g',...
     'LineWidth',2);
 hh=lsline;
 ylim([0.5 16.5])
 xlim([50 400])
-set(hh(1),'color','b','LineWidth',3.5);
+set(hh(1),'color','r','LineWidth',3.5);
 %set(hh(2),'LineWidth',0.0001);
 %scatter(aa([1 3],2),aa([1 3],3),150,'markerfacecolor','g','markeredgecolor','g');
-scatter(aa([1 3],2),aa([1 3],3),150,'markerfacecolor','g','markeredgecolor','g'); % label the outliers as green
+%scatter(aa([1 3],2),aa([1 3],3),150,'markerfacecolor','g','markeredgecolor','g'); % label the outliers as green
 hold off
 print(fig,'global_scatter20','-dpng');
 
 %Unique points run during LOOCV
 aafit = aa(:,2:3);
-fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+%fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+fig=figure('position',[400 150 1200 900]);
 contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
 h = colorbar;
 set(findobj('type','axes'),'fontsize',15);
@@ -524,7 +542,8 @@ hold off
 print(fig,'global_LOOCV_choice20','-dpng');
 
 % Mean map with naive point
-fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+%fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+fig=figure('position',[400 150 1200 900]);
 contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0.004 0.008]); colorbar; %title(['Global Mean DSC']);
 h = colorbar;
 set(findobj('type','axes'),'fontsize',15);

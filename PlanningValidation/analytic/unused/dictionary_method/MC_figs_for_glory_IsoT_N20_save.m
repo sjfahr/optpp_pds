@@ -152,21 +152,23 @@ if choice ==5 ||choice==4
     
     cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT
     opt_mean = mean(obj_fxn,3);
-    fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    fig=figure('position',[400 150 1200 900]);
     contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
     h = colorbar;
-    set(findobj('type','axes'),'fontsize',15);
+    set(findobj('type','axes'),'fontsize',17);
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
     print(fig,'mean_global20','-dpng');
     
     opt_median = median(obj_fxn,3);
-    fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    fig=figure('position',[400 150 1200 900]);
     contourf(Xx(:,:,1),Yy(:,:,1),opt_median);caxis([0 0.9]); colorbar; %title(['Global Median DSC']);
     xlabel('mu_{eff}   [ m^{-1} ]'); ylabel('perf [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
     h = colorbar;
-    set(findobj('type','axes'),'fontsize',15);
+    set(findobj('type','axes'),'fontsize',17);
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
@@ -179,11 +181,12 @@ if choice ==5 ||choice==4
     print(fig,'median_global_naive20','-dpng');
     
     opt_std = std(obj_fxn,0,3);
-    fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    fig=figure('position',[400 150 1200 900]);
     contourf(Xx(:,:,1),Yy(:,:,1),opt_std); caxis([0 0.2]); colorbar; %title(['Global St. Dev. of DSC']);
     xlabel('mu_{eff}   [ m^{-1} ]'); ylabel('perf [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
     h = colorbar;
-    set(findobj('type','axes'),'fontsize',15);
+    set(findobj('type','axes'),'fontsize',17);
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
@@ -200,10 +203,11 @@ if choice ==5 ||choice==4
     opt_pass(opt_pass>=0.7)=1;
     opt_pass_sum = sum(opt_pass,3);
     max_pass = max(opt_pass_sum(:));
-    fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+    fig=figure('position',[400 150 1200 900]);
     contourf(Xx(:,:,1),Yy(:,:,1),opt_pass_sum,[0 2 4 6 8 10 12 14 16 max_pass] );%colorbar; title(['Map of passing datasets']);
     h = colorbar;
-    set(findobj('type','axes'),'fontsize',15);
+    set(findobj('type','axes'),'fontsize',17);
     ylabel(h,strcat('Datasets > 0.7 (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
@@ -485,10 +489,11 @@ cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT
 aafit=aa(:,2:3);
 aafit([1 3],:)=[]; % Throw out the outliers
-fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+%fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+fig=figure('position',[400 150 1200 900]);
 contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
 h = colorbar;
-set(findobj('type','axes'),'fontsize',15);
+set(findobj('type','axes'),'fontsize',17);
 ylabel(h,strcat('DSC (Unity)'));
 xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
 hold on
@@ -506,10 +511,11 @@ print(fig,'global_scatter20','-dpng');
 
 %Unique points run during LOOCV
 aafit = aa(:,2:3);
-fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+%fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+fig=figure('position',[400 150 1200 900]);
 contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
 h = colorbar;
-set(findobj('type','axes'),'fontsize',15);
+set(findobj('type','axes'),'fontsize',17);
 ylabel(h,strcat('DSC (Unity)'));
 xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
 hold on
@@ -522,10 +528,10 @@ hold off
 print(fig,'global_LOOCV_choice20','-dpng');
 
 % Mean map with naive point
-fig=figure('units','normalized','position',[.1 .3 .264 .624]);
+fig=figure('position',[400 150 1200 900]);
 contourf(Xx(:,:,1),Yy(:,:,1),opt_mean);caxis([0 0.9]); colorbar; %title(['Global Mean DSC']);
 h = colorbar;
-set(findobj('type','axes'),'fontsize',15);
+set(findobj('type','axes'),'fontsize',17);
 ylabel(h,strcat('DSC (Unity)'));
 xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
 hold on
