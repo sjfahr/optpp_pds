@@ -340,10 +340,10 @@ if choice ==5 ||choice==4
             [prc_ix1(ii,kk), prc_ix2(ii,kk)]=ind2sub( size(prc_iter),II_prc(ii,kk));
         end
         
-        [mean_max(ii), II_mean(ii)] = max( LOOCV_mean(:));
+        [mean_max(ii), II_mean(ii)] = min( LOOCV_mean(:));
         [mean_ix1(ii), mean_ix2(ii)] = ind2sub( size(LOOCV_mean), II_mean(ii) );
         
-        [median_max(ii), II_median(ii)] = max( LOOCV_median(:));
+        [median_max(ii), II_median(ii)] = min( LOOCV_median(:));
         [median_ix1(ii), median_ix2(ii)] = ind2sub( size(LOOCV_median), II_median(ii) );
         
         [pass_max(ii), II_pass(ii)] = max( LOOCV_pass(:));
