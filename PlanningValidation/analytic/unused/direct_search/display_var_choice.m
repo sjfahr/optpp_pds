@@ -186,6 +186,9 @@ if choice ==4
         xlabel('\mu_{eff}   [ m^{-1} ]'); ylabel('\omega [ kg/(m^3 s) ]'); set(findobj('type','axes'),'fontsize',15);
         var_opt(ii,:)
         Study_paths{ii,2}
+        hold on
+        scatter(var_opt(ii,2),var_opt(ii,3),150,'MarkerFaceColor','b','MarkerEdgeColor','g',...
+            'LineWidth',2);
         %[distXq, distYq] = meshgrid (x_lim, y_lim);
 %         figure; contourf(distXq,distYq,intersection(:,:,7), [0 1 2 3]); colorbar; title( Study_paths{ii,2} );
 %         xlabel('Distance   [ m ]'); ylabel('Distance [ m ]'); set(findobj('type','axes'),'fontsize',15);

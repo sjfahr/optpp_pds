@@ -52,7 +52,8 @@ clear kk
 % [h1] = plot (thresholds, [passes_opt pass_naive_opt all_L2_mean_pass all_L2_median_pass all_dice_mean_pass all_dice_median_pass]);
 % legend( h1, 'Optimization', strcat(['Literature '], num2str(naive_tag(1))), 'L_2 mean','L_2 median','dice mean','dice median') ;
 % legend('-DynamicLegend', 'Location','southwest');hold off;
-path_str = strcat('/mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N',num2str(num_cohort),'_IsoT');
+%path_str = strcat('/mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N',num2str(num_cohort),'_IsoT');
+path_str = strcat('../../../MATLAB/Tests/display_performance/survival_plots/N',num2str(num_cohort),'_IsoT');
 cd (path_str);
 %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
 fig=figure('position',[400 150 1200 900]);

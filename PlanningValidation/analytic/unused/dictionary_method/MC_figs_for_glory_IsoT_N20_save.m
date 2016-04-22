@@ -153,7 +153,9 @@ if choice ==5 ||choice==4
     end
     clear ii jj
     
-    cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT
+    cd ../../../MATLAB/Tests/display_performance/survival_plots/N20_IsoT/
+    %cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT
+    
     opt_mean = mean(obj_fxn,3);
     %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
     fig=figure('position',[400 150 1200 900]);
@@ -163,6 +165,7 @@ if choice ==5 ||choice==4
     ylabel(h,strcat('DSC (Unity)'));
     %set(findobj('type','axes'),'fontsize',15);
     xlabel('\it\mu_{eff} \rm(m^{-1})'); ylabel('\it\omega \rm( kg/(m^3 s) )');
+    colormap jet
     print(fig,'mean_global20','-dpng');
     
     opt_median = median(obj_fxn,3);
@@ -181,6 +184,7 @@ if choice ==5 ||choice==4
     scatter( naive_spot(1),naive_spot(2) ,400,'d','markerfacecolor','b','markeredgecolor','g',...
         'LineWidth',2);
     hold off
+    colormap jet
     print(fig,'median_global_naive20','-dpng');
     
     opt_std = std(obj_fxn,0,3);
@@ -199,6 +203,7 @@ if choice ==5 ||choice==4
     scatter( naive_spot(1),naive_spot(2) ,400,'d','markerfacecolor','b','markeredgecolor','g',...
         'LineWidth',2);
     hold off
+    colormap jet
     print(fig,'std_global_naive20','-dpng');
     
     opt_pass=obj_fxn;
@@ -220,8 +225,10 @@ if choice ==5 ||choice==4
     scatter( naive_spot(1),naive_spot(2) ,400,'d','markerfacecolor','b','markeredgecolor','g',...
         'LineWidth',2);
     hold off
+    colormap jet
     print(fig,'pass_global_naive20','-dpng');
-    cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+    %cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+    cd ../../../../../gitMATLAB/opt_new_database/PlanningValidation
     
     clear ii jj
     % %     jj=1;
@@ -530,18 +537,21 @@ else
     DSC=Descriptive_statistics_LOOCV(aa(:,1))
     
 end
+clear ii jj
 
-
-cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
+%cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/MATLAB_file_exchange
+cd ../../../../../MATLAB/MATLAB_file_exchange
 % invprctile(aa(:,1),[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
 invprctile(LOOCV_mean_post,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
 invprctile(naive_pass,[0.5 0.6 0.7 0.8 0.85 0.9 0.95 0.975])
 prcHD = prctile(LOOCV_mean_postHD,[0 25 50 75 100]);
 prcL2 = prctile(LOOCV_mean_postL2,[0 25 50 75 100]);
-cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+%cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+cd ../../gitMATLAB/opt_new_database/PlanningValidation
 
 %Optimal points
-cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT
+%cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/display_performance/survival_plots/N20_IsoT
+cd ../../../MATLAB/Tests/display_performance/survival_plots/N20_IsoT
 aafit=aa(:,2:3);
 aafit([1 3],:)=[]; % Throw out the outliers
 %fig=figure('units','normalized','position',[.1 .3 .264 .624]);
@@ -562,7 +572,21 @@ set(hh(1),'color','b','LineWidth',3.5);
 %scatter(aa([1 3],2),aa([1 3],3),150,'markerfacecolor','g','markeredgecolor','g');
 scatter(aa([1 3],2),aa([1 3],3),150,'markerfacecolor','g','markeredgecolor','g'); % label the outliers as green
 hold off
+colormap jet
 print(fig,'global_scatter20','-dpng');
+
+% Linear Regression of omega by mu_eff
+xx = aafit(:,1);
+yy = aafit(:,2);
+X = [ones(length(xx),1) xx];
+bSlope = X\yy;
+yCalc = X*bSlope;
+Rsq = 1 - sum((yy-yCalc).^2)/sum((yy-mean(yy)).^2);
+
+%mdl1 = fitlm(xx, yy, 'linear', 'Intercept', false);
+mdl2 = fitlm(xx, yy, 'linear', 'Intercept', true);  % Estimate an intercept that isn't at the origin; matches bSlope just above
+mdl2.Coefficients.Estimate;
+mdl2.Rsquared;
 
 %Unique points run during LOOCV
 aafit = aa(:,2:3);
@@ -578,8 +602,9 @@ unique_mean_spot = unique(mean_spot);
 scatter(total{1,2}(unique_mean_spot,1),total{1,2}(unique_mean_spot,2),150,'markerfacecolor','b','markeredgecolor','g',...
     'LineWidth',2);
 bbfit = [ round(mean(aafit(:,1))) round( mean(aafit(:,2)).*4)./4];
-indiv_opt_ix = find( total{ii,2}(:,1) == bbfit(1) & total{ii,2}(:,2)==bbfit(2));
+%indiv_opt_ix = find( total{ii,2}(:,1) == bbfit(1) & total{ii,2}(:,2)==bbfit(2));
 hold off
+colormap jet
 print(fig,'global_LOOCV_choice20','-dpng');
 
 % Mean map with naive point
@@ -594,6 +619,18 @@ naive_spot=[180 6];
 scatter( naive_spot(1),naive_spot(2) ,400,'d','markerfacecolor','b','markeredgecolor','g',...
     'LineWidth',2);
 hold off
+colormap jet
 print(fig,'mean_global_naive20','-dpng');
 
-cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+% Demo that 51-65 C istherms are fine
+optDSC = zeros( length(index),15);
+for ii = 1:length(index)
+    optDSC(ii,:) = max(total{ii,3});    
+end
+
+% Linear regression of omega given mu_eff
+xx = aafit
+
+
+cd ../../../../../gitMATLAB/opt_new_database/PlanningValidation
+%cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
