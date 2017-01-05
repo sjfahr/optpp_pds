@@ -56,8 +56,10 @@ elseif choice ==3    % cond
     
 elseif choice ==4 % perf and mu
     %w_perf = linspace( 0.5, 16.5, 129);
-    w_perf = [6 9 12];
-    mu_eff =[200 300 400];
+    %w_perf = [6 9 12];
+    w_perf = [6];
+    %mu_eff =[200 300 400];
+    mu_eff =[5 50 400 1000];
     
 %     w_perf = linspace( 0.5, 16.5, 65);
 %     mu_eff = linspace( 50, 400, 176);

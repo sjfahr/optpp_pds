@@ -1,7 +1,8 @@
 function [everything, rotate_size,max_phys_sz] =  display_inputvars ( patient_ix);
 
 % Identify the studies to be examined.
-cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+%cd /mnt/FUS4/data2/sfholtz/gitMATLAB/opt_new_database/PlanningValidation
+cd /FUS4/data2/sfholtz/gitMATLAB/opt_new_database/PlanningValidation % Run on GP2
 data_filename = 'datasummaryL2_10sourceNewton50.txt';  % Name the datasummary file
 
 opttype = 'bestfit50' ;

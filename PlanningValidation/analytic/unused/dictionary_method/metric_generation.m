@@ -4,6 +4,7 @@ function metric_generation (choice,quick_choice);
 tic
 
 cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+%cd /FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
 data_filename = 'datasummaryL2_10sourceNewton50.txt';  % Name the datasummary file
 
 opttype = 'bestfit50';
@@ -20,6 +21,7 @@ clear ii
 
 
 cd /mnt/FUS4/data2/sjfahrenholtz/MATLAB/Tests/direct_search/libraries
+%cd /FUS4/data2/sjfahrenholtz/MATLAB/Tests/direct_search/libraries
 
 if choice == 1
     
@@ -48,6 +50,8 @@ elseif choice == 5
     
 end
 cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+%cd /FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+
 % indexC = strfind(opt.paths,'Study0035');
 % toss_index_phantom = find(not(cellfun('isempty',indexC)));
 % opt.paths(toss_index_phantom,:)=[];

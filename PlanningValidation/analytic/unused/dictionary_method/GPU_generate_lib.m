@@ -3,7 +3,8 @@ function GPU_generate_lib (choice);
 %choice = 1; % 1 = mu; 2 = perf; 3 = cond;
 tic
 
-cd /mnt/FUS4/data2/sjfahrenholtz/gitMATLAB/opt_new_database/PlanningValidation
+%cd /mnt/FUS4/data2/sfholtz/gitMATLAB/opt_new_database/PlanningValidation
+cd /FUS4/data2/sfholtz/gitMATLAB/opt_new_database/PlanningValidation  % Run on GP2
 data_filename = 'datasummaryL2_10sourceNewton50.txt';  % Name the datasummary file
 
 opttype = 'bestfit50';
